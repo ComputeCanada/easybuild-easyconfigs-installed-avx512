@@ -1,0 +1,85 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-07-01_00-05-01
+easyblock = 'CMakeMake'
+
+name = 'arrow'
+version = '0.17.1'
+
+homepage = 'https://arrow.apache.org'
+description = "Apache Arrow is a cross-language development platform for in-memory data."
+
+# On AVX512, there is a bug with GCC 7.3.0
+toolchain = {'name': 'gcccuda', 'version': '2019.3.102'}
+toolchainopts = {'cstd': 'c++17'}
+
+# Fetching from Github to obtain test data which is not part of released tarball
+sources = [
+    {'git_config': {'url': 'https://github.com/apache', 'tag': 'apache-%(name)s-%(version)s', 'recursive': True, 'keep_git_dir': False, 'repo_name': '%(name)s'}, 'filename': 'apache-%(name)s-%(version)s.tar.gz'},
+]
+
+# Must use --disable-enforce-checksums as checksums are not reliable on a JIT created tarball
+
+builddependencies = [
+    ('Boost', '1.68.0', '', ('GCC', '8.3.0')),
+    ('SciPy-Stack', '2019b', '', True),
+    ('CMake', '3.16.3', '', True),
+    ('thrift', '0.13.0', '', ('GCC', '8.3.0')),
+]
+multi_deps = {'Python': ['3.6.3', '3.7.4', '3.8.0']}
+
+configopts = "-DARROW_PYTHON=ON -DARROW_CUDA=ON -DCMAKE_PREFIX_PATH=$EBROOTCUDA/lib64/stubs -DARROW_PLASMA=ON -DARROW_PARQUET=ON -DARROW_HDFS=OFF -DARROW_S3=OFF -DARROW_CSV=ON -DARROW_JSON=ON -DARROW_WITH_ZSTD=ON -DZSTD_SOURCE=BUNDLED -DARROW_WITH_BZ2=ON -DARROW_WITH_LZ4=ON -DARROW_WITH_SNAPPY=ON -DARROW_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=$EBROOTBOOST -DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_LIBDIR=lib -DARROW_USE_CCACHE=ON"
+
+installopts = ' && cd %(builddir)s/%(name)s*/python  && mkdir -p %(installdir)s/lib/python%(pyshortver)s/site-packages  && export PYARROW_WITH_PLASMA=1 && export PYARROW_WITH_CUDA=1 && export PYARROW_WITH_PARQUET=1 && export PYARROW_WITH_ZSTD=1 && export PYARROW_WITH_SNAPPY=1 && export PYARROW_CMAKE_OPTIONS="-DARROW_PYTHON=ON -DARROW_CUDA=ON -DCMAKE_PREFIX_PATH=$EBROOTCUDA/lib64/stubs -DARROW_PLASMA=ON -DARROW_PARQUET=ON -DARROW_HDFS=OFF -DARROW_S3=OFF -DARROW_CSV=ON -DARROW_JSON=ON -DARROW_WITH_ZSTD=ON -DZSTD_SOURCE=BUNDLED -DARROW_WITH_BZ2=ON -DARROW_WITH_LZ4=ON -DARROW_WITH_SNAPPY=ON -DARROW_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=$EBROOTBOOST -DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_LIBDIR=lib -DARROW_USE_CCACHE=ON" && export ARROW_HOME=%(installdir)s && export PYARROW_BUILD_TYPE=Release && export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH  && python setup.py build_ext --inplace  && python setup.py install --prefix=%(installdir)s '
+
+# Py2 bindings are not compat with Py3 bindings on libs. Bye bye Py2!
+multi_deps_load_default = False
+start_dir = 'cpp'
+
+sanity_check_paths = {
+    'files': ['lib/libarrow_python.so', 'lib/libarrow.so', 'lib/libplasma.so', 'lib/libarrow_cuda.so', 'lib/libparquet.so'],
+    'dirs': ['include/%(name)s', 'include/plasma', 'include/parquet', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    "python -c 'import pyarrow'",
+    "python -c 'import pyarrow.plasma'",
+    "python -c 'import pyarrow.cuda'",
+    "python -c 'import pyarrow.parquet'",
+    "python -c 'import pyarrow.csv'",
+    "python -c 'import pyarrow.json'",
+    "python -c 'import pyarrow.feather'",
+]
+
+# No GPU device to test on. The tests were run with the version without CUDA.
+# runtest = "unittest"
+
+modextrapaths = {'EBPYTHONPREFIXES': ''}
+
+moduleclass = 'data'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1677.67,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/CUDA/gcc8/cuda10.2/arrow/0.17.1/easybuild/reprod/arrow-0.17.1-gcccuda-2019.3.102.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.082,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-rf308263371c29f7ad4031dd06e1801f4eb48b800",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/d8f5yq3axry49m4j8yd464gmrmz5l924-gfortran-8.3.0/libexec/gcc/x86_64-pc-linux-gnu/8.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 8.3.0 (20190410 gcc-8-branch revision 270244) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 241141376,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-8.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.8.0/bin/python",
+    "timestamp": 1593561900,
+    "total_memory": 60232,
+}]

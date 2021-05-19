@@ -1,0 +1,104 @@
+# Built with EasyBuild version 4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4 on 2021-04-13_22-12-51
+easyblock = 'CMakeMake'
+
+name = 'QGIS'
+version = '3.10.6'
+
+homepage = 'http://www.qgis.org/'
+description = "QGIS is a user friendly Open Source Geographic Information System (GIS)"
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+toolchainopts = {'pic': True, 'cstd': 'gnu++11'}
+
+source_urls = ['http://%(namelower)s.org/downloads/']
+sources = [SOURCELOWER_TAR_BZ2]
+checksums = ['a96791bf6615e4f8ecdbbb9a90a8ef14a12459d8c5c374ab22eb5f776f864bb5']
+
+builddependencies = [
+    #    ('CMake', '3.16.3'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.0.5'),
+    ('PostgreSQL', '12.4', '', ('GCCcore', '9.3.0')),
+]
+dependencies = [
+    ('Qt5', '5.12.8', '', ('GCCcore', '9.3.0')),
+    ('Qt5Webkit', '5.212.0-alpha4', '', ('GCCcore', '9.3.0')),
+    ('PROJ', '7.0.0', '', ('GCCcore', '9.3.0')),
+    ('GEOS', '3.8.1', None, ('GCCcore', '9.3.0')),
+    ('libspatialite', '4.3.0a', '', ('GCCcore', '9.3.0')),
+    ('libspatialindex', '1.8.5', '', True),
+    ('GDAL', '3.0.4'),
+    ('Qwt', '6.1.4', '', ('GCCcore', '9.3.0')),
+    ('QwtPolar', '1.1.1', '', True),
+    ('expat', '2.2.9', '', True),
+    ('QCA', '2.3.0', '', ('GCCcore', '9.3.0')),
+    ('QScintilla', '2.11.2', '', ('GCCcore', '9.3.0')),
+    ('GSL', '2.6'),
+    ('QJson', '0.9.0', '', ('GCCcore', '9.3.0')),
+    ('QtKeychain', '0.9.1', '', True),
+]
+multi_deps = {'Python': ['3.6', '3.7', '3.8']}
+
+# specify locations that CMake can't figure out correctly
+configopts = "-DCMAKE_PREFIX_PATH=$EBROOTQT -DQJSON_DIR=$EBROOTQJSON/lib/cmake/qjson -DQSCINTILLA_LIBRARY=$EBROOTQSCINTILLA/lib/libqscintilla2_qt5.so -DWITH_QTWEBKIT=OFF -DPYQT5_SIP_DIR=$EBROOTQT5/share/python%(pyshortver)s/sip/PyQt5 -DQSCI_SIP_DIR=$EBROOTQSCINTILLA/share/sip/PyQt5"
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --any_interpreter --add_origin --add_path %(installdir)s/lib --path %(installdir)s/lib/%(namelower)s/plugins ",
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --any_interpreter --add_origin --add_path %(installdir)s/lib --path %(installdir)s/share/%(namelower)s/python ",
+]
+multi_deps_load_default = False
+exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    "python -c 'import %(ext_name)s'",
+    '',
+)
+modluafooter = """
+depends_on("scipy-stack")
+"""
+
+exts_list = [
+    ('psycopg2', '2.8.5', {'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'checksums': ['f7d46240f7a1ae1dd95aab38bd74f7428d46531f69219954266d669da60c0818']}),
+    ('PyYAML', '5.3.1', {'modulename': 'yaml', 'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'checksums': ['b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d']}),
+    ('pyproj', '2.6.1.post1', {'modulename': 'owslib', 'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'checksums': ['4f5b02b4abbd41610397c635b275a8ee4a2b5bc72a75572b98ac6ae7befa471e']}),
+    ('OWSLib', '0.20.0', {'modulename': 'owslib', 'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'checksums': ['334988857b260c8cdf1f6698d07eab61839c51acb52ee10eed1275439200a40e']}),
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/qgis_bench', 'lib/libqgis_analysis.so', 'lib/libqgis_app.so', 'lib/libqgis_core.so', 'lib/libqgis_gui.so', 'lib/libqgis_native.so', 'lib/libqgispython.so'],
+    'dirs': ['include/%(namelower)s', 'man', 'share/%(namelower)s'],
+}
+
+modextrapaths = {
+    'EBPYTHONPREFIXES': [''],
+    'PYTHONPATH': ['share/%(namelower)s/python', 'share/%(namelower)s/python/plugins'],
+}
+
+moduleclass = 'geo'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1907.18,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/qgis/3.10.6/easybuild/reprod/QGIS-3.10.6-GCC-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.3-r47cdcb0a1bd1b94feb6730338097870920b49482",
+    "easybuild-framework_version": "4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 391877549,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
+    "timestamp": 1618351970,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,92 @@
+# Built with EasyBuild version 3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01 on 2019-10-15_19-55-47
+# Built with EasyBuild version 3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01 on 2019-10-15_19-49-09
+easyblock = 'MakeCp'
+
+name = 'HISAT2'
+version = '2.1.0'
+
+homepage = 'https://ccb.jhu.edu/software/hisat2/index.shtml'
+description = """HISAT2 is a fast and sensitive alignment program for mapping next-generation sequencing reads
+ (both DNA and RNA) against the general human population (as well as against a single reference genome)."""
+
+toolchain = {'name': 'iccifort', 'version': '2018.3'}
+
+source_urls = ['ftp://ftp.ccb.jhu.edu/pub/infphilo/%(namelower)s/downloads/']
+sources = ['%(namelower)s-%(version)s-source.zip']
+checksums = ['8b566d1b7e6c5801c8ae9824ed2da3d0']
+
+dependencies = [
+    ('SAMtools', '1.3.1'),
+    ('Python', '2.7.14', '', ('GCCcore', '7.3.0')),
+]
+
+# Build statistics
+buildstats = [{'glibc_version': '2.24', 'total_memory': 60232, 'python_version': '%(pyshortver)s.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]', 'build_time': 158.79, 'system_gcc_path': '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/bin/gcc', 'cpu_speed': 2095.078, 'cpu_vendor': 'Intel', 'core_count': 16, 'modules_tool': ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.1.13'), 'gcc_version': 'Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/m64vdgyzr1d29j8372iibl2m3ixg2f0d-gfortran-5.4.0/libexec/gcc/%(arch)s-unknown-linux-gnu/5.4.0/lto-wrapper; Target: %(arch)s-unknown-linux-gnu; Configured with: ; Thread model: posix; gcc version 5.4.0 (GCC) ; ', 'hostname': 'build-node.computecanada.ca', 'command_line': ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx2'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=core-avx2\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX2\\', \\'PGI\\': \\'tp=haswell\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo.git'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache='/cvmfs/local/ccache'", '--use-existing-modules', '%(name)s-%(version)s-%(toolchain_name)s-2016.4.eb'], 'os_version': '7.7.1908', 'system_python_path': '/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/%(pyver)s/bin/python', 'os_name': 'centos linux', 'timestamp': 1571183348, 'cpu_model': 'Intel Xeon Processor (Skylake, IBRS)', 'easybuild-easyblocks_version': '3.9.3-rf62a52c388534ea492460f91bebc0ef4f2703a79', 'install_size': 46592904, 'easybuild-framework_version': '3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01', 'platform_name': '%(arch)s-unknown-linux', 'os_type': 'Linux'}]
+files_to_copy = [
+    (['%(namelower)s', '%(namelower)s-align-l', '%(namelower)s-align-s', '%(namelower)s-build', '%(namelower)s-build-l', '%(namelower)s-build-s', '%(namelower)s-inspect', '%(namelower)s-inspect-s', '%(namelower)s-inspect-l'], 'bin'),
+    (['*.py'], 'bin'),
+    (['hisatgenotype_modules/*'], 'bin/hisatgenotype_modules'),
+    (['hisatgenotype_scripts/*'], 'bin/hisatgenotype_scripts'),
+    'scripts',
+    'doc',
+    'example',
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/%(namelower)s-align-l', 'bin/%(namelower)s-align-s', 'bin/%(namelower)s-build', 'bin/%(namelower)s-build-l', 'bin/%(namelower)s-build-s', 'bin/%(namelower)s-inspect', 'bin/%(namelower)s-inspect-s', 'bin/%(namelower)s-inspect-l', 'bin/hisatgenotype_build_genome.py', 'bin/hisatgenotype_extract_vars.py', 'bin/hisatgenotype_extract_reads.py', 'bin/hisat2_extract_snps_haplotypes_VCF.py', 'bin/hisatgenotype.py', 'bin/extract_splice_sites.py', 'bin/hisatgenotype_modules/hisatgenotype_assembly_graph.py', 'bin/hisatgenotype_modules/hisatgenotype_typing_common.py', 'bin/hisatgenotype_modules/__init__.py', 'bin/hisatgenotype_modules/hisatgenotype_extract_cyp_data.py', 'bin/hisatgenotype_modules/hisatgenotype_extract_codis_data.py', 'bin/hisatgenotype_modules/hisatgenotype_convert_codis.py', 'bin/hisatgenotype_modules/hisatgenotype_gene_typing.py', 'bin/hisatgenotype_hla_cyp.py', 'bin/extract_exons.py', 'bin/hisatgenotype_scripts/extract_Omixon_HLA.py', 'bin/hisatgenotype_scripts/hisatgenotype_HLA_genotyping_PGs.py', 'bin/hisatgenotype_scripts/compare_HLA_Omixon.py', 'bin/hisatgenotype_scripts/hisatgenotype_locus_samples.py', 'bin/hisat2_simulate_reads.py', 'bin/hisatgenotype_locus.py', 'bin/hisat2_extract_exons.py', 'bin/hisat2_extract_splice_sites.py', 'bin/hisat2_extract_snps_haplotypes_UCSC.py', 'scripts/convert_quals.pl', 'scripts/gen_2b_occ_lookup.pl', 'scripts/gen_occ_lookup.pl', 'scripts/gen_solqual_lookup.pl', 'scripts/infer_fraglen.pl', 'scripts/make_a_thaliana_tair.sh', 'scripts/make_bdgp6.sh', 'scripts/make_bdgp6_tran.sh', 'scripts/make_b_taurus_UMD3.sh', 'scripts/make_canFam2.sh', 'scripts/make_ce10.sh', 'scripts/make_dm6.sh', 'scripts/make_e_coli.sh', 'scripts/make_grch37.sh', 'scripts/make_grch37_snp.sh', 'scripts/make_grch37_snp_tran_ercc.sh', 'scripts/make_grch37_snp_tran.sh', 'scripts/make_grch37_tran.sh', 'scripts/make_grch38.sh', 'scripts/make_grch38_snp.sh', 'scripts/make_grch38_snp_tran_ercc.sh', 'scripts/make_grch38_snp_tran.sh', 'scripts/make_grch38_tran.sh', 'scripts/make_grcm38.sh', 'scripts/make_grcm38_snp.sh', 'scripts/make_grcm38_snp_tran.sh', 'scripts/make_grcm38_tran.sh', 'scripts/make_hg19.sh', 'scripts/make_hg38_allsnp.sh', 'scripts/make_hg38.sh', 'scripts/make_hg38_snp.sh', 'scripts/make_hg38_snp_tran.sh', 'scripts/make_mm10.sh', 'scripts/make_mm9.sh', 'scripts/make_r64.sh', 'scripts/make_r64_tran.sh', 'scripts/make_rn4.sh', 'scripts/make_rn6.sh', 'scripts/make_rnor6.sh', 'scripts/make_rnor6_tran.sh', 'scripts/make_sc3.sh', 'scripts/make_wbcel235.sh', 'scripts/make_wbcel235_tran.sh', 'scripts/make_zm3_snp_tran_ercc.sh'],
+    'dirs': ['bin', 'scripts', 'doc', 'example'],
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [
+{
+    "build_time": 158.79,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx2'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=core-avx2\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX2\\', \\'PGI\\': \\'tp=haswell\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo.git'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache='/cvmfs/local/ccache'", '--use-existing-modules', 'HISAT2-2.1.0-iccifort-2016.4.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.3-rf62a52c388534ea492460f91bebc0ef4f2703a79",
+    "easybuild-framework_version": "3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/m64vdgyzr1d29j8372iibl2m3ixg2f0d-gfortran-5.4.0/libexec/gcc/x86_64-unknown-linux-gnu/5.4.0/lto-wrapper; Target: x86_64-unknown-linux-gnu; Configured with: ; Thread model: posix; gcc version 5.4.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 46592904,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.1.13'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/2.7.14/bin/python",
+    "timestamp": 1571183348,
+    "total_memory": 60232,
+},
+{
+    "build_time": 192.3,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--try-toolchain='iccifort,2018.3'", "--use-ccache=''", '--use-existing-modules', 'HISAT2-2.1.0-iccifort-2016.4.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.3-rf62a52c388534ea492460f91bebc0ef4f2703a79",
+    "easybuild-framework_version": "3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 47088192,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.1.13'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/2.7.14/bin/python",
+    "timestamp": 1571183747,
+    "total_memory": 60232,
+},
+]

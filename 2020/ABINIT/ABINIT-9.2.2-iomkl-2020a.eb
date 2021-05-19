@@ -1,0 +1,77 @@
+# Built with EasyBuild version 4.3.3-r3ff498d1f735c51b313c04c5e4abeeaecc23589b on 2021-03-16_20-27-53
+easyblock = 'ConfigureMake'
+
+name = 'ABINIT'
+version = '9.2.2'
+
+homepage = 'http://www.abinit.org/'
+description = """ABINIT is a package whose main program allows one to find the total energy, charge density and
+ electronic structure of systems made of electrons and nuclei (molecules and periodic solids) within Density Functional
+ Theory (DFT), using pseudopotentials and a planewave or wavelet basis."""
+
+toolchain = {'name': 'iomkl', 'version': '2020a'}
+
+source_urls = ['https://www.%(namelower)s.org/sites/default/files/packages/']
+sources = [
+    {'filename': SOURCELOWER_TAR_GZ, 'extract_cmd': 'tar xf %s && cd %(namelower)s-%(version)s/fallbacks && tar xf %(namelower)s-fallbacks-%(version_major_minor)s.tar.gz'},
+]
+patches = [
+    '%(namelower)s-%(version)s.patch',
+    ('ifort_no_ice.patch', 1),
+]
+checksums = [
+    '4999d48ed20655af7ee4015dc79fe5363db494eb330e71aeacb11870135fa95d',
+    '433e7df02a2aa7038bd85ecf2c7f4aa7b0669f2c59245307338f59fc28b5518f',  # %(namelower)s-%(version)s.patch
+    '2e7e69cbf9983c2f4ca732bc96a022a7cf67ab7cdaa4e94577c75b6ecdebaf7e',  # ifort_no_ice.patch
+]  # abinit-9.2.2.tar.gz
+
+dependencies = [
+    ('libxc', '4.3.4', '', ('iccifort', '2020.1.217')),
+    ('netCDF', '4.7.4', None, ('iompi', '2020a')),
+    ('netCDF-Fortran', '4.5.2', None, ('iompi', '2020a')),
+    ('HDF5', '1.10.6', '-mpi', ('iompi', '2020a')),
+]
+
+preconfigopts = """sed -i "s!-mkl=cluster!$LIBSCALAPACK!g" configure; mkdir build ; cd fallbacks ; sed -i "s|tmpflags_options='--without-archives --with-moduledir=\\"\\$(prefix)/\\$(bigdft_pkg_inst)/include\\"'|tmpflags_options='--without-archives --with-moduledir=\\"\\$(prefix)/\\$(bigdft_pkg_inst)/include\\" --with-blacs=\\"$LIBBLACS\\" LIBS=\\"$LIBSCALAPACK\\" --with-scalapack=\\"$LIBSCALAPACK\\"'|g" %(namelower)s-fallbacks-%(version_major_minor)s/configure; export FC=mpif90 CC=mpicc CXX=mpiCC; sh ./build-%(namelower)s-fallbacks.sh.in ; cd ../build ; export BIGDFT_FCFLAGS="-I%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/bigdft/default/include" ; export BIGDFT_LDFLAGS="-L%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/bigdft/default/lib"; export WANNIER90_FCFLAGS="-I%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/wannier90/default/include"; export WANNIER90_LDFLAGS="-L%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/wannier90/default/lib"; export XMLF90_FCFLAGS="-I%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/xmlf90/default/include"; export XMLF90_LDFLAGS="-L%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/xmlf90/default/lib"; export LIBPSML_FCFLAGS="-I%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/libpsml/default/include"; export LIBPSML_LDFLAGS="-L%(builddir)s/%(namelower)s-%(version)s/fallbacks/install/libpsml/default/lib"; export NETCDF_FCFLAGS="-I$EBROOTNETCDF/include"; export NETCDF_LDFLAGS="-L$EBROOTNETCDF/lib"; export NETCDF_FORTRAN_FCFLAGS="-I$EBROOTNETCDFMINFORTRAN/include"; export NETCDF_FORTRAN_LDFLAGS="-L$EBROOTNETCDFMINFORTRAN/lib"; """
+configopts = 'FC=mpif90 CC=mpicc CXX=mpiCC --enable-openmp --enable-mpi-io --with-netcdf=$EBROOTNETCDF --with-netcdf-fortran="$EBROOTNETCDFMINFORTRAN" --with-libxc="$EBROOTLIBXC" --with-wannier90 --with-libpsml --with-xmlf90 --with-hdf5 --with-mpi --with-linalg-flavor="mkl" --enable-bigdft '
+
+parallel = 8
+
+build_cmd = "cd build; export FC=mpif90 CC=mpicc CXX=mpiCC; make"
+configure_cmd = ' ../configure LDFLAGS="$LIBSCALAPACK"'
+install_cmd = "cd build; make install"
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/aim', 'bin/anaddb', 'bin/atdep', 'bin/band2eps', 'bin/conducti', 'bin/cut3d', 'bin/fftprof', 'bin/fold2Bloch', 'bin/ioprof', 'bin/lapackprof', 'bin/macroave', 'bin/mrgddb', 'bin/mrgdv', 'bin/mrggkk', 'bin/mrgscr', 'bin/multibinit', 'bin/testtransposer', 'bin/ujdet', 'bin/vdw_kernelgen', 'bin/optic'],
+    'dirs': ['lib/pkgconfig'],
+}
+
+moduleclass = 'phys'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1922.04,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/intel2020/openmpi4/abinit/9.2.2/easybuild/reprod/ABINIT-9.2.2-iomkl-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.3-rc4e2fa2b70d0e9827307de2e655fa989c0c32f63",
+    "easybuild-framework_version": "4.3.3-r3ff498d1f735c51b313c04c5e4abeeaecc23589b",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 374152144,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1615926473,
+    "total_memory": 60232,
+}]

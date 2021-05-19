@@ -1,0 +1,131 @@
+# Built with EasyBuild version 4.2.2-r64415f53d9bdff498788ce494f68a98641a3883d on 2020-08-25_19-23-52
+easyblock = 'Bundle'
+
+name = 'SRA-Toolkit'
+version = '2.10.8'
+
+homepage = 'https://github.com/ncbi/sra-tools'
+description = """The SRA Toolkit, and the source-code SRA System Development
+ Kit (SDK), will allow you to programmatically access data housed within SRA
+ and convert it from the SRA format"""
+github_account = 'ncbi'
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+
+builddependencies = [
+    ('Perl', '5.30.2'),
+    ('Python', '3.8.2'),
+]
+
+dependencies = [
+    ('NGS', '2.10.5'),
+    ('file', '5.38'),  # provides libmagic
+    ('HDF5', '1.10.6'),
+    ('libxml2', '2.9.10'),
+]
+
+# Linking HDF5 dynamically instead of statically
+local_base_preconfig = "sed -i 's/-lhdf5 -Wl,-Bdynamic/-Wl,-Bdynamic -lhdf5 -Wl,-Bdynamic/' setup/konfigure.perl && "
+
+# Change default build directory and add paths to dependencies in EB
+local_base_config = '--build-prefix=%(builddir)s --with-ngs-sdk-prefix=$EBROOTNGS '
+local_base_config += '--with-hdf5-prefix=$EBROOTHDF5 --with-xml2-prefix=$EBROOTLIBXML2'
+local_vdb_config = local_base_config + ' --with-ngs-java-prefix=$EBROOTNGS/jar/ngs-java.jar'
+# SRA-Tools need the source and build directory of NCBI-VDB
+local_sra_config = local_base_config + ' --with-ncbi-vdb-sources=%(builddir)s/ncbi-vdb-%(version)s'
+local_sra_config += ' --with-ncbi-vdb-build=%(builddir)s/ncbi-vdb '
+
+# Replace hardcoded optimization flags with flags from EB
+local_base_prebuild = "find build/ -name \"Makefile*\" -exec sed -i 's/-O3/$(EBFLAGS)/g' {} + && "
+local_base_prebuild += 'EBFLAGS="$CFLAGS" '
+local_base_preinstall = 'EBFLAGS="$CFLAGS" '
+
+# Standalone compilation of utf8proc to ensure that its shared objects are available
+local_sra_prebuild = "make -C tools/driver-tool/utf8proc && "
+# Linking libxml2 dynamically
+local_sra_prebuild += "find build/ -name \"ld*.sh\" -exec sed -i 's/-lxml2/-Wl,-Bdynamic -lxml2/g' {} + && "
+local_sra_prebuild += local_base_prebuild
+
+default_easyblock = 'ConfigureMake'
+default_component_specs = {
+    'source_urls': [GITHUB_LOWER_SOURCE],
+    'sources': [{'download_filename': '%(version)s.tar.gz', 'filename': SOURCE_TAR_GZ}],
+    'start_dir': '%(namelower)s-%(version)s',
+    'preconfigopts': local_base_preconfig,
+    'preinstallopts': local_base_preinstall,
+}
+
+components = [
+    # NCBI-VDB has to be installed as component instead of dependency because SRA-Tools needs its sources
+    ('NCBI-VDB', version, {
+        'patches': ['NCBI-VDB-%(version)s_fix-LD_LIBRARY_PATH.patch'],
+        'checksums': [
+            '7a593aa22584db9443bb56ac01409707bca01b8f9601fe530dac81b73f1a44df',  # NCBI-VDB-2.10.8.tar.gz
+            # NCBI-VDB-2.10.8_fix-LD_LIBRARY_PATH.patch
+            'e8f22dbd0c2e564e296bafdf76ba0e0e2da0d13e22be5aaf322135e5f26eb133',
+        ],
+        'configopts': local_vdb_config,
+        'prebuildopts': local_base_prebuild,
+    }),
+    ('SRA-Tools', version, {
+        'patches': ['SRA-Toolkit-%(version)s_fix-LD_LIBRARY_PATH.patch'],
+        'checksums': [
+            '4adb969a9a998f6a50020f99aa66f6ae27916f7dc83ddf6722fc0fea4a3a4d17',  # SRA-Tools-2.10.8.tar.gz
+            # SRA-Toolkit-2.10.8_fix-LD_LIBRARY_PATH.patch
+            'cac8e8db25c25ce2e06c3354b27c31dcad613beda3d76e70074f446dff84e63f',
+        ],
+        'configopts': local_sra_config,
+        'prebuildopts': local_sra_prebuild,
+    }),
+]
+
+local_bin = ['abi-dump', 'abi-load', 'align-info', 'bam-load', 'cache-mgr', 'cg-load', 'copycat', 'fasterq-dump',
+             'fastq-dump', 'fastq-load', 'helicos-load', 'illumina-dump', 'illumina-load', 'kar', 'kdbmeta', 'kget',
+             'latf-load', 'magic', 'pacbio-load', 'prefetch', 'rcexplain', 'sam-dump', 'sff-dump', 'sff-load',
+             'srapath', 'sra-pileup', 'sra-sort', 'sra-stat', 'sratools', 'srf-load', 'test-sra', 'vdb-config',
+             'vdb-copy', 'vdb-decrypt', 'vdb-dump', 'vdb-encrypt', 'vdb-lock', 'vdb-passwd', 'vdb-unlock',
+             'vdb-validate']
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in local_bin] +
+             ['include/ncbi-vdb/NGS.hpp', ('lib/libncbi-ngs-c++.a', 'lib64/libncbi-ngs-c++.a')] +
+             [('lib/libncbi-%s.%s' % (l, e), 'lib64/libncbi-%s.%s' % (l, e))
+              for l in ['vdb', 'wvdb'] for e in ['a', SHLIB_EXT]],
+    'dirs': []
+}
+
+sanity_check_commands = [
+    "abi-dump --help",
+    "kar --help",
+    "sra-sort --help",
+]
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 137.02,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--try-toolchain='GCC,9.3.0'", "--use-ccache=''", '--use-existing-modules', 'SRA-Toolkit-2.10.8-GCC-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.2-r3c677309698abf1dab501b93462070f78f9c1f58",
+    "easybuild-framework_version": "4.2.2-r64415f53d9bdff498788ce494f68a98641a3883d",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 968381187,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
+    "timestamp": 1598383432,
+    "total_memory": 60232,
+}]

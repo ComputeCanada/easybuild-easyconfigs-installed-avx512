@@ -1,0 +1,124 @@
+# Built with EasyBuild version 3.9.1-rbd39f1deaa85f18de0d688185f3415e39a99ba39 on 2019-05-29_15-03-18
+# Built with EasyBuild version 3.8.0-r365b7b9cd763bac0f2218d6682a152113e999bd5 on 2019-01-22_20-38-29
+name = 'Amber'
+version = '18.10-18.11'
+
+homepage = 'http://ambermd.org/amber.html'
+description = """Amber (originally Assisted Model Building with Energy
+ Refinement) is software for performing molecular dynamics and structure
+ prediction."""
+
+toolchain = {'name': 'gomkl', 'version': '2018.3.312'}
+toolchainopts = {'usempi': True, 'openmp': True}
+
+sources = ['%(name)s%(version_major)s.tar.bz2', 'AmberTools18.tar.bz2']
+patches = [
+    '%(name)s-%(version_major)s-AT-18_fix_hardcoding.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_intel_mpi_compiler_version_detection.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_mkl_include_path.patch',
+    '%(name)s-%(version_major)s-AT-18_use_fftw_from_mkl_or_external.patch',
+    '%(name)s-%(version_major)s-AT-18_use_FFTW_FFT_instead_of_PUBFFT.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_sander_link_with_external_fftw.patch',
+    '%(name)s-%(version_major)s-AT-18_fix-cpptraj-dont-use-static.patch',
+    '%(name)s-%(version_major)s-AT-18_cpptraj_use_mkl_fft.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_missing_openmp_at_link.patch',
+    '%(name)s-%(version_major)s-AT-18_use_CUSTOMBUILDFLAGS_for_nab.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_rism_fftw_lib.patch',
+    '%(name)s-%(version_major)s-AT-18_ignore_X11_checks.patch',
+    '%(name)s-%(version_major)s-AT-18_use_easybuild_pythonpath.patch',
+    '%(name)s-%(version_major)s-AT-18_use_external_boost_in_packmol_memembed.patch',
+    '%(name)s-%(version_major)s-AT-18_make_cpptraj_link_with_EBs_blas_lapack_fftw.patch',
+    '%(name)s-%(version_major)s_fix_missing_build_target.patch',
+    '%(name)s-%(version_major)s_dont_use_ipo.patch',
+    '%(name)s-%(version_major)s-AT-18_fix_nix_hardcoding.patch',
+]
+checksums = [
+    '2060897c0b11576082d523fb63a51ba701bc7519ff7be3d299d5ec56e8e6e277',  # Amber18.tar.bz2
+    'c630fc3d251fcefe19bb81c8c617e0547f1687b6aef68ea526e4e5fff65bea1c',  # AmberTools18.tar.bz2
+    'd1bad000dc155b77cd20787fbe7da5552dfb1d3e2834407824208b51f9518ad1',  # %(name)s-18-AT-18_fix_hardcoding.patch
+    'f25d0353b045bc769d3938aa698aea40e9e7bd152a2acca4b7fa1d790cf96297',
+    'c95db1c296c3512b818a1b34a65c2ea4cbce46acf70689919c5f42c3bb0799d3',  # %(name)s-18-AT-18_fix_mkl_include_path.patch
+    'cd93b4946538195f9ecadcd52ed2a30d377239a7442be6dc97d68ca0af087548',
+    'ebe85219f22869ec22e531592b785d68c15337171acd479660ab4e3ecd07655f',
+    '6f8eefc905a6817062a65ec1ed757b9d782e4ffc250511e750e6d87110e00c52',
+    'c142011166a26164d65287e7bea2e14d6df62c1984caada48410e62af0d5c3da',
+    '7ace48e6e24aa061737506d08e435e2053ca7074eb78fc47888183aabf71cd44',  # %(name)s-18-AT-18_cpptraj_use_mkl_fft.patch
+    '2116f52b5051eb07cfe74fe5bd751e237d1792c248dc0e5a204a19aea25ed337',
+    '5de8b3e93bd1b36c5d57b64089fc40f14b00c6503fdc7437a005d545c4c16282',
+    '1f407b7b5ae2d1f291eebdd2bb7c4a120f96305a89a9028bc0307ca150bb20d6',  # %(name)s-18-AT-18_fix_rism_fftw_lib.patch
+    '9854a15537353d26d5ebd3d3b711c46d30b50c3dae830e5bf5c9cce489f449e1',  # %(name)s-18-AT-18_ignore_X11_checks.patch
+    'dcfdf064e774b4a55802b660146f1cdebb1226bdd75713de7a783848fc23526e',  # %(name)s-18-AT-18_use_easybuild_pythonpath.patch
+    '9493a3dfddf62d6aa1bbb0a92a39e766a2b76a9ff8a9006e0fcc9ee3e5d94aac',
+    '349c24cc4bc161c96535ad924cff4228d6513082cdcd2758876b9798e27ee1bf',
+    '6b09a6548fa18127245e05c79bdca143adf31db349349cb39bfdb8c4f60772a7',  # %(name)s-18_fix_missing_build_target.patch
+    'a4c12ad39088ce6e9e7bad39e8d9a736989e6ae4a380c70535a5451eb3060903',  # %(name)s-18_dont_use_ipo.patch
+    '5d390a3572af9a7579855764c22882681c4c15124c6f9e1e621cb7c1a339089a',  # %(name)s-18-AT-18_fix_nix_hardcoding.patch
+]
+
+builddependencies = [
+    ('Python', '3.6.3', '', True),
+]
+dependencies = [
+    ('netCDF', '4.4.1.1', '', ('GCC', '7.3.0')),
+    ('netCDF-Fortran', '4.4.4', '', ('GCC', '7.3.0')),
+    ('FFTW', '3.3.6', '-mpi', ('gompi', '2018.3.312')),
+]
+
+# Build statistics
+buildstats = [{'glibc_version': '2.24', 'total_memory': 241656, 'python_version': '2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]', 'build_time': 1117.3, 'system_gcc_path': '/tmp/eb-Lv9BU4/tmpfxHEpF/gcc', 'cpu_speed': 2399.994, 'cpu_vendor': 'Intel', 'core_count': 56, 'modules_tool': ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'), 'gcc_version': 'Using built-in specs.; COLLECT_GCC=/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/bin/gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/lvjwgn6hpngyy6k4xqcqa9h2cxy3fl30-gfortran-5.4.0/libexec/gcc/%(arch)s-unknown-linux-gnu/5.4.0/lto-wrapper; Target: %(arch)s-unknown-linux-gnu; Configured with: ; Thread model: posix; gcc version 5.4.0 (GCC) ; ', 'hostname': 'build-node', 'command_line': ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx2'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2017'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=core-avx2\\', \\'Intel\\': \\'xCore-AVX2\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo.git'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache='/cvmfs/local/ccache'", '%(name)s-%(version)s-%(toolchain_name)s-2016.4.11.eb'], 'os_version': '7.5.1804', 'system_python_path': '/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.6.3/bin/python', 'os_name': 'centos linux', 'timestamp': 1548189508, 'cpu_model': 'Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz', 'easybuild-easyblocks_version': '3.8.0-r44266da00f3e49516ba75daf6d4f2c8704487471', 'install_size': 3671042548, 'easybuild-framework_version': '3.8.0-r365b7b9cd763bac0f2218d6682a152113e999bd5', 'platform_name': '%(arch)s-unknown-linux', 'os_type': 'Linux'}]
+runtest = False
+patchlevels = (11, 10)  # Amber-18-AT-18_make_cpptraj_link_with_EBs_blas_lapack_fftw.patch
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [
+{
+    "build_time": 1117.3,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx2'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2017'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=core-avx2\\', \\'Intel\\': \\'xCore-AVX2\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo.git'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache='/cvmfs/local/ccache'", 'Amber-18.10-18.11-gomkl-2016.4.11.eb'],
+    "core_count": 56,
+    "cpu_model": "Intel(R) Xeon(R) CPU E5-2680 v4 @ 2.40GHz",
+    "cpu_speed": 2399.994,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.0-r44266da00f3e49516ba75daf6d4f2c8704487471",
+    "easybuild-framework_version": "3.8.0-r365b7b9cd763bac0f2218d6682a152113e999bd5",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-5.4.0/bin/gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/lvjwgn6hpngyy6k4xqcqa9h2cxy3fl30-gfortran-5.4.0/libexec/gcc/x86_64-unknown-linux-gnu/5.4.0/lto-wrapper; Target: x86_64-unknown-linux-gnu; Configured with: ; Thread model: posix; gcc version 5.4.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node",
+    "install_size": 3671042548,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.5.1804",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/tmp/eb-Lv9BU4/tmpfxHEpF/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.6.3/bin/python",
+    "timestamp": 1548189508,
+    "total_memory": 241656,
+},
+{
+    "build_time": 2426.54,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2017'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--try-toolchain='gomkl,2018.3.312'", "--use-ccache=''", 'Amber-18.10-18.11-gomkl-2016.4.11.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.076,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.1-rb538bc991c5bd338dc1e556f6df2b0331a83bb28",
+    "easybuild-framework_version": "3.9.1-rbd39f1deaa85f18de0d688185f3415e39a99ba39",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 3843342127,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.6.1810",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.6.3/bin/python",
+    "timestamp": 1559142198,
+    "total_memory": 60232,
+},
+]

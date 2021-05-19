@@ -1,0 +1,59 @@
+# Built with EasyBuild version 3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299 on 2019-03-27_22-39-06
+easyblock = 'CMakeMake'
+
+name = 'elsi'
+version = '2.2.1'
+
+homepage = 'https://wordpress.elsi-interchange.org/'
+description = "ELSI: ELectronic Structure Infrastructure is a software bundle and unified interface for methods that solve or circumvent eigenvalue problems in the self-consistent field cycle of density-functional theory."
+
+toolchain = {'name': 'intel', 'version': '2018.3'}
+
+source_urls = ['http://wordpress.%(name)s-interchange.org/wp-content/uploads/2019/03/']
+sources = [SOURCE_TAR_GZ]
+
+builddependencies = [
+    ('libomm', '2015-06-05'),
+    ('SuperLU_DIST', '6.1.1'),
+    ('ELPA', '2018.11.001'),
+    ('NTPoly', '2.2'),
+]
+
+configopts = [' -DZLIB_ROOT=$NIXUSER_PROFILE  -DOPENGL_INCLUDE_DIR=$NIXUSER_PROFILE/include -DOPENGL_gl_LIBRARY=$NIXUSER_PROFILE/lib/libGL.so  -DOPENGL_glu_LIBRARY=$NIXUSER_PROFILE/lib/libGLU.so  -DJPEG_INCLUDE_DIR=$NIXUSER_PROFILE/include -DJPEG_LIBRARY=$NIXUSER_PROFILE/lib/libjpeg.so  -DPNG_PNG_INCLUDE_DIR=$NIXUSER_PROFILE/include -DPNG_LIBRARY=$NIXUSER_PROFILE/lib/libpng.so  -DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python  -DCURL_LIBRARY=$NIXUSER_PROFILE/lib/libcurl.so -DCURL_INCLUDE_DIR=$NIXUSER_PROFILE/include  -DCMAKE_SYSTEM_PREFIX_PATH=$NIXUSER_PROFILE  -DCMAKE_SKIP_INSTALL_RPATH=ON -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_C_COMPILER=mpicc -DCMAKE_Fortran_COMPILER=mpif90 -DUSE_EXTERNAL_ELPA=ON -DUSE_EXTERNAL_OMM=ON -DUSE_EXTERNAL_SUPERLU=ON -DUSE_EXTERNAL_NTPOLY=ON -DBUILD_SHARED_LIBS=ON -DENABLE_PEXSI=OFF -DINC_PATHS="$EBROOTLIBOMM/include;$EBROOTELPA/include;$EBROOTELPA/include/elpa-2018.11.001/modules/;$EBROOTNTPOLY/include;$EBROOTSUPERLU_DIST/include;$EBROOTPEXSI/include" ']
+
+parallel = 1
+
+separate_build_dir = True
+
+sanity_check_paths = {
+    'files': ['lib/libelsi.so', 'lib/libfortjson.so'],
+    'dirs': [],
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 190.71,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/intel2018.3/impi2018.3/elsi/2.2.1/easybuild/reprod/elsi-2.2.1-intel-2018.3.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.072,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.0-rfa005acd2846dcfd6c56333199f5b3fac469b44e",
+    "easybuild-framework_version": "3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 4898634,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.5.1804",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1553726346,
+    "total_memory": 60232,
+}]

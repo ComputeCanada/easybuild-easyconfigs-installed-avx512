@@ -1,0 +1,66 @@
+# Built with EasyBuild version 3.9.1-r5167691f0570449d8f3cb128053ec3ca449cda4d on 2019-06-25_18-31-07
+easyblock = 'MakeCp'
+
+name = 'CD-HIT'
+version = '4.8.1'
+
+homepage = 'http://weizhong-lab.ucsd.edu/cd-hit/'
+description = """ CD-HIT is a very widely used program for clustering and 
+ comparing protein or nucleotide sequences."""
+
+toolchain = {'name': 'GCC', 'version': '7.3.0'}
+toolchainopts = {'openmp': True}
+
+source_urls = ['https://github.com/weizhongli/cdhit/archive/']
+sources = ['V%(version)s.tar.gz']
+checksums = ['b997bcc5a07703ca9bd3f84818114c37']
+
+# Make sure compilation flags are passed down (e.g. to enable OpenMP):
+buildopts = ' MAX_SEQ=10000000 CC="$CXX" CCFLAGS="$CPPFLAGS $CXXFLAGS" &&  cd %(namelower)s-auxtools && make CC="$CXX" CCFLAGS="$CPPFLAGS $CXXFLAGS" '
+
+postinstallcmds = ["sed -i 's@#!/usr/bin/perl@/usr/bin/env perl@' %(installdir)s/bin/*.pl"]  # !/usr/bin/perl@/usr/bin/env perl@' %(installdir)s/bin/*.pl"]
+# This is the real EasyBuild line to copy all the executables and perl scripts to "bin"
+files_to_copy = [
+    (['%(namelower)s', '%(namelower)s-est', '%(namelower)s-2d', '%(namelower)s-est-2d', '%(namelower)s-div', '%(namelower)s-454'], 'bin'),
+    (['%(namelower)s-auxtools/%(namelower)s-dup'], 'bin'),
+    (['%(namelower)s-auxtools/%(namelower)s-lap'], 'bin'),
+    (['%(namelower)s-auxtools/%(namelower)s-dup-PE-out.pl'], 'bin'),
+    (['%(namelower)s-auxtools/read-linker'], 'bin'),
+    (['*.pl'], 'bin'),
+    'README',
+    'doc',
+    'license.txt',
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', ('bin/%(namelower)s-est', 'bin/%(namelower)s-2d', 'bin/%(namelower)s-est-2d', 'bin/%(namelower)s-div', 'bin/%(namelower)s-454', 'bin/%(namelower)s-dup', 'bin/%(namelower)s-lap', 'bin/%(namelower)s-dup-PE-out.pl'), 'bin/read-linker'],
+    'dirs': [],
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 52.56,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/cd-hit/4.8.1/easybuild/reprod/CD-HIT-4.8.1-GCC-7.3.0.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.1-r8554b3d10751aae643e4942550051a53d3e82271",
+    "easybuild-framework_version": "3.9.1-r5167691f0570449d8f3cb128053ec3ca449cda4d",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 2214645,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.6.1810",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1561487467,
+    "total_memory": 60232,
+}]

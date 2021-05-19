@@ -1,0 +1,75 @@
+# Built with EasyBuild version 4.2.2-r64415f53d9bdff498788ce494f68a98641a3883d on 2020-08-07_13-55-27
+# Built with EasyBuild version 3.8.1-rc5f26b53fc8dd1c8936f9e668dc4abdadc41e29e on 2019-04-12_16-52-10
+# This file is an EasyBuild reciPY as per https://github.com/hpcugent/easybuild
+# Author: Pablo Escobar Lopez
+# Swiss Institute of Bioinformatics
+# Biozentrum - University of Basel
+
+easyblock = "Tarball"
+
+name = 'Beast'
+version = "2.6.3"
+
+homepage = 'http://beast2.org/'
+description = """ BEAST is a cross-platform program for Bayesian MCMC analysis of molecular 
+ sequences. It is entirely orientated towards rooted, time-measured phylogenies inferred using 
+ strict or relaxed molecular clock models. It can be used as a method of reconstructing phylogenies 
+ but is also a framework for testing evolutionary hypotheses without conditioning on a single 
+ tree topology. BEAST uses MCMC to average over tree space, so that each tree is weighted 
+ proportional to its posterior probability.  - CC-Wiki: BEAST"""
+
+toolchain = {'name': 'iccifort', 'version': '2020.1.217'}
+
+source_urls = ['https://github.com/CompEvol/beast2/releases/download/v%(version)s/']
+sources = ['BEAST.v%(version)s.Linux.tgz']
+patches = ['beast_beaglelib.patch']
+checksums = [
+    '8899277b0d7124ab04dc512444d45f0f1a13505f3ce641e1f117098be3e2e20d',  # BEAST.v2.6.3.Linux.tgz
+    '6b0331291ee78426c70e160ff71a2066f762b0fa3d51d2f0fd84c1c8fe8e9971',  # beast_beaglelib.patch
+]
+
+dependencies = [
+    # this is not mandatory but beagle-lib is recommended by developers
+    # beagle-lib will also load the required java dependency
+    # if you remove this you should add the java dependency
+    ('beagle-lib', '3.1.2'),
+]
+
+sanity_check_paths = {
+    'files': ["bin/beast"],
+    'dirs': []
+}
+
+modextravars = {
+    'BEAST_LIB' : '%(installdir)s/lib',
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 13.42,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--try-toolchain='iccifort,2020.1.217'", "--use-ccache=''", '--use-existing-modules', 'Beast-2.6.3-iccifort-2020.1.217.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.2-r6b3b7ea674d74df129b3bd8832cbc3ec91f69f4b",
+    "easybuild-framework_version": "4.2.2-r64415f53d9bdff498788ce494f68a98641a3883d",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 10674992,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1596808527,
+    "total_memory": 60232,
+}]

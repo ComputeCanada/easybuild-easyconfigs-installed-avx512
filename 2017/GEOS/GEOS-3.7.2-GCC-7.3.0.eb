@@ -1,0 +1,62 @@
+# Built with EasyBuild version 3.9.3-r1ad8735dce3ff7b4e163a6df3eaf39e3ad8f34b0 on 2019-08-07_12-37-05
+easyblock = 'ConfigureMake'
+
+name = 'GEOS'
+version = '3.7.2'
+
+homepage = 'http://trac.osgeo.org/geos'
+description = "GEOS (Geometry Engine - Open Source) is a C++ port of the  Java Topology Suite (JTS)"
+
+toolchain = {'name': 'GCC', 'version': '7.3.0'}
+
+source_urls = ['http://download.osgeo.org/%(namelower)s/']
+sources = [SOURCELOWER_TAR_BZ2]
+patches = ['%(name)s-%(version)s_fix-Python3.patch']
+checksums = [
+    '2166e65be6d612317115bfec07827c11b403c3f303e0a7420a2106bc999d7707',  # %(namelower)s-%(version)s.tar.bz2
+    'e14b54796d9d41261caae64b5a106b4bd8a77f37a51aa9b8ada30d87d208e2e0',  # %(name)s-%(version_major_minor)s.2_fix-Python3.patch
+]
+
+builddependencies = [
+    ('SWIG', '3.0.12'),
+]
+multi_deps = {'Python': ['2.7.14', '3.5.4', '3.6.3', '3.7.4']}
+
+configopts = '--enable-python'
+
+modextrapaths = {'EBPYTHONPREFIXES': ''}
+multi_deps_load_default = False
+sanity_check_commands = ["module load python/%(pyshortver)s && python -c 'import %(namelower)s'"]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s-config', 'lib/libgeos.so', 'lib/libgeos.a', 'include/%(namelower)s.h'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/%(namelower)s'],
+}
+
+moduleclass = 'math'
+
+# Build statistics
+buildstats = [{
+    "build_time": 699.3,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/geos/3.7.2/easybuild/reprod/GEOS-3.7.2-GCC-7.3.0.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.3-ra05044af8d78a924195ea662550868bbe10a32a8",
+    "easybuild-framework_version": "3.9.3-r1ad8735dce3ff7b4e163a6df3eaf39e3ad8f34b0",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 14472477,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.6.1810",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/3.7.4/bin/python",
+    "timestamp": 1565181425,
+    "total_memory": 60232,
+}]

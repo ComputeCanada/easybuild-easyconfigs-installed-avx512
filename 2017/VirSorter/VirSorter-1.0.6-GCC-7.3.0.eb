@@ -1,0 +1,87 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-06-25_13-48-15
+easyblock = 'Tarball'
+
+name = 'VirSorter'
+version = '1.0.6'
+
+homepage = 'https://github.com/simroux/VirSorter'
+description = "VirSorter: mining viral signal from microbial genomic data."
+
+toolchain = {'name': 'GCC', 'version': '7.3.0'}
+
+source_urls = ['https://github.com/simroux/%(name)s/archive/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['a47202eb4abbfc7643519f891d52c55725ccceb2e4c45b8564b9d66b8f6615e0']
+
+dependencies = [
+    ('Perl', '5.22.4', '', True),
+    ('BioPerl', '1.7.1', '-Perl-5.22.4', True),
+    ('HMMER', '3.1b2'),
+    ('MCL', '14.137'),
+    ('MetaGeneAnnotator', '20080819', '-x86-64', True),
+    ('MUSCLE', '3.8.31'),
+    ('BLAST+', '2.7.1'),
+    # ('DIAMOND', '0.9.14'),
+    # ('VirSorter-Data', '2'),
+]
+
+modaliases = {'%(namelower)s': 'wrapper_phage_contigs_sorter_iPlant.pl'}
+modloadmsg = """
+
+* If you plan to use %(name)s with DIAMOND, you need to download the database:
+   wget https://zenodo.org/record/1168727/files/%(namelower)s-data-v2.tar.gz
+* Unpack the archive: tar -xvf %(namelower)s-data-v2.tar.gz (about 13 GB)
+* Note that you database should be re-formatted with the corresponding version of DIAMOND:
+  https://github.com/simroux/%(name)s/issues/28#issuecomment-386142144
+* In addition to %(name)s, load diamond module.
+* Note thar diamond/0.9.14 does not seem to work except on beluga.
+* When running "%(namelower)s", add the option "--data-dir":
+   %(namelower)s --data-dir <path to %(namelower)s-data>
+ 
+"""
+exts_defaultclass = 'PerlModule'
+
+exts_list = [
+    ('Parallel::ForkManager', '1.06', {'runtest': 'test', 'checksums': ['ce32781ca790e7cd9b8f7b896b47e817ff21b68e430291713cf1962ddc150274'], 'source_tmpl': 'Parallel-ForkManager-1.06.tar.gz', 'source_urls': ['http://search.cpan.org/CPAN/authors/id/S/SZ/SZABGAB/']}),
+    ('List::MoreUtils', '0.428', {'checksums': ['713e0945d5f16e62d81d5f3da2b6a7b14a4ce439f6d3a7de74df1fd166476cc2'], 'source_tmpl': 'List-MoreUtils-0.428.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RE/REHSACK/']}),
+]
+
+sanity_check_paths = {
+    'files': ['wrapper_phage_contigs_sorter_iPlant.pl'],
+    'dirs': ['Scripts'],
+}
+
+modextrapaths = {
+    'PATH': ['', 'Scripts'],
+    'PERL5LIB': 'lib/perl5/site_perl/%(perlver)s/',
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 144.65,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/virsorter/1.0.6/easybuild/reprod/VirSorter-1.0.6-GCC-7.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-rf308263371c29f7ad4031dd06e1801f4eb48b800",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 379922,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1593092895,
+    "total_memory": 60232,
+}]

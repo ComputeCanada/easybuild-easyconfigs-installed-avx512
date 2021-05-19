@@ -1,0 +1,109 @@
+# Built with EasyBuild version 4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007 on 2021-05-07_16-59-12
+easyblock = 'Bundle'
+
+name = 'HPCToolkit'
+version = '2020.08'
+
+homepage = 'http://hpctoolkit.org/'
+description = """HPCToolkit is an integrated suite of tools for measurement and analysis of program performance
+ on computers ranging from multicore desktop systems to supercomputers."""
+
+toolchain = {'name': 'gompi', 'version': '2020a'}
+
+source_urls = ["https://github.com/HPCToolkit/hpctoolkit/archive/refs/tags",
+               "https://github.com/HPCToolkit/libmonitor/archive",
+	       "https://github.com/dyninst/dyninst/archive",
+               "https://github.com/LLNL/GOTCHA/archive/refs/tags",
+	       "https://github.com/HPCToolkit/hpcviewer.e4/archive/refs/tags",
+	       ]
+
+dependencies = [
+    ('Boost', '1.72.0'),
+    ('tbb', '2020.2'),
+    ('IntelXED', '12.0.1'),
+    ('PAPI', '6.0.0'),
+    ('Maven', '3.6.3'),
+    ('Java', '11.0.2'),
+]
+
+default_easyblock = 'ConfigureMake'
+
+default_component_specs = {
+    'start_dir': '%(name)s-%(version)s',
+}
+
+components = [
+    ('hpcviewer.e4', '2021.03', {
+        'sources': ['2021.03.tar.gz'],
+	'checksums': ['accacc9747d58faa92d037a83b2772a98fb54ebe84475516e6c25ce607e22910'],
+        'skipsteps': 'configure',
+	'build_cmd': './build.sh',
+        'install_cmd': ('tar xf hpcviewer-*-linux.gtk.x86_64.tgz && '
+                        'cd hpcviewer && '
+                        './install.sh %(installdir)s '),
+    }),
+    ('libmonitor', 'a2d1b6be23410ef1ad2c9d0006672453803243c2', {
+        'sources': ['a2d1b6be23410ef1ad2c9d0006672453803243c2.tar.gz'],
+        'checksums': ['835b0acedeffca41c57ebc52ad8ea3b5a3ff68aaade4b64561be6a160fa01ab0'],
+    }),
+    ('dyninst', '10.1.0', {
+        'easyblock': 'CMakeMake',
+        'sources': ['v10.1.0.tar.gz'],
+        'checksums': ['4a121d70c1bb020408a7a697d74602e18250c3c85800f230566fcccd593c0129'],
+    }),
+    ('GOTCHA', '1.0.3', {
+        'easyblock': 'CMakeMake',
+        'sources': ['v1.0.3.tar.gz'],
+        'checksums': ['71c6400c6c7ef7de20c5f42fbb3d6713679992d7ebca7dcf2024bc8aa3a03181'],
+    }),
+    ('hpctoolkit', 'release-2020.08', {
+        'sources': ['release-2020.08.tar.gz'],
+        'checksums': ['c251d382f211aa394fa32d5c3fe2b023f4e7406b9cd776ad35f881f0b25a2699'],
+	'preconfigopts': ("sed -i 's@${LIBDWARF}/include@${LIBDWARF}/include/libdwarf@' configure && "
+			  "sed -i 's@${XED2}/include@${XED2}/include/xed@' configure && "),
+	'configopts' : ("--with-binutils=$EBROOTGENTOO --with-boost=$EBROOTBOOST --with-elfutils=$EBROOTGENTOO "
+	                "--with-tbb=$EBROOTTBB --with-lzma=$EBROOTGENTOO --with-libunwind=$EBROOTGENTOO "
+                        "--with-xerces=$EBROOTGENTOO --with-valgrind=$EBROOTGENTOO --with-xed=$EBROOTINTELXED "
+                        "--with-papi=$EBROOTPAPI --with-libunwind=$EBROOTGENTOO --with-libdwarf=$EBROOTGENTOO "
+                        "--with-libmonitor=%(installdir)s --with-dyninst=%(installdir)s "
+                        "--with-bzip=$EBROOTGENTOO --with-mbedtls=$EBROOTGENTOO "
+                        "--with-gotcha=%(installdir)s MPICXX=mpicxx"),
+        # hpctoolkit needs a private symbol from Boost, only visible in the static library
+        'buildopts' : "LIBS=$EBROOTBOOST/lib/libboost_graph.a",
+    }),
+]
+
+sanity_check_paths = {
+    'files': ['bin/hpc%s' % x for x in ['link', 'prof', 'prof-mpi', 'run', 'struct', 'viewer']] + ['include/hpctoolkit.h'],
+    'dirs': ['lib/hpctoolkit'],
+}
+
+moduleclass = 'tools'
+
+# Build statistics
+buildstats = [{
+    "build_time": 808.25,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'HPCToolkit-2020.08-gompi-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.4-r5d08286699a005111072f044e27cc0a61bd3e6e4",
+    "easybuild-framework_version": "4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 352420452,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1620406751,
+    "total_memory": 60232,
+}]

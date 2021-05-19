@@ -1,0 +1,68 @@
+# Built with EasyBuild version 3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299 on 2019-03-05_20-35-58
+easyblock = 'ConfigureMake'
+
+name = 'BerkeleyGW'
+version = '1.2.0'
+
+homepage = 'http://www.berkeleygw.org'
+description = """The BerkeleyGW Package is a set of computer codes that calculates the quasiparticle
+ properties and the optical responses of a large variety of materials from bulk periodic crystals to
+ nanostructures such as slabs, wires and molecules.
+ We ask that you please cite the following papers when using results obtained from the BerkeleyGW package:
+ - Mark S. Hybertsen and Steven G. Louie, Electron correlation in semiconductors and insulators: Band gaps and quasiparticle energies, Phys. Rev. B 34, 5390 (1986).
+ - Michael Rohlfing and Steven G. Louie, Electron-hole excitations and optical spectra from first principles, Phys. Rev. B 62, 4927 (2000).
+ - Jack Deslippe, Georgy Samsonidze, David A. Strubbe, Manish Jain, Marvin L. Cohen, and Steven G. Louie, BerkeleyGW: A Massively Parallel Computer Package for the Calculation of the Quasiparticle and Optical Properties of Materials and Nanostructures, Comput. Phys. Commun. 183, 1269 (2012) (https://arxiv.org/abs/1111.4429)."""
+
+toolchain = {'name': 'iomkl', 'version': '2018.3.312'}
+toolchainopts = {'usempi': True, 'openmp': True}
+
+source_urls = ['http://www.%(namelower)s.org/releases/']  # requires registration
+sources = [SOURCE_TAR_GZ]
+checksums = ['030c1f126a928bf9b3d57e24a4e6087a']
+
+dependencies = [
+    ('FFTW', '3.3.8', '-mpi', ('iompi', '2018.3.312')),
+]
+
+prebuildopts = "cp config/generic.mpi.linux.mk arch.mk && "
+buildopts = 'all-flavors MATHFLAG="-DUSEFFTW3 -DUSESCALAPACK" COMPFLAG=-DINTEL PARAFLAG="-DMPI -DOMP" DEBUGFLAG="" F90free="$MPIF90 -free" LINK="$MPIF90" FOPTS="$FFLAGS" MOD_OPT="-module " C_PARAFLAG="$PARAFLAG" CC_COMP="$MPICXX" C_COMP="$MPICC" FCPP="cpp -C -P -ffreestanding" C_LINK="$MPICXX" C_OPTS="$CFLAGS" MKLPATH="$MKLROOT" LAPACKLIB="$LIBLAPACK" BLACSDIR="$BLACS_LIB_DIR" BLACS="$LIBBLACS" SCALAPACKLIB="$LIBSCALAPACK" FFTWINCLUDE="$FFTW_INC_DIR" FFTWLIB="$EBROOTFFTW/lib/libfftw3_mpi.a" '
+
+# "all-flavors" cleans and compiles everything again:
+preinstallopts = 'sed -i "s/install: all-flavors/install: all/" Makefile && '
+installopts = 'INSTDIR=%(installdir)s'
+
+postinstallcmds = ['chmod -R go+X %(installdir)s']
+skipsteps = ['configure']
+
+sanity_check_paths = {
+    'files': ['bin/epsilon.real.x', 'bin/epsilon.cplx.x', 'bin/sigma.real.x', 'bin/sigma.cplx.x', 'bin/kernel.real.x', 'bin/kernel.cplx.x', 'bin/absorption.real.x', 'bin/absorption.cplx.x', 'bin/nonlinearoptics.real.x', 'bin/nonlinearoptics.cplx.x'],
+    'dirs': ['bin', 'include', 'lib', 'share'],
+}
+
+moduleclass = 'phys'
+
+# Build statistics
+buildstats = [{
+    "build_time": 328.9,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/intel2018.3/openmpi3.1/berkeleygw/1.2.0/easybuild/reprod/BerkeleyGW-1.2.0-iomkl-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.072,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.0-r8419a472381f3d6b03b1a9947199663796bba983",
+    "easybuild-framework_version": "3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 1577380805,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.5.1804",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1551818158,
+    "total_memory": 60232,
+}]

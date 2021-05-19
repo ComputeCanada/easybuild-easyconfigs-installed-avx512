@@ -1,0 +1,73 @@
+# Built with EasyBuild version 3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299 on 2019-02-26_23-26-31
+# Built with EasyBuild version 3.7.0-rc7b39e420d4f1af2b79028319dfd5ed90b504390 on 2018-10-23_23-21-03
+easyblock = 'ConfigureMake'
+
+name = 'Julia'
+version = '1.0.2'
+
+homepage = 'http://julialang.org'
+description = "A high-level, high-performance dynamic language for technical computing."
+
+toolchain = {'name': 'gmkl', 'version': '2018.3'}
+
+source_urls = ['https://github.com/JuliaLang/%(namelower)s/releases/download/v%(version)s']
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('LLVM', '6.0.1'),
+    ('SuiteSparse', '4.5.4'),
+]
+
+prebuildopts = "declare -A ARCH_MAP=( [sse3]=nocona [avx]=sandybridge [avx2]=haswell [avx512]=skx ) && module load llvm/6.0.1 && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EBROOTLLVM/lib:$MKLROOT/lib/intel64:$EBROOTSUITESPARSE/lib"
+# Specifying JULIA_CPU_TARGET allows use on non-identical CPUs.  Doesn't affect JIT or linked toolchain components.
+buildopts = " prefix=%(installdir)s USE_SYSTEM_CURL=1 USE_SYSTEM_GMP=1 USE_SYSTEM_LIBGIT2=1 USE_SYSTEM_LIBSSH2=1 USE_SYSTEM_LIBUNWIND=1 USE_SYSTEM_LLVM=1 USE_SYSTEM_MPFR=1 USE_SYSTEM_PATCHELF=1 USE_SYSTEM_PCRE=1 USE_SYSTEM_SUITESPARSE=1 USE_SYSTEM_ZLIB=1 USE_INTEL_MKL=1 JULIA_CPU_TARGET=${ARCH_MAP[$RSNT_ARCH]} USE_BLAS64=0"
+
+preinstallopts = "declare -A ARCH_MAP=( [sse3]=nocona [avx]=sandybridge [avx2]=haswell [avx512]=skx ) && module load llvm/6.0.1 && LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EBROOTLLVM/lib:$MKLROOT/lib/intel64:$EBROOTSUITESPARSE/lib"
+installopts = " prefix=%(installdir)s USE_SYSTEM_CURL=1 USE_SYSTEM_GMP=1 USE_SYSTEM_LIBGIT2=1 USE_SYSTEM_LIBSSH2=1 USE_SYSTEM_LIBUNWIND=1 USE_SYSTEM_LLVM=1 USE_SYSTEM_MPFR=1 USE_SYSTEM_PATCHELF=1 USE_SYSTEM_PCRE=1 USE_SYSTEM_SUITESPARSE=1 USE_SYSTEM_ZLIB=1 USE_INTEL_MKL=1 JULIA_CPU_TARGET=${ARCH_MAP[$RSNT_ARCH]} USE_BLAS64=0 && patchelf --set-rpath '$ORIGIN':'$ORIGIN/%(namelower)s':$EBROOTLLVM/lib:$MKLROOT/lib/intel64:$EBROOTSUITESPARSE/lib %(installdir)s/lib/libjulia.so && for i in %(installdir)s/lib/%(namelower)s/*; do if [[ -L $i && $(readlink $i | cut -c 1-28) == '/cvmfs/soft.computecanada.ca' ]]; then rm $i; fi; done"
+
+# install arpack, overriding downloaded library...
+postinstallcmds = [
+    """echo 'using Pkg; Pkg.activate("globalenv",shared=true); Pkg.add("Arpack")' > temp.jl""",
+    "JULIA_DEPOT_PATH=%(installdir)s %(installdir)s/bin/%(namelower)s temp.jl &> /dev/null",
+    "sed -i 's/^    install/    #install/' %(installdir)s/packages/Arpack/UiiMc/deps/build.jl",
+    "module load arpack-ng/3.5.0 && ln -sf $EBROOTARPACKMINNG/lib/libarpack.so.2.0.0 %(installdir)s/packages/Arpack/*/deps/usr/lib",
+    """echo 'using Pkg; Pkg.activate("globalenv",shared=true); Pkg.build("Arpack")' > temp.jl""",
+    "JULIA_DEPOT_PATH=%(installdir)s %(installdir)s/bin/%(namelower)s temp.jl &> /dev/null",
+    "rm temp.jl",
+]
+modluafooter = """setenv("JULIA_DEPOT_PATH", pathJoin(os.getenv('HOME'), ".%(namelower)s") .. ":%(installdir)s")"""
+modextravars = {'JULIA_LOAD_PATH': '@:@v#.#:@stdlib:%(installdir)s/environments/globalenv'}  # :@stdlib:%(installdir)s/environments/globalenv'}
+skipsteps = ['configure']
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s'],
+    'dirs': ['lib'],
+}
+
+moduleclass = 'lang'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1855.28,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/julia/1.0.2/easybuild/reprod/Julia-1.0.2-gmkl-2018.3.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.072,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.0-r8419a472381f3d6b03b1a9947199663796bba983",
+    "easybuild-framework_version": "3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 284676592,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.5.1804",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1551223591,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,87 @@
+# Built with EasyBuild version 4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4 on 2021-03-18_16-57-19
+##
+# @Author: Ali Kerrache, University of Manitoba, WestGrid/Compute Canada.
+# @Date: Dec 10, 2020.
+##
+
+easyblock = 'CMakeMake'
+
+name = 'ELMERFEM'
+version = 'scc20'
+
+homepage = 'https://www.csc.fi/web/elmer'
+description = """
+Elmer is an open source multiphysical simulation software mainly developed by CSC - IT Center for Science (CSC). Elmer development was started 1995 in collaboration with Finnish Universities, research institutes and industry. After it's open source publication in 2005, the use and development of Elmer has become international.
+
+Elmer includes physical models of fluid dynamics, structural mechanics, electromagnetics, heat transfer and acoustics, for example. These are described by partial differential equations which Elmer solves by the Finite Element Method (FEM).
+"""
+
+toolchain = {'name': 'gomkl', 'version': '2020a'}
+toolchainopts = {'usempi': True, 'openmp': True, 'pic': True}
+
+source_urls = ['https://github.com/ElmerCSC/%(namelower)s/archive/']
+sources = ['%(version)s.tar.gz']
+checksums = ['15dfdce25d409ed22b1c76c79061dc3857c2cdbb88448dd900e656c5035dea0a']
+
+separate_build_dir = True
+
+dependencies = [
+    ('MUMPS', '5.2.1', '-metis'),
+    #('Trilinos', '12.12.1'),
+]
+
+configopts  = '-DMPI_TEST_MAXPROC=8 '
+configopts += '-DWITH_MPI=ON -DWITH_OpenMP=ON -DWITH_MKL=ON '
+configopts += '-DWITH_CONTRIB=ON '
+configopts += '-DWITH_ELMERGUI=OFF '    # It requires Qt4
+configopts += '-DWITH_ELMERGUILOGGER=OFF -DWITH_ELMERGUITESTER=OFF '
+configopts += '-DWITH_ELMERPOST=OFF '
+configopts += '-DWITH_ElmerIce=ON '
+configopts += '-DWITH_FETI4I=OFF '
+configopts += '-DWITH_Hypre=OFF '
+configopts += '-DWITH_LUA=ON '
+configopts += '-DWITH_Mumps=ON '
+configopts += '-DWITH_Trilinos=OFF '
+configopts += '-DWITH_Zoltan=OFF '
+
+local_elmer_binaries = [
+    "elmerf90", "ElmerGrid", "elmerld", "ElmerSolver", "ElmerSolver_mpi",
+    "GebhardtFactors", "matc", "Mesh2D", "ViewFactors",
+]
+
+postinstallcmds = ['cd %(installdir)s/lib && for ii in `ls elmersolver`; do ln -s elmersolver/$ii $ii; done']
+
+sanity_check_paths = {
+    'files': ['bin/%s' % x for x in local_elmer_binaries],
+    'dirs': ['lib/elmersolver', 'share/elmersolver'],
+}
+
+moduleclass = 'math'
+
+# Build statistics
+buildstats = [{
+    "build_time": 316.73,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'ELMERFEM-scc20-gomkl-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.3-rc4e2fa2b70d0e9827307de2e655fa989c0c32f63",
+    "easybuild-framework_version": "4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 49079785,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1616086639,
+    "total_memory": 60232,
+}]

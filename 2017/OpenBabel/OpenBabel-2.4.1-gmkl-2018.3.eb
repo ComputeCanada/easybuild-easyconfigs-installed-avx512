@@ -1,0 +1,88 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-06-18_16-33-05
+# #
+#
+# Copyright:: Copyright 2012-2016 University of Luxembourg / LCSB,
+# Cyprus Institute / CaSToRC,
+# Ghent University / The Francis Crick Institute
+# Authors::
+# * Toon Verstraelen <Toon.Verstraelen@UGent.be>
+# * Kenneth Hoste <kenneth.hoste@ugent.be>
+# * Ward Poelmans <wpoely86@gmail.com>
+# * RvDijk <rub0925@gmail.com>
+# * Oliver Stueker <oliver.stueker@ace-net.ca>
+# * Chris Want <cjwant@ualberta.ca>
+# License::   MIT/GPL
+# #
+
+name = 'OpenBabel'
+version = '2.4.1'
+
+homepage = 'http://openbabel.org'
+description = """Open Babel is a chemical toolbox designed to speak the many
+ languages of chemical data. It's an open, collaborative project allowing anyone
+ to search, convert, analyze, or store data from molecular modeling, chemistry,
+ solid-state materials, biochemistry, or related areas."""
+
+toolchain = {'name': 'gmkl', 'version': '2018.3'}  # (python, pythonversion),
+toolchainopts = {'optarch': True}
+
+source_urls = [SOURCEFORGE_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+patches = [
+    '%(name)s-%(version)s-use-xHost.patch',
+    '%(name)s-%(version)s-ignore-failed-test.patch',
+]
+checksums = [
+    '204136582cdfe51d792000b20202de8950218d617fd9c6e18cee36706a376dfc',
+    '0db85c64f53862dce05ada9091a35d7b4c5c29a44aef76e0cb41cd679441a446',
+    '6d235ed070e477507fc92b63339d2c53130a24257835324003969403af8a1644',
+]
+
+builddependencies = [
+    ('CMake', '3.16.3', '', True),
+    ('SWIG', '3.0.12', '', True),
+]
+dependencies = [
+    ('Eigen', '3.3.5', '', True),
+    ('Boost', '1.68.0', '', ('GCC', '7.3.0')),
+]
+# Note: the 'pybel' python module only works with Python 2.7.x
+multi_deps = {'Python': ['2.7.14']}
+
+configopts = " -DCMAKE_SKIP_RPATH=ON  -DBoost_INCLUDE_DIR=$EBROOTBOOST/include  -DBoost_LIBRARY_DIR_RELEASE=$EBROOTBOOST/lib  -DEIGEN3_INCLUDE_DIR=$EBROOTEIGEN/include  -DPYTHON_BINDINGS=ON  -DENABLE_OPENMP=ON "
+
+runtest = False
+multi_deps_load_default = False
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s --add_path %(installdir)s/lib",
+]
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 375.77,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/openbabel/2.4.1/easybuild/reprod/OpenBabel-2.4.1-gmkl-2018.3.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.082,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-rf308263371c29f7ad4031dd06e1801f4eb48b800",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 31677425,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/2.7.14/bin/python",
+    "timestamp": 1592497984,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,53 @@
+# Built with EasyBuild version 4.1.1-r9cdb2a4a9802f8c67e84fb50f56b1c4198555db3 on 2020-04-23_19-21-35
+easyblock = 'ConfigureMake'
+
+name = 'FFmpeg'
+version = '4.2.1'
+
+homepage = 'https://www.ffmpeg.org/'
+description = "A complete, cross-platform solution to record, convert and stream audio and video."
+
+toolchain = {'name': 'GCC', 'version': '7.3.0'}
+
+source_urls = ['https://%(namelower)s.org/releases/']
+sources = [SOURCELOWER_TAR_BZ2]
+checksums = ['682a9fa3f6864d7f0dbf224f86b129e337bc60286e0d00dffcd710998d521624']
+
+configopts = '--enable-pic --enable-shared --enable-gpl --enable-version3 --enable-nonfree --cc="$CC" --cxx="$CXX" --enable-libx264 --enable-libx265 --enable-libmp3lame --enable-libfreetype --enable-fontconfig --enable-libfribidi'
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --any_interpreter --path %(installdir)s/bin --add_path %(installdir)s/lib",
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/ffprobe', 'lib/libavdevice.so', 'lib/libavdevice.a', 'lib/libavfilter.so', 'lib/libavfilter.a', 'lib/libavformat.so', 'lib/libavformat.a', 'lib/libavcodec.so', 'lib/libavcodec.a', 'lib/libpostproc.so', 'lib/libpostproc.a', 'lib/libswresample.so', 'lib/libswresample.a', 'lib/libswscale.so', 'lib/libswscale.a', 'lib/libavutil.so', 'lib/libavutil.a'],
+    'dirs': ['include'],
+}
+
+moduleclass = 'vis'
+
+# Build statistics
+buildstats = [{
+    "build_time": 355.49,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/ffmpeg/4.2.1/easybuild/reprod/FFmpeg-4.2.1-GCC-7.3.0.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.082,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.1.1-r46b782e23fede3341151d3dbff8813bb6bff5132",
+    "easybuild-framework_version": "4.1.1-r9cdb2a4a9802f8c67e84fb50f56b1c4198555db3",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 262046384,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.2.10'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1587669694,
+    "total_memory": 60232,
+}]

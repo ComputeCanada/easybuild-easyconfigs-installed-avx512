@@ -1,0 +1,86 @@
+# Built with EasyBuild version 4.2.0-rbba5be883d5b568ae1afc08af83fcf47a6d495f2 on 2020-06-05_20-23-23
+name = 'Octave'
+version = '5.2.0'
+
+homepage = 'http://www.gnu.org/software/octave/'
+description = "GNU Octave is a high-level interpreted language, primarily intended for numerical computations."
+
+toolchain = {'name': 'iimkl', 'version': '2020a'}
+
+source_urls = [GNU_SOURCE]
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['2fea62b3c78d6f38e9451da8a4d26023840725977dffee5250d3d180f56595e1']
+
+builddependencies = [
+    ('Bison', '3.5.3'),
+    ('flex', '2.6.4'),
+    ('Autotools', '20180311'),
+    ('gperf', '3.1'),
+    ('X11', '20200222'),
+    ('PCRE', '8.44'),
+    ('ncurses', '6.2'),
+    ('libreadline', '8.0'),
+    ('arpack-ng', '3.7.0'),
+    ('cURL', '7.69.1'),
+    ('FLTK', '1.3.5'),
+    ('fontconfig', '2.13.92'),
+    ('freetype', '2.10.1'),
+    ('GLPK', '4.65', '', ('GCCcore', '9.3.0')),
+    ('GL2PS', '1.4.0'),
+    ('zlib', '1.2.11'),
+    ('Mesa', '20.0.2'),
+    ('libGLU', '9.0.1'),
+    ('Qhull', '2019.1', '', True),
+    ('Qt5', '5.12.8', '', ('GCCcore', '9.3.0')),
+    ('HDF5', '1.10.6', None, ('iccifort', '2020.1.217')),
+    ('qrupdate', '1.1.2', '', True),
+    ('SuiteSparse', '5.7.1'),
+    ('texinfo', '6.7'),
+    ('libsndfile', '1.0.28'),
+    ('GraphicsMagick', '1.3.34'),
+    ('FFTW', '3.3.8', None, ('iccifort', '2020.1.217')),
+    ('Java', '11', '', True),
+]
+dependencies = [
+    ('gnuplot', '5.2.8'),
+]
+
+preconfigopts = 'export LIBS="$LIBS -lgfortran" && '
+configopts = '--enable-fortran-calling-convention=gfortran'
+
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s'],
+    'dirs': [],
+}
+
+sanity_check_commands = [('%(namelower)s', '--eval "1+2"')]
+
+moduleclass = 'math'
+
+# Build statistics
+buildstats = [{
+    "build_time": 789.3,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/intel2020/octave/5.2.0/easybuild/reprod/Octave-5.2.0-iimkl-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.0-re4d44330922583301eb996ad18d75f3ad636cac7",
+    "easybuild-framework_version": "4.2.0-rbba5be883d5b568ae1afc08af83fcf47a6d495f2",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 239260676,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1591388603,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,79 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-06-13_08-28-55
+easyblock = 'CMakeMakeCp'
+
+name = 'tsnecuda'
+version = '2.1'
+
+homepage = 'https://github.com/CannyLab/tsne-cuda'
+description = "tsne-cuda is an optimized CUDA version of t-Stochastic Neighborhood Embedding (t-SNE) - a highly successful method for dimensionality reduction and visualization of high dimensional datasets."
+
+toolchain = {'name': 'gcccuda', 'version': '2018.3.100'}
+
+checksums = ['a3fa92b941c25ddf9b7360f86ed2e4bc']
+
+dependencies = [
+    ('imkl', '2019.2.187', '', True),
+    ('cuDNN', '7.6'),
+    ('CMake', '3.16.3', '', True),
+]
+
+# don't run test on build-node without GPU
+# runtest = ' test'
+
+preconfigopts = "git clone https://github.com/CannyLab/tsne-cuda . ;  git checkout %(version)s; git submodule init ; git submodule update ; cd build ;"
+
+prebuildopts = "cd build ; "
+
+parallel = 8
+
+postinstallcmds = [
+    "cd build/python ; module load python/3.5.4 ; mkdir -p %(installdir)s/lib/python3.5/site-packages ; export PYTHONPATH=%(installdir)s/lib/python3.5/site-packages ; pip  install . --prefix=%(installdir)s ; module load python/3.6.3 ; mkdir -p %(installdir)s/lib/python3.6/site-packages ; export PYTHONPATH=%(installdir)s/lib/python3.6/site-packages ; pip  install .  --prefix=%(installdir)s ; module load python/3.7.4 ; mkdir -p %(installdir)s/lib/python3.7/site-packages ; export PYTHONPATH=%(installdir)s/lib/python3.7/site-packages ; pip  install . --prefix=%(installdir)s ; module load python/3.8.2 ; mkdir -p %(installdir)s/lib/python3.8/site-packages ; export PYTHONPATH=%(installdir)s/lib/python3.8/site-packages ; pip  install . --prefix=%(installdir)s ",
+]
+separate_build_dir = False
+files_to_copy = [
+    'third_party/gtest/googlemock/include',
+    (['build/third_party/glog/glog/*'], 'include/glog'),
+    (['third_party/gtest/googletest/include/gtest/*'], 'include/gtest'),
+    (['build/libtsnecuda.so'], 'lib'),
+    (['build/tsne'], 'bin'),
+    (['build/lib/*'], 'lib'),
+    (['build/third_party/glog/lib*'], 'lib'),
+]
+configure_cmd = ' cmake -DBUILD_PYTHON=ON -DMKL_DIR=$MKLROOT -DCMAKE_CXX_COMPILER="g++" -DCMAKE_C_COMPILER="gcc" -DWITH_MKL=ON -DMKL_INCLUDE_DIR="$MKLROOT/include" -DMKL_LIBRARIES="-lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lgomp -lpthread -lm -ldl" -DBUILD_DOC=ON -DWITH_ZMQ=FALSE -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-rpath,$EBROOTCUDA/lib64" -DWITH_FAISS_GPU_STANDALONE=ON -DCMAKE_EXE_LINKER_FLAGS="-Wl,-rpath,$EBROOTCUDA/lib64"  -DBUILD_SHARED_LIBS=ON -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_INSTALL_PREFIX=%(installdir)s/ ../ '
+
+sanity_check_paths = {
+    'files': ['lib/libglog.so', 'bin/tsne', 'lib/libtsnecuda.so'],
+    'dirs': ['lib/python3.5/site-packages/%(name)s', 'lib/python3.6/site-packages/%(name)s', 'lib/python3.7/site-packages/%(name)s', 'lib/python3.8/site-packages/%(name)s'],
+}
+
+modextrapaths = {'EBPYTHONPREFIXES': ['']}
+
+moduleclass = 'math'
+
+# Build statistics
+buildstats = [{
+    "build_time": 2297.2,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/CUDA/gcc7.3/cuda10.0/tsnecuda/2.1/easybuild/reprod/tsnecuda-2.1-gcccuda-2018.3.100.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-ra22d8c29c3bef14c7e3c226a5323e5521e2e4019",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 888294962,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1592036935,
+    "total_memory": 60232,
+}]

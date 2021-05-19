@@ -1,0 +1,100 @@
+# Built with EasyBuild version 4.1.1-r816931a3fbaa3b68c60e41f655c138682f0989b5 on 2020-01-24_17-51-21
+# Built with EasyBuild version 3.5.2.dev0-rb302d581048bd85d87bb0ab6cfa8bac7b1ffb899 on 2018-02-23_17-07-58
+# easybuild easyconfig
+#
+# John Dey jfdey@fredhutch.org
+#
+# Fred Hutchinson Cancer Research Center
+
+easyblock = 'Binary'
+
+name = 'PfamScan'
+version = '1.6'
+
+homepage = 'http://ftp.ebi.ac.uk/pub/databases/Pfam/Tools/'
+description = "PfamScan is used to search a FASTA sequence against a library of Pfam HMM."
+
+toolchain = {'name': 'GCC', 'version': '7.3.0'}
+
+source_urls = ['http://ftp.ebi.ac.uk/pub/databases/Pfam/Tools/']
+sources = ['%(name)s.tar.gz']
+
+dependencies = [
+    ('Perl', '5.22.4', '', True),
+    ('HMMER', '3.1b2'),
+]
+
+exts_defaultclass = 'PerlModule'
+extract_sources = True
+
+exts_list = [
+    ('Carp', '1.50', {'runtest': 'test', 'source_tmpl': 'Carp-1.50.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/X/XS/XSAWYERX/']}),
+    ('Test::Needs', '0.002006', {'runtest': 'test', 'source_tmpl': 'Test-Needs-0.002006.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/H/HA/HAARG']}),
+    ('Class::Load', '0.25', {'runtest': 'test', 'source_tmpl': 'Class-Load-0.25.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER']}),
+    ('Data::OptList', '0.110', {'runtest': 'test', 'source_tmpl': 'Data-OptList-0.110.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RJ/RJBS/']}),
+    ('Class::Load::XS', '0.10', {'runtest': 'test', 'source_tmpl': 'Class-Load-XS-0.10.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('Devel::GlobalDestruction', '0.14', {'runtest': 'test', 'source_tmpl': 'Devel-GlobalDestruction-0.14.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/H/HA/HAARG/']}),
+    ('Sub::Identify', '0.14', {'runtest': 'test', 'source_tmpl': 'Sub-Identify-0.14.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RG/RGARCIA/']}),
+    ('Devel::OverloadInfo', '0.005', {'runtest': 'test', 'source_tmpl': 'Devel-OverloadInfo-0.005.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/I/IL/ILMARI/']}),
+    ('Devel::StackTrace', '2.04', {'runtest': 'test', 'source_tmpl': 'Devel-StackTrace-2.04.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/']}),
+    ('Dist::CheckConflicts', '0.11', {'runtest': 'test', 'source_tmpl': 'Dist-CheckConflicts-0.11.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DO/DOY/']}),
+    ('Eval::Closure', '0.14', {'runtest': 'test', 'source_tmpl': 'Eval-Closure-0.14.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DO/DOY/']}),
+    ('List::Util', '1.53', {'runtest': 'test', 'source_tmpl': 'Scalar-List-Utils-1.53.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/P/PE/PEVANS/']}),
+    ('Module::Runtime', '0.016', {'runtest': 'test', 'source_tmpl': 'Module-Runtime-0.016.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/Z/ZE/ZEFRAM/']}),
+    ('Module::Runtime::Conflicts', '0.003', {'runtest': 'test', 'source_tmpl': 'Module-Runtime-Conflicts-0.003.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('MRO::Compat', '0.13', {'runtest': 'test', 'source_tmpl': 'MRO-Compat-0.13.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/H/HA/HAARG/']}),
+    ('Package::DeprecationManager', '0.17', {'runtest': 'test', 'source_tmpl': 'Package-DeprecationManager-0.17.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DR/DROLSKY/']}),
+    ('Package::Stash', '0.38', {'runtest': 'test', 'source_tmpl': 'Package-Stash-0.38.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('Package::Stash::XS', '0.29', {'runtest': 'test', 'source_tmpl': 'Package-Stash-XS-0.29.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('Params::Util', '1.07', {'runtest': 'test', 'source_tmpl': 'Params-Util-1.07.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/A/AD/ADAMK/']}),
+    ('parent', '0.237', {'runtest': 'test', 'source_tmpl': 'parent-0.237.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/C/CO/CORION/']}),
+    ('Sub::Exporter', '0.987', {'runtest': 'test', 'source_tmpl': 'Sub-Exporter-0.987.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RJ/RJBS/']}),
+    ('Sub::Name', '0.26', {'runtest': 'test', 'source_tmpl': 'Sub-Name-0.26.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('Try::Tiny', '0.30', {'runtest': 'test', 'source_tmpl': 'Try-Tiny-0.30.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('CPAN::Meta::Check', '0.014', {'runtest': 'test', 'source_tmpl': 'CPAN-Meta-Check-0.014.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/L/LE/LEONT/']}),
+    ('Variable::Magic', '0.62', {'runtest': 'test', 'source_tmpl': 'Variable-Magic-0.62.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/V/VP/VPIT/']}),
+    ('B::Hooks::EndOfScope', '0.24', {'runtest': 'test', 'source_tmpl': 'B-Hooks-EndOfScope-0.24.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('namespace::clean', '0.27', {'runtest': 'test', 'source_tmpl': 'namespace-clean-0.27.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RI/RIBASUSHI/']}),
+    ('Role::Tiny', '2.001004', {'runtest': 'test', 'source_tmpl': 'Role-Tiny-2.001004.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/H/HA/HAARG/']}),
+    ('File::pushd', '1.016', {'runtest': 'test', 'source_tmpl': 'File-pushd-1.016.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN/']}),
+    ('Test::CleanNamespaces', '0.24', {'runtest': 'test', 'source_tmpl': 'Test-CleanNamespaces-0.24.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('Moose', '2.2012', {'runtest': 'test', 'source_tmpl': 'Moose-2.2012.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/E/ET/ETHER/']}),
+    ('IPC::Run', '20180523.0', {'runtest': 'test', 'source_tmpl': 'IPC-Run-20180523.0.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/T/TO/TODDR/']}),
+]
+
+sanity_check_paths = {
+    'files': ['pfam_scan.pl'],
+    'dirs': ['lib'],
+}
+
+modextrapaths = {
+    'PERL5LIB': ':%(installdir)s/lib/perl5/site_perl/%(perlver)s/:%(installdir)s/lib/perl5/site_perl/%(perlver)s/%(arch)s-linux-thread-multi',
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 350.73,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc7.3/pfamscan/1.6/easybuild/reprod/PfamScan-1.6-GCC-7.3.0.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.1.1-rfa6a798da9f9b46dc09274984a3a839c9e981892",
+    "easybuild-framework_version": "4.1.1-r816931a3fbaa3b68c60e41f655c138682f0989b5",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 4489468,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.2.10'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1579888281,
+    "total_memory": 60232,
+}]

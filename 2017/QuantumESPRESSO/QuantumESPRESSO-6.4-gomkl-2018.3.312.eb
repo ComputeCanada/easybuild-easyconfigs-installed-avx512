@@ -1,0 +1,64 @@
+# Built with EasyBuild version 3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299 on 2019-03-22_15-23-06
+name = 'QuantumESPRESSO'
+version = '6.4'
+
+homepage = 'http://www.pwscf.org/'
+description = """Quantum ESPRESSO  is an integrated suite of computer codes
+ for electronic-structure calculations and materials modeling at the nanoscale.
+ It is based on density-functional theory, plane waves, and pseudopotentials
+  (both norm-conserving and ultrasoft)."""
+
+toolchain = {'name': 'gomkl', 'version': '2018.3.312'}  # 'https://github.com/dceresoli/qe-gipaw/archive/',
+toolchainopts = {'usempi': True, 'openmp': False}  # GAS: this toolchain misses -lgomp for Wannier
+
+# The old qe-forge archive doesn't exist any longer.
+# This easyconfig is for those who have the old qe-forge tar file downloaded.
+# The qe tar file from github for 6.2 has a different top level directory name
+# than the old qe-forge tarfile did and the easyblock expects the old name.
+# Old download was
+# wget http://qe-forge.org/gf/download/frsrelease/244/1114/qe-6.2.tar.gz
+source_urls = [
+    'https://github.com/QEF/q-e/releases/download/qe-%(version)s/',
+    'https://github.com/wannier-developers/wannier90/archive/',  # wannier90 3.0
+]
+sources = ['qe-%(version)s_release_pack.tgz', 'v3.0.0.tar.gz']
+patches = ['%(name)s-6.4_fox_libs.patch']
+
+dependencies = [
+    ('libxc', '4.2.3', '', ('GCC', '7.3.0')),
+]
+
+#buildopts = 'all w90 gipaw xspectra pwall ph epw'
+buildopts = "all w90  xspectra pwall ph hp epw"
+
+# parallel build tends to fail
+parallel = 1
+
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 759.64,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCCcore\\': \\'GENERIC\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/gcc7.3/openmpi3.1/quantumespresso/6.4/easybuild/reprod/QuantumESPRESSO-6.4-gomkl-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.072,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.8.0-rfa005acd2846dcfd6c56333199f5b3fac469b44e",
+    "easybuild-framework_version": "3.8.0-r2f58107c2b9aed07020e61c148688ed4f1c9a299",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/rrwlh3bahkdwnbjvzm0nkq3504v451yl-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 307055411,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '7.8.15'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.5.1804",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1553268186,
+    "total_memory": 60232,
+}]

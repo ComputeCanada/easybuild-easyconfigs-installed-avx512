@@ -1,0 +1,62 @@
+# Built with EasyBuild version 4.2.2-rbafe75b2060fb53e4cab98ef8967b8fea343e79b on 2020-07-15_15-30-26
+easyblock = 'ConfigureMake'
+
+name = 'GA'
+version = '5.7'
+
+homepage = 'http://hpc.pnl.gov/globalarrays/'
+description = """Global Arrays (GA) is a Partitioned Global Address Space (PGAS) programming model. 
+It provides primitives for one-sided communication (Get, Put, Accumulate) and Atomic Operations (read increment). 
+It supports blocking and non-blocking primtives, and supports location consistency. I8 version. """
+
+toolchain = {'name': 'iimkl', 'version': '2018.3'}
+
+source_urls = ['https://github.com/GlobalArrays/ga/releases/download/v5.7/']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['3ed1ab47adfda7bceb7beca12fc05a2e1631732f0e55bbaf9036dad4e3da4774']
+
+dependencies = [
+    ('impi', '2018.3.222', '', ('iccifort', '2018.3')),
+]
+
+configopts = '--enable-ofi --with-mpi-pr CC=icc F77=ifort MPICC=mpiicc MPIFORT=mpif90 ARMCI_NETWORK=MPI-PR --with-scalapack8="-L$EBROOTIMKL/lib/intel64 -lmkl_scalapack_ilp64  -lmkl_blacs_intelmpi_ilp64" '
+
+
+# For Intel compilers, GA seems to pick -mkl automatically.
+
+sanity_check_paths = {
+    'files': ['bin/adjust.x', 'bin/armci-config', 'bin/collisions.x', 'bin/comex-config', 'bin/ga-config'],
+    'dirs': ['lib', 'include'],
+}
+
+modextrapaths = {'GAROOT': ''}
+
+moduleclass = 'tools'
+
+# Build statistics
+buildstats = [{
+    "build_time": 290.58,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_nix.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/intel2018.3/ga/5.7/easybuild/reprod/GA-5.7-iimkl-2018.3.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.2-r174db431f9baa9eecb8f1ac26b1ee829569a3673",
+    "easybuild-framework_version": "4.2.2-rbafe75b2060fb53e4cab98ef8967b8fea343e79b",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 5125008,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1594827025,
+    "total_memory": 60232,
+}]

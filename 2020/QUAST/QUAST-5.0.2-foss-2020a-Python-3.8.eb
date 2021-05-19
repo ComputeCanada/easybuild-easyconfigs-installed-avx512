@@ -1,0 +1,104 @@
+# Built with EasyBuild version 4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e on 2020-10-21_18-04-01
+# Updated from previous config
+# Author: Pavel Grochal (INUITS)
+# License: GPLv2
+
+easyblock = 'PythonBundle'
+
+name = 'QUAST'
+version = '5.0.2'
+versionsuffix = '-Python-%(pyver)s'
+
+homepage = 'https://github.com/ablab/%(namelower)s'
+description = """QUAST evaluates genome assemblies by computing various metrics.
+ It works both with and without reference genomes. The tool accepts multiple
+ assemblies, thus is suitable for comparison."""
+
+toolchain = {'name': 'foss', 'version': '2020a'}
+toolchainopts = {'pic': True}
+
+dependencies = [
+    ('Python', '3.8', '', ('GCCcore', '9.3.0')),
+    ('Perl', '5.30.2', '', True),
+    ('SciPy-Stack', '2020a', '', True),
+    ('Java', '13', '', True),
+    ('Boost', '1.72.0', '', ('gompi', '2020a')),
+]
+
+postinstallcmds = ['cd %(installdir)s/bin && ln -s %(namelower)s.py %(namelower)s']
+exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    'python -c "import %(ext_name)s"',
+    '',
+)
+sanity_pip_check = True
+use_pip = True
+
+exts_default_options = {
+    'buildcmd': 'build',
+    'check_ldshared': None,
+    'download_dep_fail': True,
+    'install_target': 'install',
+    'options': {},
+    'pip_ignore_installed': True,
+    'req_py_majver': None,
+    'req_py_minver': None,
+    'runtest': True,
+    'sanity_pip_check': True,
+    'unpack_sources': True,
+    'use_easy_install': False,
+    'use_pip': True,
+    'use_pip_editable': False,
+    'use_pip_extras': None,
+    'use_pip_for_deps': False,
+    'use_pip_requirement': False,
+    'use_setup_py_develop': False,
+    'zipped_egg': False,
+}
+
+exts_list = [
+    ('simplejson', '3.17.0', {'source_urls': ['https://pypi.python.org/packages/source/s/simplejson'], 'checksums': ['2b4b2b738b3b99819a17feaf118265d0753d5536049ea570b3c43b51c4701e81']}),
+    ('joblib', '0.17.0', {'source_urls': ['https://pypi.python.org/packages/source/j/joblib'], 'checksums': ['9e284edd6be6b71883a63c9b7f124738a3c16195513ad940eae7e3438de885d5']}),
+    ('path', '15.0.0', {'source_urls': ['https://pypi.python.org/packages/source/p/path'], 'checksums': ['521aa0632faea3dbf7bc15549524cfc0f5d62b9a311508e562598f65c8dfda92']}),
+    ('QUAST', '5.0.2', {'install_target': 'install_full', 'modulename': 'quast_libs', 'patches': ['QUAST-%(version)s_fix-Python-3.8.patch'], 'source_tmpl': 'quast_%(version)s.tar.gz', 'source_urls': ['https://github.com/ablab/quast/archive/'], 'checksums': ['9f30c03e0bfd261492fe6b72fb07645bdee5b29d741f75fc75857b6fa095d91d', '8ae7ebf45e5368ebc058fc208822a23d32ce1052bd53fd8c3aaa4ad14d3c95aa']}),
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/%(namelower)s.py', 'bin/meta%(namelower)s.py'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    "wget %(namelower)s.sf.net/test_data.tar.gz && tar xzf test_data.tar.gz && %(namelower)s.py --test && rm ./test_data.tar.gz ./test_data -rf",
+    "%(namelower)s -h",
+]
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 20.93,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", '--backup-modules', "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", '--module-only', "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/gcc9/openmpi4/quast/5.0.2/easybuild/reprod/QUAST-5.0.2-foss-2020a-Python-3.8.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.0-reba0e154d1b07679ee7703f76de48ef0951879ba",
+    "easybuild-framework_version": "4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 139488904,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
+    "timestamp": 1603303437,
+    "total_memory": 60232,
+}]

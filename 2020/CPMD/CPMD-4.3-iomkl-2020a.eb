@@ -1,0 +1,83 @@
+# Built with EasyBuild version 4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e on 2020-10-18_15-43-01
+easyblock = 'MakeCp'
+
+name = 'CPMD'
+version = '4.3'
+
+import os
+
+homepage = 'http://cpmd.org'
+description = """The CPMD code is a parallelized plane wave / pseudopotential
+implementation of Density Functional Theory, particularly designed for
+ab-initio molecular dynamics."""
+
+toolchain = {'name': 'iomkl', 'version': '2020a'}
+toolchainopts = {'usempi': True, 'openmp': False}
+
+# CPMD tarball and patches and other utils should be downloaded manually and placed into the sources dir.
+
+sources = [
+    'cpmd-v4.3.tar.gz',
+    'cpmd2cube.tar.gz', 
+    'fourier.tar.gz', 
+    'cpmd2xyz-scripts.tar.gz'
+]
+patches = ['patch.to.4612','patch.to.4615','patch.to.4616','patch.to.4621','patch.to.4624','patch.to.4627']
+checksums = [
+    '4f31ddf045f1ae5d6f25559d85ddbdab4d7a6200362849df833632976d095df4',  # cpmd-v4.3.tar.gz
+    'c59b50385d18ddf33ba285d0e4c1b2e2cd6ac3b6ff17ecfb7eb3099c71d337b9',  # cpmd2cube.tar.gz
+    'e0959f173ce39587ee68b8f7e5b9fca5be919dad6c7d9fb9ad010b3b91fc958c',  # fourier.tar.gz
+    'd047c8ac798d88ef4865088e41ee9b3d64c0160c90688a6904c3178789a5d358',  # cpmd2xyz-scripts.tar.gz
+    '3b7d91e04c40418ad958069234ec7253fbf6c4be361a1d5cfd804774eeb44915',  # patch.to.4612
+    '5ec5790fb6ca64632bcc1b0f5b8f3423c54455766a0979ff4136624bbe8d49eb',  # patch.to.4615
+    'ac0bc215c4259f55da4dc59803fe636f797e241f8a01974e05730c9778ad44c4',  # patch.to.4616
+    '2d2bc7e37246032fc354f51da7dbdb5a219dd228867399931b0e94da1265d5ca',  # patch.to.4621
+    '0a19687528264bf91c9f50ffdc0b920a8511eecf5259b667c8c29350f9dabc53',  # patch.to.4624
+    '63677cd887b2c627f9498173d6d7793809577aad2655c96fe6f4e01d763bdda0',  # patch.to.4627
+]
+
+prebuildopts  = 'cd %(builddir)s/cpmd2cube/ && ./Configure Linux-PC-IFORT > Makefile && make && '
+prebuildopts += 'cd %(builddir)s/fourier/ && make && '
+prebuildopts += 'cd %(builddir)s/CPMD/ && ./configure.sh LINUX-X86_64-INTEL-MPI-FFTW && '
+
+buildopts = "CPP='fpp -P -C'"
+
+files_to_copy = [(['bin/cpmd.x', '%(builddir)s/out2xyz.pl', '%(builddir)s/traj2xyz.pl', '%(builddir)s/cpmd2cube/cpmd2cube.x', '%(builddir)s/cpmd2cube/cutcube.x', '%(builddir)s/cpmd2cube/trimcube.x', '%(builddir)s/fourier/fourier.x', '%(builddir)s/fourier/trajec2atoms.x'], 'bin')]
+
+sanity_check_paths = {
+    'files': ['bin/cpmd.x', 'bin/fourier.x', 'bin/cpmd2cube.x', 'bin/out2xyz.pl'],
+    'dirs': []
+}
+
+if os.environ.get('USER') == 'ebuser':
+    group = "soft_cpmd"
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 312.13,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2020'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', 'CPMD-4.3-iomkl-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.0-r0b0dd44519da64179e7fb52e6a3d369ec14c5228",
+    "easybuild-framework_version": "4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 107409785,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1603035780,
+    "total_memory": 60232,
+}]

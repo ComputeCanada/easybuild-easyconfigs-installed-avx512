@@ -1,0 +1,115 @@
+# Built with EasyBuild version 4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e on 2020-10-21_16-30-00
+easyblock = 'EB_Qt'
+
+name = 'Qt5'
+version = '5.12.8'
+
+homepage = 'https://qt.io/'
+description = "Qt is a comprehensive cross-platform C++ application framework."
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+
+source_urls = [
+    'https://download.qt.io/official_releases/qt/%(version_major_minor)s/%(version)s/single/',
+    'https://download.qt.io/archive/qt/%(version_major_minor)s/%(version)s/single/',
+]
+sources = ['qt-everywhere-src-%(version)s.tar.xz']
+patches = [
+    '%(name)s-%(version_major_minor)s.3_fix-avx2.patch',
+    '%(name)s-%(version_major_minor)s.3_fix-qmake-libdir.patch',
+]
+checksums = [
+    '9142300dfbd641ebdea853546511a352e4bd547c4c7f25d61a40cd997af1f0cf',  # qt-everywhere-src-%(version)s.tar.xz
+    '6f46005f056bf9e6ff3e5d012a874d18ee03b33e685941f2979c970be91a9dbc',  # %(name)s-%(version_major_minor)s.3_fix-avx2.patch
+    '50974f2ed761a8a70fbdf2e80b9107af68cc29ee951885e26fa0c19bdb6a9c7b',  # %(name)s-%(version_major_minor)s.3_fix-qmake-libdir.patch
+]
+
+builddependencies = [
+    ('binutils', '2.34'),
+    ('pkg-config', '0.29.2'),
+    # deps for QtWebEngine
+    ('Bison', '3.5.3'),
+    ('flex', '2.6.4'),
+    ('gperf', '3.1'),
+    # ('Ninja', '1.10.0'),
+    # ('Python', '3.8.2'),
+    ('re2c', '1.3'),
+    # upstream deps, rpath'ed libraries
+    ('double-conversion', '3.1.5'),
+    ('PCRE2', '10.34'),
+    ('libevent', '2.1.11'),
+    ('NSS', '3.51'),
+    ('snappy', '1.1.8'),
+    ('JasPer', '2.0.16', '', True),
+]
+dependencies = [
+    ('GLib', '2.64.1'),
+    ('libpng', '1.6.37'),
+    # deps for QtWebEngine
+    ('X11', '20200222'),
+    ('DBus', '1.13.12'),
+    ('libGLU', '9.0.1'),
+    ('libjpeg-turbo', '2.0.4'),
+]
+multi_deps = {'Python': ['2.7', '3.6', '3.7', '3.8']}
+
+preconfigopts = "EBROOTX11=$EBROOTGENTOO EBROOTLIBGLU=$EBROOTGENTOO "
+# qtgamepad needs recent kernel/libevdev (fails on RHEL 6.x)
+configopts = "-skip qtgamepad -no-feature-statx -no-feature-getentropy -no-feature-renameat2"
+
+prebuildopts = "NINJAFLAGS='-j16' "
+
+# see https://patchwork.ozlabs.org/project/buildroot/patch/20180629143521.9018-1-gael.portay@savoirfairelinux.com/
+parallel = 16
+
+multi_deps_load_default = False
+multi_deps_extensions_only = True
+exts_defaultclass = 'ConfigureMakePythonPackage'
+exts_filter = (
+    "python -c 'import %(ext_name)s'",
+    '',
+)
+modaltsoftname = 'qt'
+# make sure QtWebEngine component is being built & installed
+check_qtwebengine = True
+
+exts_default_options = {'source_urls': ['https://www.riverbankcomputing.com/static/Downloads/%(name)s/%(version)s/']}
+
+exts_list = [
+    ('enum34', '1.1.10', {'modulename': 'enum', 'checksums': ['cce6a7477ed816bd2542d03d53db9f0db935dd013b70f336a95c73979289f248'], 'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'preconfigopts': '#', 'prebuildopts': '#', 'preinstallopts': '(cd .. && python -c "import enum") || pip install --prefix=%(installdir)s  --no-deps  --ignore-installed  --no-build-isolation . #'}),
+    ('sip', '4.19.18', {'modulename': 'PyQt5.sip', 'source_tmpl': '%(name)s-%(version)s.tar.gz', 'checksums': ['c0bd863800ed9b15dcad477c4017cdb73fa805c25908b0240564add74d697e1e'], 'preconfigopts': 'mkdir -p %(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/sip && ', 'configopts': 'configure.py --bindir %(installdir)s/bin --incdir %(installdir)s/include --destdir %(installdir)s/lib/python${EBVERSIONPYTHON:0:3}/site-packages --sipdir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/sip --sip-module PyQt5.sip --no-dist-info --no-stubs', 'installopts': ' && make clean'}),
+    ('PyQt5', '5.12.3', {'modulename': 'PyQt5.QtCore', 'source_tmpl': '%(name)s_gpl-%(version)s.tar.gz', 'patches': ['PyQt5-5.12.3-fix-python2.patch'], 'checksums': ['0db0fa37debab147450f9e052286f7a530404e2aaddc438e97a7dcdf56292110', '8cd9e0959476c25f6b70cad1c6f12e692b21a0528a1052048c6ae901f4b99ab8'], 'configopts': 'configure.py --confirm-license --verbose --no-python-dbus --bindir=%(installdir)s/bin --destdir=%(installdir)s/lib/python${EBVERSIONPYTHON:0:3}/site-packages --sip=%(installdir)s/bin/sip --sip-incdir %(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/sip --sipdir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/sip/PyQt5 --designer-plugindir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/plugins/designer --qml-plugindir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/plugins/PyQt5 --qsci-api-destdir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/qsci --no-dist-info --no-stubs', 'installopts': ' && make clean'}),
+    ('PyQtWebEngine', '5.12.1', {'modulename': 'PyQt5.QtWebEngine', 'source_tmpl': '%(name)s_gpl-%(version)s.tar.gz', 'checksums': ['860704672ea1b616e1347be1f347bc1c749e64ed378370863fe209e84e9bd473'], 'configopts': 'configure.py --verbose --destdir=%(installdir)s/lib/python${EBVERSIONPYTHON:0:3}/site-packages/PyQt5 --apidir=%(installdir)s/share/python${EBVERSIONPYTHON:0:3}/site-packages/qsci --pyqt-sipdir=%(builddir)s/PyQt5/PyQt5_gpl-5.12.3/sip --no-dist-info --no-stubs', 'installopts': ' && make clean'}),
+]
+
+modextrapaths = {'EBPYTHONPREFIXES': ['']}
+
+moduleclass = 'devel'
+
+# Build statistics
+buildstats = [{
+    "build_time": 6582.18,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Core/qt/5.12.8/easybuild/reprod/Qt5-5.12.8-GCCcore-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.0-r0b0dd44519da64179e7fb52e6a3d369ec14c5228",
+    "easybuild-framework_version": "4.3.0-rc09d6ca14937467ccd390604052ab2d1c3a0ba6e",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 1514989205,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
+    "timestamp": 1603297800,
+    "total_memory": 60232,
+}]

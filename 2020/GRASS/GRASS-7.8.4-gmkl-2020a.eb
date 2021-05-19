@@ -1,0 +1,131 @@
+# Built with EasyBuild version 4.3.0-r05c1b8f4e7b8bde88307d63cec6de41fbb319349 on 2020-11-12_16-15-50
+easyblock = 'ConfigureMake'
+
+name = 'GRASS'
+version = '7.8.4'
+
+homepage = "https://grass.osgeo.org"
+description = """The Geographic Resources Analysis Support System - used
+ for geospatial data management and analysis, image processing,
+ graphics and maps production, spatial modeling, and visualization"""
+
+toolchain = {'name': 'gmkl', 'version': '2020a'}
+
+source_urls = ['https://grass.osgeo.org/grass%s/source' % ''.join(version.split('.')[:2])]
+sources = [SOURCELOWER_TAR_GZ]
+patches = [
+	'%(name)s-7.6.0_GCC_ldlibs.patch',
+	'%(name)s-%(version)s-ctype.patch',
+]
+checksums = [
+    'd9535afb5e43ecdcf9a6233f5a1fa83908b66456bdd06107e7320a51ee86cff9',  # grass-7.8.4.tar.gz
+    '1927578fc81cb8f9d930874b0fd3453f446720b50eb95b9bd1fb2c940ca02e6e',  # GRASS-7.6.0_GCC_ldlibs.patch
+    '1dddbde2c9a010d44831c08d08046e44f1f90d2327185bc3a9db40f5b184e39c',  # GRASS-7.8.4-ctype.patch
+]
+
+builddependencies = [
+    ('flex', '2.6.4'),
+    ('Bison', '3.3.2'),
+    ('Autotools', '20180311'),
+]
+
+dependencies = [
+    ('zlib', '1.2.11'),
+    ('bzip2', '1.0.8'),
+    ('gettext', '0.20.1'),
+    ('Python', '3.7'),
+    ('libxml2', '2.9.9'),
+    ('libpng', '1.6.37'),
+    ('libreadline', '8.0'),
+    ('ncurses', '6.1'),
+    ('netCDF.Serial', '4.7.4'),
+    ('GDAL', '3.0.4'),
+    ('libspatialite', '4.3.0a'),
+    ('GEOS', '3.8.1'),
+    ('PROJ', '7.0.1'),
+    ('SQLite', '3.29.0'),
+    ('freetype', '2.10.1'),
+    ('FFmpeg', '4.2.1'),
+    ('FFTW', '3.3.8'),
+    ('LibTIFF', '4.0.10'),
+    ('cairo', '1.16.0'),
+    ('X11', '20190717'),
+    ('Mesa', '19.1.7'),
+    ('libGLU', '9.0.1'),
+    ('wxWidgets', '3.1.4'),
+    ('zstd', '1.4.4'),
+]
+
+preconfigopts = "sed -e 's/-lblas/$LIBBLAS/g' -e 's/-llapack/$LIBLAPACK/g' -i configure && "
+configopts = '--enable-64bit '
+configopts += '--enable-largefile=yes '
+configopts += '--with-cairo=yes '
+configopts += '--with-cxx '
+configopts += '--with-ffmpeg --with-ffmpeg-libs=$EBROOTFFMPEG/lib --with-ffmpeg-includes=$EBROOTFFMPEG/include/* '
+configopts += '--with-fftw --with-fftw-libs=$EBROOTFFTW/lib --with-fftw-includes=$EBROOTFFTW/include '
+configopts += '--with-freetype '
+configopts += '--with-freetype-libs=$EBROOTFREETYPE/lib --with-freetype-includes=$EBROOTFREETYPE/include/freetype2 '
+configopts += '--with-geos=$EBROOTGEOS/bin/geos-config '
+configopts += '--without-glw '
+configopts += '--with-lapack '
+configopts += '--with-lapack-lib=$LAPACK_LIB_DIR '
+configopts += '--with-lapack-includes=$LAPACK_INC_DIR '
+configopts += '--with-blas '
+configopts += '--with-blas-lib=$BLAS_LIB_DIR '
+configopts += '--with-blas-includes=$BLAS_INC_DIR '
+configopts += '--with-netcdf=$EBROOTNETCDF/bin/nc-config '
+configopts += '--without-odbc '
+configopts += '--with-opengl '
+configopts += '--with-openmp '
+configopts += '--with-png '
+configopts += '--with-png-libs="$EBROOTLIBPNG/lib $EBROOTZLIB/lib" --with-png-includes=$EBROOTLIBPNG/include '
+configopts += '--without-postgres '
+configopts += '--with-proj --with-proj-libs=$EBROOTPROJ/lib '
+configopts += '--with-proj-includes=$EBROOTPROJ/include --with-proj-share=$EBROOTPROJ/share/proj '
+configopts += '--with-pthread '
+configopts += '--with-python '
+configopts += '--with-readline '
+configopts += '--with-readline-libs=$EBROOTGENTOO/lib --with-readline-includes=$EBROOTGENTOO/include '
+configopts += '--with-spatialite '
+configopts += '--with-sqlite '
+configopts += '--with-tiff-libs=$EBROOTLIBTIFF/lib --with-tiff-includes=$EBROOTLIBTIFF/include '
+configopts += '--with-wxwidgets=$EBROOTWXWIDGETS/bin/wx-config '
+configopts += '--with-x '
+configopts += '--with-zlib --with-zlib-libs=$EBROOTZLIB/lib --with-zlib-includes=$EBROOTZLIB/include '
+configopts += '--with-bzlib --with-bzlib-libs=$EBROOTBZIP2/lib --with-ibzlib-includes=$EBROOTBZIP2/include '
+configopts += '--with-zstd --with-zstd-libs=$EBROOTZSTD/lib --with-zstd-includes=$EBROOTZSTD/include '
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ["."]
+}
+
+moduleclass = 'geo'
+
+# Build statistics
+buildstats = [{
+    "build_time": 296.93,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--try-toolchain='gmkl,2020a'", "--use-ccache=''", '--use-existing-modules', 'GRASS-7.8.4-gmkl-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.0-r10e43af59cde3f3052050ab795128d14b4c74cbf",
+    "easybuild-framework_version": "4.3.0-r05c1b8f4e7b8bde88307d63cec6de41fbb319349",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 83276863,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.12'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.7.9/bin/python",
+    "timestamp": 1605197749,
+    "total_memory": 60232,
+}]

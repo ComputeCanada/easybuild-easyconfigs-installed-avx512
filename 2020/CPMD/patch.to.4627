@@ -1,0 +1,72 @@
+Index: src/cp_xc_utils.mod.F90
+===================================================================
+--- src/cp_xc_utils.mod.F90	(revision 4624)
++++ src/cp_xc_utils.mod.F90	(revision 4627)
+@@ -1800,6 +1800,17 @@
+     WRITE(write_to_unit,'(1x,A)') TRIM(ADJUSTL(this%set_name))//':'
+     WRITE(write_to_unit,*) 
+     !
++    ! Minnesota functional? Print a warning
++    IF ( is_a_minnesota_functional( this%funcs(:) )) THEN
++          WRITE(write_to_unit,'(1X,A)') 'MINNESOTA FUNCTIONALS: TO AVOID OSCILLATORY BEHAVIOUR, IT IS IM-'
++          WRITE(write_to_unit,'(1X,A)') 'PERATIVE THAT THE DUAL BE SET TO A VALUE LARGER THAN THE DEFAULT'
++          WRITE(write_to_unit,'(1X,A)') 'PLEASE REFER TO AND CITE:'
++          WRITE(write_to_unit,'(1X,A)') '           M.P. Bircher, Pablo Lopez-Tarifa and U. Rothlisberger'
++          WRITE(write_to_unit,'(1X,A)') '               J. Chem. Theory Comput., 2019, 15 (1), pp 557-571'
++          WRITE(write_to_unit,'(1X,A)') '                                   DOI: 10.1021/acs.jctc.8b00897'
++          WRITE(write_to_unit,'(A)')
++    ENDIF
++    !
+     ! (Semi-)local functional
+     DO i_func=1, this%n_funcs
+        IF (this%via_libxc( i_func )) THEN
+@@ -1879,7 +1890,36 @@
+ 
+     END IF
+ 
++    CONTAINS
++
+     ! ==--------------------------------------------------------------==
++    LOGICAL FUNCTION is_a_minnesota_functional( funcs )
++
++        CHARACTER(len=*), DIMENSION(:), INTENT(in) :: funcs
++        INTEGER                                    :: i
++
++        is_a_minnesota_functional = .FALSE.
++
++        DO i=1,size(funcs)
++           IF (  trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M05'    &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M05_2X' &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M06'    &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M06_2X' &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M06_HF' &
++            .OR. trim(adjustl( funcs(i) )) == 'MGGA_XC_M06_L'      &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M08_HX' &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M08_SO' &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_M11'    &
++            .OR. trim(adjustl( funcs(i) )) == 'MGGA_XC_M11_L'      &
++            .OR. trim(adjustl( funcs(i) )) == 'HYB_MGGA_XC_MN12'   &
++            .OR. trim(adjustl( funcs(i) )) == 'MGGA_XC_MN12_L' ) THEN
++              is_a_minnesota_functional = .TRUE.
++              EXIT
++           ENDIF
++        ENDDO
++
++    END FUNCTION
++    ! ==--------------------------------------------------------------==
+   END SUBROUTINE cp_xc_env_report
+   ! ==================================================================
+   SUBROUTINE cp_xc_env_set_hybrid_defaults(this,default_divergence)
+Index: src/control_utils.mod.F90
+===================================================================
+--- src/control_utils.mod.F90	(revision 4624)
++++ src/control_utils.mod.F90	(revision 4627)
+@@ -3439,7 +3439,7 @@
+              ELSEIF ( keyword_contains(line,'RHOOUT') ) THEN
+                 ! Store density
+                 rout1%rhoout=.TRUE.
+-                IF ( keyword_contains(line,'SAMPLE') ) THEN
++                IF ( keyword_contains(line,'SAMPLE',cut_at='=') ) THEN
+                    first = index_of_delimiter(line,'SAMPLE','=')
+                    CALL readsi(line,first,last,rout1%nrhoout,erread)
+                    IF (erread) THEN

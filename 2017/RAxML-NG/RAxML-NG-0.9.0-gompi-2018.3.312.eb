@@ -1,0 +1,79 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-06-15_15-47-32
+easyblock = 'CMakeMakeCp'
+
+name = 'RAxML-NG'
+version = '0.9.0'
+
+homepage = 'https://github.com/amkozlov/raxml-ng'
+description = """RAxML-NG is a phylogenetic tree inference tool which
+uses maximum-likelihood (ML) optimality criterion. Its search heuristic
+ is based on iteratively performing a series of Subtree Pruning and Regrafting
+ (SPR) moves, which allows to quickly navigate to the best-known ML tree."""
+
+toolchain = {'name': 'gompi', 'version': '2018.3.312'}
+
+sources = [
+    {'filename': '%(version)s.tar.gz', 'source_urls': ['https://github.com/amkozlov/%(namelower)s/archive/']},
+    {'download_filename': '6dcb061ceb6ed41a7ebe1a8af1f3354e0126125c.zip', 'filename': 'terraphist-one.zip', 'source_urls': ['https://github.com/amkozlov/terraphast-one/archive/']},
+    {'download_filename': '840a19525ed133ad243afb23124911b849d4685d.zip', 'filename': 'pll-modules.zip', 'source_urls': ['https://github.com/ddarriba/pll-modules/archive/']},
+    {'download_filename': '6874327c9ca9544e27b426c0e7205c8b6f4ed297.zip', 'filename': 'libpll-2.zip', 'source_urls': ['https://github.com/xflouris/libpll-2/archive/']},
+]
+checksums = [
+    '43b95ee1bddae0daee84644e9ee760a77f28bb16e2071e95cca79a30f39373e5',  # %(version)s.tar.gz
+    'eef5e2f365619da3bb1679f07920b29dfcd5202191fdf37b9f8fec4a52c1286b',  # terraphist-one.zip
+    '486f55cc2b4a63ddba8d00db79afcbf03f2499e35687eef56e4730f23d96b90a',  # pll-modules.zip
+    '6c90af957d4b06b88ef6568f6ba53ac3507285d042dc9ebc95f9837a7077d044',  # libpll-2.zip
+]
+
+builddependencies = [
+    ('binutils', '2.32'),
+    ('gtest', '1.10.0', '', True),
+    ('flex', '2.6.4'),
+    ('Bison', '3.3.2'),
+]
+dependencies = [
+    ('GMP', '6.1.2'),
+]
+
+# copy dependencies into place:
+
+preconfigopts = "cp -a %(builddir)s/terraphast-one-6dcb061ceb6ed41a7ebe1a8af1f3354e0126125c/* %(builddir)s/%(namelower)s-%(version)s/libs/terraphast/ && cp -a %(builddir)s/pll-modules-840a19525ed133ad243afb23124911b849d4685d/* %(builddir)s/%(namelower)s-%(version)s/libs/pll-modules/ && cp -a %(builddir)s/libpll-2-6874327c9ca9544e27b426c0e7205c8b6f4ed297/* %(builddir)s/%(namelower)s-%(version)s/libs/pll-modules/libs/libpll/ && "
+configopts = "-DUSE_MPI=ON -DUSE_GMP=ON "
+
+files_to_copy = [(['bin/%(namelower)s-mpi'], 'bin')]
+build_type = 'Release'
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s-mpi'],
+    'dirs': [],
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 128.07,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/gcc7.3/openmpi3.1/raxml-ng/0.9.0/easybuild/reprod/RAxML-NG-0.9.0-gompi-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-ra22d8c29c3bef14c7e3c226a5323e5521e2e4019",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 1984669,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1592236052,
+    "total_memory": 60232,
+}]

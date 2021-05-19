@@ -1,0 +1,88 @@
+# Built with EasyBuild version 4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4 on 2021-03-27_22-37-43
+# Built with EasyBuild version 3.5.2.dev0-rb302d581048bd85d87bb0ab6cfa8bac7b1ffb899 on 2018-02-23_17-07-58
+# easybuild easyconfig
+#
+# John Dey jfdey@fredhutch.org
+#
+# Fred Hutchinson Cancer Research Center
+
+easyblock = 'Binary'
+
+name = 'RGAugury'
+version = '2.1.3'
+
+homepage = 'https://bitbucket.org/yaanlpc/rgaugury/src/master/'
+description = "This project aims to develop a sophisticated informatics tools for large scale of resistance gene analogs identification, including major groups of RGAs, such as NBS encoding genes, receptor like proteins and receptor like protein kinases. It is thus named as RGA augury or RGAugury standalone pipeline."
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+
+source_urls = ['https://bitbucket.org/yaanlpc/%(namelower)s/get/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['320f08335711e06e0ff24d9749c05b7d5827274738e5d7b77e353b78dd5a4e25']
+
+dependencies = [
+    ('Perl', '5.30.2', '', True),
+    ('BLAST+', '2.11.0'),
+    ('HMMER', '3.2.1', '', True),
+    ('PfamScan', '1.6', '', True),
+    ('InterProScan', '5.50-84.0', '', True),
+    ('CViT', '1.2.1', '', True),
+    ('Java', '13', '', True),
+]
+
+postinstallcmds = [
+    'cd %(installdir)s/coils && cc -O2 -I. -o ncoils-osf ncoils.c read_matrix.c -lm && cd .. && for file in $(find . -type f); do dos2unix $file; sed -i "s/\\#\\!\\/usr\\/bin\\/perl/\\#\\!\\/usr\\/bin\\/env\\ perl/g" $file; sed -i "s/perl\\ \\-w/perl/g" $file; done',
+]  # \!\/usr\/bin\/perl/\#\!\/usr\/bin\/env\ perl/g" $file; sed -i "s/perl\ \-w/perl/g" $file; done']
+exts_defaultclass = 'PerlModule'
+extract_sources = True
+
+exts_list = [
+    ('Log::Log4perl', '1.49', {'runtest': 'test', 'source_tmpl': 'Log-Log4perl-1.49.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/M/MS/MSCHILLI'], 'checksums': ['b739187f519146cb6bebcfc427c64b1f4138b35c5f4c96f46a21ed4a43872e16']}),
+    ('GD', '2.71', {'runtest': 'test', 'source_tmpl': 'GD-2.71.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/R/RU/RURBAN'], 'checksums': ['451be4873b2ad7261cc5679698cd9d2e84dbdde4309971869fc7734b569b7ac7']}),
+    ('GD::Arrow', '0.01', {'runtest': 'test', 'source_tmpl': 'GD-Arrow-0.01.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/T/TC/TCAINE'], 'checksums': ['7d5a078024fc368159622fb9dffa820fc81053761a4acd1e69a2391001486192']}),
+    ('GD::Text', '0.86', {'runtest': 'test', 'source_tmpl': 'GDTextUtil-0.86.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/M/MV/MVERB/'], 'checksums': ['886ecbf85cfe94f4135ee5689c4847a9ae783ecb99e6759e12c734f2dd6116bc']}),
+    ('GD::SVG', '0.33', {'runtest': 'test', 'source_tmpl': 'GD-SVG-0.33.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/T/TW/TWH/'], 'checksums': ['aee397906a94cf6a478defff9f4939dbf8293a62ee382360c77e3e209170012b']}),
+    ('SVG', '2.84', {'runtest': 'test', 'source_tmpl': 'SVG-2.84.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/M/MA/MANWAR'], 'checksums': ['ec3d6ddde7a46fa507eaa616b94d217296fdc0d8fbf88741367a9821206f28af']}),
+    ('Config::IniFiles', '3.000002', {'runtest': 'test', 'source_tmpl': 'Config-IniFiles-3.000002.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/S/SH/SHLOMIF/'], 'checksums': ['d92ed6ed2db98d5addf732c96d2a9c15d9f878c7e8b355bb7a5c1668e3f8ba09']}),
+    ('Data::Dumper', '2.173', {'runtest': 'test', 'source_tmpl': 'Data-Dumper-2.173.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/X/XS/XSAWYERX'], 'checksums': ['697608b39330988e519131be667ff47168aaaaf99f06bd2095d5b46ad05d76fa']}),
+]
+
+sanity_check_paths = {
+    'files': ['iprscan.pl', '%(name)s.pl', '%(installdir)s/coils/ncoils-osf', '%(installdir)s/coils/scoils-ht'],
+    'dirs': ['RGADB', 'motif'],
+}
+
+modextrapaths = {
+    'COILSDIR': 'coils',
+    'PERL5LIB': ['lib/perl5/site_perl/%(perlver)s/', 'lib/perl5/site_perl/%(perlver)s/%(arch)s-linux-thread-multi/'],
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 105.23,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/rgaugury/2.1.3/easybuild/reprod/RGAugury-2.1.3-GCC-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.3-rda0fb48f3245be7483bb8f418c9ed894cd653018",
+    "easybuild-framework_version": "4.3.3-r15719a0ece2011cea9ce176d1763cdc620b188f4",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 105627277,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.7.9/bin/python",
+    "timestamp": 1616884663,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,87 @@
+# Built with EasyBuild version 4.2.0-rbba5be883d5b568ae1afc08af83fcf47a6d495f2 on 2020-05-14_16-51-42
+easyblock = 'ConfigureMake'
+
+name = 'GDAL'
+version = '2.4.1'
+
+homepage = 'http://www.gdal.org/'
+description = """GDAL is a translator library for raster geospatial data formats that is released under an X/MIT style
+ Open Source license by the Open Source Geospatial Foundation. As a library, it presents a single abstract data model
+ to the calling application for all supported formats. It also comes with a variety of useful commandline utilities for
+ data translation and processing."""
+
+toolchain = {'name': 'GCC', 'version': '8.3.0'}
+
+source_urls = ['http://download.osgeo.org/%(namelower)s/%(version)s/']
+sources = [SOURCELOWER_TAR_XZ]
+checksums = ['fd51b4900b2fc49b98d8714f55fc8a78ebfd07218357f93fb796791115a5a1ad']
+
+dependencies = [
+    # ('netCDF', '4.4.1.1'),
+    ('expat', '2.2.0'),
+    ('GEOS', '3.6.1'),
+    ('SQLite', '3.13.0'),
+    ('libxml2', '2.9.4'),
+    ('libpng', '1.6.24'),
+    ('libjpeg-turbo', '1.5.0'),
+    ('JasPer', '1.900.1', '', True),
+    ('LibTIFF', '4.0.6'),
+    ('zlib', '1.2.8'),
+    ('cURL', '7.49.1'),
+    ('PCRE', '8.39'),
+]
+
+preconfigopts = [
+    "module load python/2.7 && ",
+    "module load python/3.5 && ",
+    "module load python/3.6 && ",
+    "module load python/3.7 && ",
+    "module load python/3.8 && ",
+]
+configopts = [
+    "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-geos=$EBROOTGEOS/bin/geos-config --with-python=$EBROOTPYTHON/bin/python",
+    "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-geos=$EBROOTGEOS/bin/geos-config --with-python=$EBROOTPYTHON/bin/python",
+    "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-geos=$EBROOTGEOS/bin/geos-config --with-python=$EBROOTPYTHON/bin/python",
+    "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-geos=$EBROOTGEOS/bin/geos-config --with-python=$EBROOTPYTHON/bin/python",
+    "--with-hdf5=$EBROOTHDF5 --with-netcdf=$EBROOTNETCDF --with-geos=$EBROOTGEOS/bin/geos-config --with-python=$EBROOTPYTHON/bin/python",
+]
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s --add_path %(installdir)s/lib",
+]
+
+sanity_check_paths = {
+    'files': ['lib/libgdal.so'],
+    'dirs': ['bin', 'include', 'lib/python2.7/site-packages', 'lib/python3.5/site-packages', 'lib/python3.6/site-packages', 'lib/python3.7/site-packages', 'lib/python3.8/site-packages'],
+}
+
+modextrapaths = {'EBPYTHONPREFIXES': ''}
+
+moduleclass = 'data'
+
+# Build statistics
+buildstats = [{
+    "build_time": 6356.45,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc8/gdal/2.4.1/easybuild/reprod/GDAL-2.4.1-GCC-8.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.0-r6c7ca93b7c0a8078fe9b38aa95cfcc2f1a49601a",
+    "easybuild-framework_version": "4.2.0-rbba5be883d5b568ae1afc08af83fcf47a6d495f2",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/d8f5yq3axry49m4j8yd464gmrmz5l924-gfortran-8.3.0/libexec/gcc/x86_64-pc-linux-gnu/8.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 8.3.0 (20190410 gcc-8-branch revision 270244) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 149554379,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-8.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1589475101,
+    "total_memory": 60232,
+}]

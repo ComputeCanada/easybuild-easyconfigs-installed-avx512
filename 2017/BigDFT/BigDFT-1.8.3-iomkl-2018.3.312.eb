@@ -1,0 +1,69 @@
+# Built with EasyBuild version 4.1.1-rbf6d1cefeb7560172e68bf8eb3afa0c4755a3046 on 2020-04-03_03-31-03
+# #
+# Author: Ali Kerrache, University of Manitoba.
+# Date: May 17, 2018.
+# #
+
+easyblock = 'ConfigureMake'
+
+name = 'BigDFT'
+version = '1.8.3'
+
+homepage = 'http://bigdft.org/Wiki/index.php?title=BigDFT_website'
+description = """BigDFT is a DFT massively parallel electronic structure code using a wavelet basis set with the capability to use a linear scaling method. Wavelets form a real space basis set distributed on an adaptive mesh (two levels of resolution in our implementation).
+ GTH or HGH pseudopotentials are used to remove the core electrons. The code BigDFT is available in ABINIT v5.5 and higher but can also be downloaded in a standalone version from the website. Thanks to our Poisson solver based on a Green function formalism, periodic systems, surfaces and isolated systems can be simulated with explicit boundary conditions. The Poisson solver can also be downloaded and used independently and is integrated in ABINIT, Octopus and CP2K. The code is free software, available under GNU-GPL license and the BigDFT developer community encourages anyone willing to contribute to join the team."""
+
+toolchain = {'name': 'iomkl', 'version': '2018.3.312'}
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['https://launchpad.net/%(namelower)s/%(version_major_minor)s/%(version)s/+download/']
+sources = ['%(namelower)s-suite-%(version)s.tar.gz']
+checksums = ['39aeae8bd62ad5d82ed20a47006aa478d93b3751ae7929027088c2e6b8439388']
+
+dependencies = [
+    ('ETSF_IO', '1.0.4', '-mpi', ('iompi', '2018.3.312')),
+    ('netCDF', '4.6.1', '-mpi', ('iompi', '2018.3.312')),
+    ('netCDF-Fortran', '4.5.1', '-mpi', ('iompi', '2018.3.312')),
+]
+
+preconfigopts = 'export CPATH=%(installdir)s/include:$CPATH && export LIBRARY_PATH=%(installdir)s/lib:$LIBRARY_PATH && export PKG_CONFIG_PATH=%(installdir)s/lib/pkgconfig:$PKG_CONFIG_PATH && tar xf futile-%(version_major_minor)s.tar.gz && cd futile-%(version_major_minor)s && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf CheSS-0.2.4.tar.gz && cd CheSS-0.2.4 && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf psolver-%(version_major_minor)s.tar.gz && cd psolver-%(version_major_minor)s && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf libxc-2.2.2.tar.gz && cd libxc-2.2.2 && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf GaIn-1.0.tar.gz && cd GaIn-1.0 && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf libABINIT-6.8+12.tar.gz && cd libABINIT-6.8+12 && ./configure --prefix=%(installdir)s --with-ext-linalg="$LIBSCALAPACK" && make -j8 && make install && cd .. && tar xf %(namelower)s-%(version)s.tar.gz && cd %(namelower)s-%(version)s && '
+configopts = '--with-ext-linalg="$LIBSCALAPACK"'
+
+prebuildopts = "export CPATH=%(installdir)s/include:$CPATH && export LIBRARY_PATH=%(installdir)s/lib:$LIBRARY_PATH && export PKG_CONFIG_PATH=%(installdir)s/lib/pkgconfig:$PKG_CONFIG_PATH && cd %(namelower)s-%(version)s && "
+
+preinstallopts = "export CPATH=%(installdir)s/include:$CPATH && export LIBRARY_PATH=%(installdir)s/lib:$LIBRARY_PATH && export PKG_CONFIG_PATH=%(installdir)s/lib/pkgconfig:$PKG_CONFIG_PATH && cd %(namelower)s-%(version)s && "
+
+keeppreviousinstall = True
+
+sanity_check_paths = {
+    'files': ['bin/abscalc', 'bin/bader', 'bin/%(namelower)s-tool', 'bin/frequencies', 'bin/matchrotation', 'bin/rotate_posinp', 'bin/unitconversion_posinp', 'bin/analyze_georelax', 'bin/%(namelower)s', 'bin/fermi', 'bin/memguess', 'bin/p_axis_posinp', 'bin/wocc'],
+    'dirs': ['lib/pkgconfig', 'include'],
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 604.52,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.10[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/intel2018.3/openmpi3.1/bigdft/1.8.3/easybuild/reprod/BigDFT-1.8.3-iomkl-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.1.1-r025bb4416f004ab966af1455478bde21ea91fc90",
+    "easybuild-framework_version": "4.1.1-rbf6d1cefeb7560172e68bf8eb3afa0c4755a3046",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 573989716,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.2.10'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1585884663,
+    "total_memory": 60232,
+}]

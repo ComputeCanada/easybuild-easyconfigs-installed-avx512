@@ -1,0 +1,42 @@
+easyblock = 'CMakeMake'
+
+name = 'Trilinos'
+version = '12.10.1'
+versionsuffix = '-Python-2.7.13'
+
+homepage = 'http://trilinos.sandia.gov/'
+description = """The Trilinos Project is an effort to develop algorithms and enabling technologies
+ within an object-oriented software framework for the solution of large-scale, complex multi-physics
+ engineering and scientific problems. A unique design feature of Trilinos is its focus on packages."""
+
+toolchain = {'version': '2018.3.312', 'name': 'iomkl'}
+toolchainopts = {'usempi': True, 'pic': True, 'strict': True}
+
+sources = ['%(namelower)s-%(version)s-Source.tar.gz']
+source_urls = ['http://%(namelower)s.csbsju.edu/download/files/']
+
+builddependencies = [
+    ('CMake', '3.4.1'),
+]
+
+configopts = "  -DTrilinos_ENABLE_Amesos=ON  -DTrilinos_ENABLE_Epetra=ON  -DTrilinos_ENABLE_Ifpack=ON  -DTrilinos_ENABLE_AztecOO=ON  -DTrilinos_ENABLE_Sacado=ON  -DTrilinos_ENABLE_Teuchos=ON  -DTrilinos_ENABLE_MueLu=ON  -DTrilinos_ENABLE_ML=ON  -DTrilinos_VERBOSE_CONFIGURE=OFF  -DTPL_ENABLE_MPI=ON  -DBUILD_SHARED_LIBS=ON  -DCMAKE_VERBOSE_MAKEFILE=OFF  -DCMAKE_BUILD_TYPE=RELEASE  -DTPL_ENABLE_MKL=ON  -DTPL_BLAS_LIBRARIES=-mkl  -DTPL_LAPACK_LIBRARIES=-mkl  -DTrilinos_ENABLE_TESTS=ON "
+
+parallel = 8
+# STK Classic is deprecated/broken, STKDoc_tests needs to be disabled too because of it
+# see https://trilinos.org/oldsite/release_notes-11.10.html and https://github.com/trilinos/Trilinos/issues/19
+#skip_exts = ['STKClassic', 'STKDoc_tests']
+# too parallel is too slow, and may cause build/tests to fail
+maxparallel = 10
+
+configure_cmd_prefix = " CC=mpicc CXX=mpicxx FC=mpif90 FF=mpif77 "
+start_dir = '%(builddir)s/%(namelower)s-%(version)s-Source/'
+unwanted_env_vars = {}
+#patches = ['fix-parmetis.patch']
+separate_build_dir = True
+
+sanity_check_paths = {
+    'files': ['lib/libtriutils.so.12'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'numlib'

@@ -1,0 +1,64 @@
+# Built with EasyBuild version 3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01 on 2019-10-02_21-57-26
+easyblock = 'MakeCp'
+
+name = 'CNVnator'
+version = '0.4.1'
+
+homepage = 'https://github.com/abyzovlab/CNVnator'
+description = "An approach to discover, genotype, and characterize typical and atypical CNVs from family and population genome sequencing"
+
+toolchain = {'name': 'GCC', 'version': '8.3.0'}
+
+source_urls = ['https://github.com/abyzovlab/%(name)s/archive/']
+sources = ['v%(version)s.tar.gz']
+patches = ['%(name)s-%(version)s.patch']
+
+dependencies = [
+    ('ROOT', '6.14.04', '-Python-%(pyver)s'),
+    ('SAMtools', '1.9'),
+    ('Python', '2.7.14', '', True),
+]
+
+parallel = 1
+
+modextrapaths = {'PYTHONPATH': ['lib/python%(pyshortver)s/site-packages:%(installdir)s']}
+postinstallcmds = ['pip install matplotlib --no-index --prefix=%(installdir)s']
+files_to_copy = [
+    (['callbaf.py', 'plotbaf.py', 'plotcircular.py', 'plotrdbaf.py', '%(namelower)s', 'cnvnator2VCF.pl'], 'bin'),
+    'pytools',
+    'ExampleData',
+]
+build_cmd = " make SAMDIR=$EBROOTSAMTOOLS"
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/plotbaf.py', 'bin/plotcircular.py', 'bin/plotrdbaf.py', 'bin/callbaf.py'],
+    'dirs': ['pytools'],
+}
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 109.19,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/Compiler/gcc8/cnvnator/0.4.1/easybuild/reprod/CNVnator-0.4.1-GCC-8.3.0.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.3-rb06616a5326f65b274f3d3c89014e7dd3bdcf215",
+    "easybuild-framework_version": "3.9.3-rac4ebe51c4a72b99ff41e7153e540fb8a1626c01",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/9705xzy1sjbixmamyw5mjm0kirjbnmqp-gfortran-8.3.0/libexec/gcc/x86_64-pc-linux-gnu/8.3.0/lto-wrapper; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 8.3.0 (20190410 gcc-8-branch revision 270244) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 123132157,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.1.13'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-8.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/2.7.14/bin/python",
+    "timestamp": 1570053446,
+    "total_memory": 60232,
+}]

@@ -1,0 +1,70 @@
+# Built with EasyBuild version 3.9.3-radd8eb7cfdf774d2be870048940fa37355a47e63 on 2019-11-17_00-40-28
+name = 'NCL'
+version = '6.6.2'
+
+homepage = 'http://www.ncl.ucar.edu'
+description = "NCL is an interpreted language designed specifically for scientific data analysis and visualization."
+
+toolchain = {'name': 'iomkl', 'version': '2018.3.312'}
+toolchainopts = {'openmp': True, 'pic': True, 'cstd': 'c99'}
+
+source_urls = ['https://github.com/NCAR/%(namelower)s/archive/']
+sources = ['%(version)s.tar.gz']
+patches = ['%(name)s-%(version)s_fix-types.patch']
+checksums = [
+    'cad4ee47fbb744269146e64298f9efa206bc03e7b86671e9729d8986bb4bc30e',  # %(version)s.tar.gz
+    '17bb0a5b6248ab477bcb187c6cc3d8f3',  # %(name)s-%(version_major_minor)s.2_fix-types.patch
+]
+
+builddependencies = [
+    ('makedepend', '1.0.6'),
+]
+dependencies = [
+    ('cURL', '7.53.1'),
+    ('JasPer', '1.900.1', None, True),
+    ('g2lib', '1.4.0', '', ('GCCcore', '7.3.0')),
+    ('g2clib', '1.6.0', '', ('GCCcore', '7.3.0')),
+    ('HDF', '4.2.12', '', ('iccifort', '2018.3')),
+    ('HDF5', '1.10.3', '', ('iccifort', '2018.3')),
+    ('netCDF', '4.6.1', '', ('iccifort', '2018.3')),
+    ('netCDF-Fortran', '4.4.4', '', ('iccifort', '2018.3')),
+    ('Szip', '2.1'),
+    ('freetype', '2.7.1', '-libpng-1.6.29'),
+    ('zlib', '1.2.11'),
+    ('GDAL', '2.1.3', None, ('iccifort', '2018.3')),
+    ('UDUNITS', '2.2.26', '', ('iccifort', '2018.3')),
+    ('ESMF', '7.1.0r'),
+    ('bzip2', '1.0.6'),
+    ('cairo', '1.14.8'),
+    ('libiconv', '1.15'),
+    ('GSL', '2.5', '', ('iccifort', '2018.3')),
+]
+
+
+moduleclass = 'data'
+
+# Build statistics
+buildstats = [{
+    "build_time": 6699.45,
+    "command_line": ['--add-dummy-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/dev/shm/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/intel2018.3/openmpi3.1/ncl/6.6.2/easybuild/reprod/NCL-6.6.2-iomkl-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "3.9.3-r285942664f86d610715f9952388d8027deb3f693",
+    "easybuild-framework_version": "3.9.3-radd8eb7cfdf774d2be870048940fa37355a47e63",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 251461288,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/lmod/lmod/libexec/lmod', '8.1.13'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.7.1908",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/16.09/bin/python",
+    "timestamp": 1573951227,
+    "total_memory": 60232,
+}]

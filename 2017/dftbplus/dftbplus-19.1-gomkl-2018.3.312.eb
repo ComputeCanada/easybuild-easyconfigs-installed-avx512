@@ -1,0 +1,86 @@
+# Built with EasyBuild version 4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908 on 2020-06-12_18-21-39
+easyblock = 'ConfigureMake'
+
+name = 'dftbplus'
+version = '19.1'
+
+homepage = 'https://www.dftb-plus.info'
+description = """DFTB+ is a fast and efficient versatile quantum mechanical simulation package.
+It is based on the Density Functional Tight Binding (DFTB) method, containing
+almost all of the useful extensions which have been developed for the DFTB
+framework so far.  Using DFTB+ you can carry out quantum mechanical simulations
+like with ab-initio density functional theory based packages, but in an
+approximate way gaining typically around two order of magnitude in speed."""
+
+toolchain = {'name': 'gomkl', 'version': '2018.3.312'}
+toolchainopts = {'usempi': True}
+
+sources = [
+    {'download_filename': '%(version)s.tar.gz', 'filename': SOURCE_TAR_GZ, 'source_urls': ['https://github.com/%(name)s/%(name)s/archive']},
+    {'download_filename': SOURCE_TAR_GZ, 'filename': 'mpifx-%(version)s.tar.gz', 'extract_cmd': 'mkdir -p %(builddir)s/%(name)s-%(version)s/external/mpifx/origin/ && tar -C %(builddir)s/%(name)s-%(version)s/external/mpifx/origin/ --strip-components=1 -xzf %s', 'source_urls': ['https://github.com/%(name)s/mpifx/archive']},
+    {'download_filename': SOURCE_TAR_GZ, 'filename': 'scalapackfx-%(version)s.tar.gz', 'extract_cmd': 'mkdir -p %(builddir)s/%(name)s-%(version)s/external/scalapackfx/origin/ && tar -C %(builddir)s/%(name)s-%(version)s/external/scalapackfx/origin/ --strip-components=1 -xzf %s', 'source_urls': ['https://github.com/%(name)s/scalapackfx/archive']},
+    {'download_filename': 'd0ea16df2b56d14c7c3dc9329a8d3bac9fea50a0.tar.gz', 'filename': 'slakos-data-%(version)s.tar.gz', 'extract_cmd': 'mkdir -p %(builddir)s/%(name)s-%(version)s/external/slakos/origin/ && tar -C %(builddir)s/%(name)s-%(version)s/external/slakos/origin/ --strip-components=1 -xzf %s', 'source_urls': ['https://github.com/%(name)s/testparams/archive']},
+    # mpifx source code
+]
+checksums = [
+    '4d07f5c6102f06999d8cfdb1d17f5b59f9f2b804697f14b3bc562e3ea094b8a8',  # DFTB+-%(version)s.tar.gz
+    '06f1809da36571d90d0d86dd9e1a697c8a43572a732127b55a400fb5780ef296',  # mpifx-%(version)s.tar.gz
+    '858ac0e84aa32f227e7e7240d0f62f4cb349996d7a9332cf3483fb066b25b90c',  # scalapackfx-%(version)s.tar.gz
+    '9b64193368a13ae7c238399da8be2b3730a0f3273f9bf6c8054b2ff57d748823',  # slakos-data-%(version)s.tar.gz
+]
+
+dependencies = [
+    ('Python', '2.7.14', '', True),
+    ('SciPy-Stack', '2019a', None, True),
+    ('arpack-ng', '3.5.0', None, ('gmkl', '2018.3')),
+    ('dftd3-lib', '0.9', '', ('GCC', '7.3.0')),
+]
+
+# Use appropriate makefile and flags for this toolchain:
+
+prebuildopts = 'cp sys/make.%(arch)s-linux-gnu make.arch && sed -i "s/-O2/$OPTFLAGS/g" make.arch && '
+buildopts = ' WITH_MPI=1 LIB_LAPACK="$LIBLAPACK" BLACSDIR="$BLACS_LIB_DIR" BLACS="$LIBBLACS" LIB_SCALAPACK="$LIBSCALAPACK"  WITH_DFTD3=1 COMPILE_DFTD3=0 DFTD3_INCS="-I$EBROOTDFTD3MINLIB/include" DFTD3_LIBS="-L$EBROOTDFTD3MINLIB/lib -ldftd3"'
+
+installopts = 'INSTALLDIR="%(installdir)s"'
+
+runtest = 'test WITH_MPI=1 LIB_LAPACK="$LIBLAPACK" BLACSDIR="$BLACS_LIB_DIR" BLACS="$LIBBLACS" LIB_SCALAPACK="$LIBSCALAPACK"  WITH_DFTD3=1 COMPILE_DFTD3=0 DFTD3_INCS="-I$EBROOTDFTD3MINLIB/include" DFTD3_LIBS="-L$EBROOTDFTD3MINLIB/lib -ldftd3"'
+skipsteps = ['configure']
+
+sanity_check_paths = {
+    'files': ['bin/dftb+', 'bin/dp_bands', 'bin/dp_dos', 'bin/gen2cif', 'bin/gen2xyz', 'bin/makecube', 'bin/modes', 'bin/repeatgen', 'bin/straingen', 'bin/waveplot', 'bin/xyz2gen'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [('python', '-c "import dptools"')]
+
+modextrapaths = {'PYTHONPATH': 'lib/python%(pyshortver)s/site-packages'}
+
+moduleclass = 'phys'
+
+# Build statistics
+buildstats = [{
+    "build_time": 916.96,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='nixpkgs'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--filter-deps='Bison,CMake=:3.12.3[,flex,ncurses,libreadline,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,sparsehash,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12[,PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,ant,gettext,X11,pkg-config,LLVM=:6.0.1[,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,gnuplot,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,CFITSIO,libX11,libXft,libXpm,libXext,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'GCC\\': \\'march=skylake-avx512\\', \\'GCCcore\\': \\'GENERIC\\', \\'Intel\\': \\'xCore-AVX512\\', \\'PGI\\': \\'tp=skylake\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2017'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2017:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2017'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2017'", "--subdir-software='software/2017'", "--subdir-user-modules='.local/easybuild/modules/2017'", "--suffix-modules-path=''", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2017/avx2/MPI/gcc7.3/openmpi3.1/dftbplus/19.1/easybuild/reprod/dftbplus-19.1-gomkl-2018.3.312.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.082,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.2.1-ra22d8c29c3bef14c7e3c226a5323e5521e2e4019",
+    "easybuild-framework_version": "4.2.1-reccde426790b53218b85aaac5d5891cb7ee0a908",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/nix/store/c9qaklf3dvjvlbky3fiakmafb1p8l106-gfortran-7.3.0/libexec/gcc/x86_64-pc-linux-gnu/7.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ; Thread model: posix; gcc version 7.3.0 (GCC) ; ",
+    "glibc_version": "2.24",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 7861368,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.3.8'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.8.2003",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "2.7.13 (default, Dec 17 2016, 20:05:07) ; [GCC 5.4.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/nix/var/nix/profiles/gcc-7.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2017/Core/python/2.7.14/bin/python",
+    "timestamp": 1591986098,
+    "total_memory": 60232,
+}]

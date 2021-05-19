@@ -1,0 +1,78 @@
+# Built with EasyBuild version 4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535 on 2020-11-30_18-56-29
+name = 'Libint'
+version = '2.6.0'
+local_lmax = 6
+# custom configuration, to be used as dependency for CP2K
+versionsuffix = '-lmax-%s-cp2k' % local_lmax
+
+homepage = 'https://github.com/evaleev/libint'
+description = """Libint library is used to evaluate the traditional (electron repulsion) and certain novel two-body
+ matrix elements (integrals) over Cartesian Gaussian functions used in modern atomic and molecular theory."""
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+toolchainopts = {'pic': True, 'cstd': 'c++11'}
+
+source_urls = ['https://github.com/evaleev/libint/archive']
+sources = ['v%(version)s.tar.gz']
+patches = [
+    'Libint-%(version)s_fix-LIBINT2-MAX-AM-default1.patch',
+    'Libint-2.6.0_remove-test-eri.patch',
+]
+checksums = [
+    '4ae47e8f0b5632c3d2a956469a7920896708e9f0e396ec10071b8181e4c8d9fa',  # v2.6.0.tar.gz
+    # Libint-2.6.0_fix-LIBINT2-MAX-AM-default1.patch
+    'e5445c89639d113be7726c2bc1164d2f6ea75e76abbb1c94acd55c508693d5ab',
+    # Libint-2.6.0_remove-test-eri.patch
+    'e47868901250078adeb35b80ab866ba8063ad9756881d1b557cb925334df653b',
+]
+
+builddependencies = [
+    ('Autotools', '20180311'),
+    ('GMP', '6.2.0'),
+    ('Boost', '1.72.0'),
+    ('Eigen', '3.3.7'),
+    ('Python', '2.7.18'),
+]
+
+# configure options as required by CP2K,
+# see Jenkinsfile in https://github.com/cp2k/libint-cp2k
+local_eri_max_am = '%s,%s' % (local_lmax, local_lmax - 1)
+local_eri23_max_am = '%s,%s' % (local_lmax + 2, local_lmax + 1)
+
+libint_compiler_configopts = '--enable-eri=1 --enable-eri2=1 --enable-eri3=1 --with-max-am=%s ' % local_lmax
+libint_compiler_configopts += '--with-eri-max-am=%s ' % local_eri_max_am
+libint_compiler_configopts += '--with-eri2-max-am=%s ' % local_eri23_max_am
+libint_compiler_configopts += '--with-eri3-max-am=%s ' % local_eri23_max_am
+libint_compiler_configopts += '--enable-generic-code --disable-unrolling'
+
+with_fortran = True
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 11391.03,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--try-toolchain='GCC,9.3.0'", "--use-ccache=''", '--use-existing-modules', 'Libint-2.6.0-gompi-2020a-lmax-6-cp2k.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.3.1-r802f08f58116f5f071fc664cd4333d9ceab1f661",
+    "easybuild-framework_version": "4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node2.computecanada.ca",
+    "install_size": 485214316,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.16'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/2.7.18/bin/python",
+    "timestamp": 1606762589,
+    "total_memory": 60232,
+}]
