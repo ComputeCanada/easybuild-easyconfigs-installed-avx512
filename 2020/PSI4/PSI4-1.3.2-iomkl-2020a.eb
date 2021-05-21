@@ -1,4 +1,4 @@
-# Built with EasyBuild version 4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007 on 2021-05-20_06-21-12
+# Built with EasyBuild version 4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007 on 2021-05-21_09-41-50
 easyblock = 'CMakeMake'
 
 name = 'PSI4'
@@ -12,75 +12,52 @@ description = """PSI4 is an open-source suite of ab initio quantum chemistry pro
 # PSI4 is mainly threaded with OpenMP but the driver can use mpi4py.
 toolchain = {'name': 'iomkl', 'version': '2020a'}
 
-source_urls = ['https://github.com/psi4/psi4/archive/']
+source_urls = ['https://github.com/%(namelower)s/%(namelower)s/archive/']
 sources = ['v%(version)s.tar.gz']
-checksums = ["ed76c67803b6420f35f57a6dd31c47108b9145b8c9fced5c94cdc179f6b5fbf3"]
+checksums = ['ed76c67803b6420f35f57a6dd31c47108b9145b8c9fced5c94cdc179f6b5fbf3']
 
+builddependencies = [
+]
+dependencies = [
+    ('libxc', '4.3.4', '', ('iccifort', '2020.1.217')),
+    ('SciPy-Stack', '2020b', '', ('GCCcore', '9.3.0')),
+]
 # Py3.6 requires other modules.
 multi_deps = {'Python': ['3.7', '3.8']}
 
-dependencies = [
-    ('libxc', '4.3.4'),
-    ('SciPy-Stack', '2020b'),
-]
+configopts = "-DPYMOD_INSTALL_LIBDIR=/python%(pyshortver)s/site-packages -DENABLE_XHOST=OFF"
 
-configopts = " ".join([
-    '-DPYMOD_INSTALL_LIBDIR=/python%(pyshortver)s/site-packages', # Location within CMAKE_INSTALL_LIBDIR (lib)
-    '-DENABLE_XHOST=OFF',
-])
-
-separate_build_dir = True
-
-"""
-With pytest-xdiff manually run:
-pytest $EBROOTPSI4/lib/python3.8/site-packages/psi4/tests/ -n 8
-"""
 runtest = False
-
+multi_deps_load_default = False
 exts_defaultclass = 'PythonPackage'
-exts_default_options = {'source_urls': [PYPI_SOURCE]}
+exts_filter = (
+    "python -c 'import %(ext_name)s'",
+    '',
+)
+
+exts_default_options = {'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s']}
+
 exts_list = [
-    ('pydantic', '1.7.3', {
-        'checksums': ['213125b7e9e64713d16d988d10997dabc6a1f73f3991e1ff8e35ebb1409c7dc9'],
-        'use_pip': True,
-    }),
-    ('Pint', '0.16.1', {
-        'checksums': ['d43a2e9ae003164978b60fdf8cd920d8581e1a5991df8dded29b00f4850ec83a'],
-        'use_pip': True,
-    }),
-    ('deepdiff', '5.5.0', {
-        'checksums': ['dd79b81c2d84bfa33aa9d94d456b037b68daff6bb87b80dfaa1eca04da68b349'],
-        'use_pip': True,
-        'use_pip_for_deps': True,
-    }),
+    ('pydantic', '1.7.3', {'checksums': ['213125b7e9e64713d16d988d10997dabc6a1f73f3991e1ff8e35ebb1409c7dc9'], 'use_pip': True}),
+    ('Pint', '0.16.1', {'checksums': ['d43a2e9ae003164978b60fdf8cd920d8581e1a5991df8dded29b00f4850ec83a'], 'use_pip': True}),
+    ('deepdiff', '5.5.0', {'checksums': ['dd79b81c2d84bfa33aa9d94d456b037b68daff6bb87b80dfaa1eca04da68b349'], 'use_pip': True, 'use_pip_for_deps': True}),
 ]
-exts_filter = ("python -c 'import %(ext_name)s'", '')
 
 sanity_check_paths = {
-    'files': [
-        'bin/psi4',
-    ],
-    'dirs': [
-        'bin',
-        'include/psi4',
-        'lib/python%(pyshortver)s/site-packages',
-    ]
+    'files': ['bin/%(namelower)s'],
+    'dirs': ['bin', 'include/%(namelower)s', 'lib/python%(pyshortver)s/site-packages'],
 }
 
-sanity_check_commands = [
-    "python -c 'import psi4'"
-]
+sanity_check_commands = ["python -c 'import %(namelower)s'"]
 
-modextrapaths = {
-    'EBPYTHONPREFIXES': '',
-}
+modextrapaths = {'EBPYTHONPREFIXES': ''}
 
 moduleclass = 'chem'
 
 # Build statistics
 buildstats = [{
-    "build_time": 33031.54,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'PSI4-1.3.2-iomkl-2020a.eb'],
+    "build_time": 8042.4,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/intel2020/openmpi4/psi4/1.3.2/easybuild/reprod/PSI4-1.3.2-iomkl-2020a.eb'],
     "core_count": 16,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
@@ -92,7 +69,7 @@ buildstats = [{
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
     "hostname": "build-node.computecanada.ca",
-    "install_size": 258847840,
+    "install_size": 258847984,
     "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
     "os_name": "centos linux",
     "os_type": "Linux",
@@ -101,6 +78,6 @@ buildstats = [{
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
-    "timestamp": 1621506071,
+    "timestamp": 1621590108,
     "total_memory": 60232,
 }]
