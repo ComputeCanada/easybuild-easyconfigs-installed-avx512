@@ -1,0 +1,76 @@
+# Built with EasyBuild version 4.4.0-r683080a578abde020448b4659949a23e3aec3124 on 2021-07-07_17-02-19
+easyblock = 'CMakeMake'
+
+name = 'RDKit'
+version = '2021.03.3'
+
+homepage = 'http://www.rdkit.org/'
+description = "RDKit is a collection of cheminformatics and machine-learning software written in C++ and Python."
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+toolchainopts = {'opt': True}
+
+source_urls = ['https://github.com/%(namelower)s/%(namelower)s/archive']
+sources = ['Release_2021_03_3.tar.gz']
+checksums = ['e95f07adaee9280df077cb147210ee75e16957d81687ab0836d62ebf1f6f715f']
+
+builddependencies = [
+    ('Eigen', '3.3.7', '', True),
+    ('SciPy-Stack', '2020b', '', ('GCCcore', '9.3.0')),
+]
+dependencies = [
+    ('Boost', '1.72.0'),
+]
+multi_deps = {'Python': ['3.7', '3.8']}
+
+configopts = "-DBOOST_ROOT=$EBROOTBOOST -DCMAKE_SKIP_RPATH=ON -DRDK_INSTALL_INTREE=OFF -DRDK_OPTIMIZE_NATIVE=OFF -DRDK_BUILD_CPP_TESTS=OFF -DPYTHON_VERSION_MAJOR=3 -DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python -DPYTHON_INCLUDE_DIR=$EBROOTPYTHON/include/python%(pyshortver)s$(python3-config --abiflags) -DPYTHON_LIBRARY=$EBROOTPYTHON/lib/libpython%(pyshortver)s$(python3-config --abiflags).so -DPYTHON_NUMPY_INCLUDE_PATH=$EBROOTSCIPYMINSTACK/lib/python%(pyshortver)s/site-packages/numpy/core/include"
+
+# This step does not iterate as sanity_check does.
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib/python3.7/site-packages --add_path %(installdir)s/lib",
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib/python3.8/site-packages --add_path %(installdir)s/lib",
+]
+multi_deps_load_default = False
+
+sanity_check_paths = {
+    'files': ['lib/libRDKitEigenSolvers.so', 'lib/libRDKitRDBoost.so', 'lib/libRDKitRDGeneral.so', 'lib/python%(pyshortver)s/site-packages/%(namelower)s/rdBase.so', 'lib/python%(pyshortver)s/site-packages/%(namelower)s/RDConfig.py'],
+    'dirs': [],
+}
+
+sanity_check_commands = [
+    "python --version",
+    "python -c 'import %(namelower)s'",
+    """module load scipy-stack && python -c 'from %(namelower)s import Chem; m = Chem.MolFromSmiles("Cc1ccccc1");'""",
+]
+
+modextrapaths = {'EBPYTHONPREFIXES': ''}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1900.35,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/rdkit/2021.03.3/easybuild/reprod/RDKit-2021.03.3-GCC-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.4.0-r4194550dc8fc505dd23260a48ce73b7497ad98bf",
+    "easybuild-framework_version": "4.4.0-r683080a578abde020448b4659949a23e3aec3124",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 297753236,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1625677338,
+    "total_memory": 60232,
+}]
