@@ -1,5 +1,5 @@
-# Built with EasyBuild version 4.4.0-r5824ede87a67bf66b912bcb3f7d73c27835716af on 2021-07-14_15-20-36
-##
+# Built with EasyBuild version 4.4.0-r5824ede87a67bf66b912bcb3f7d73c27835716af on 2021-07-14_18-22-58
+# #
 # This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
 #
 # Copyright:: Copyright 2012-2014 Uni.Lu/LCSB, NTUA
@@ -8,7 +8,7 @@
 #
 # This work implements a part of the HPCBIOS project and is a component of the policy:
 # https://hpcbios.readthedocs.org/en/latest/HPCBIOS_2012-97.html
-##
+# #
 
 easyblock = 'CMakeMake'
 
@@ -24,81 +24,64 @@ description = """The Visualization Toolkit (VTK) is an open-source, freely avail
 
 toolchain = {'name': 'iccifort', 'version': '2020.1.217'}
 
-source_urls = ['https://www.vtk.org/files/release/%(version_major_minor)s']
+source_urls = ['https://www.%(namelower)s.org/files/release/%(version_major_minor)s']
 sources = [
     SOURCE_TAR_GZ,
     '%(name)sData-%(version)s.tar.gz',
 ]
-patches = ['VTK-8.2.0_python_3.8_compatibility.patch', ('vtk-version.egg-info', '.')]
+patches = [
+    '%(name)s-%(version_major_minor)s.0_python_3.8_compatibility.patch',
+    ('%(namelower)s-version.egg-info', '.'),
+]
 checksums = [
-    '34c3dc775261be5e45a8049155f7228b6bd668106c72a3c435d95730d17d57bb',  # VTK-8.2.0.tar.gz
-    'd1ff312f7a63d90d8b7033a99109801f16a462ae411d648642838aae04bcc21e',  # VTKData-8.2.0.tar.gz
-    'a7586f60501de145d4c31e48aa0589547d9fe7a39f96ab31dae8e82aa5fb4403',  # VTK-8.2.0_python_3.8_compatibility.patch
-    '787b82415ae7a4a1f815b4db0e25f7abc809a05fc85d7d219627f3a7e5d3867b',  # vtk-version.egg-info
+    '34c3dc775261be5e45a8049155f7228b6bd668106c72a3c435d95730d17d57bb',  # %(name)s-%(version)s.tar.gz
+    'd1ff312f7a63d90d8b7033a99109801f16a462ae411d648642838aae04bcc21e',  # VTKData-%(version)s.tar.gz
+    'a7586f60501de145d4c31e48aa0589547d9fe7a39f96ab31dae8e82aa5fb4403',  # %(name)s-%(version_major_minor)s.0_python_3.8_compatibility.patch
+    '787b82415ae7a4a1f815b4db0e25f7abc809a05fc85d7d219627f3a7e5d3867b',  # %(namelower)s-version.egg-info
 ]
 
 builddependencies = [
-    ('CMake', '3.16.4'),
     ('HDF5', '1.10.6'),
     ('netCDF', '4.7.4'),
 ]
-
-multi_deps = { 'Python': ['3.8', '3.7', '3.6'] }
-
 dependencies = [
-    ('SciPy-Stack', '2020a'),
+    ('SciPy-Stack', '2020a', '', ('GCCcore', '9.3.0')),
     ('XZ', '5.2.5'),
     ('libGLU', '9.0.1'),
     ('X11', '20200222'),
 ]
-
-separate_build_dir = True
+multi_deps = {'Python': ['3.8', '3.7', '3.6']}
 
 # Third party modules
-configopts = "-DVTK_USE_SYSTEM_LZMA=ON "
-configopts += "-DVTK_USE_SYSTEM_HDF5=ON "
-configopts += "-DVTK_USE_SYSTEM_NETCDF=ON "
-# OpenGL
-configopts += "-DOPENGL_glu_LIBRARY=$EBROOTLIBGLU/lib/libGLU.%s " % SHLIB_EXT
-configopts += "-DOPENGL_gl_LIBRARY=$EBROOTMESA/lib/libGL.%s " % SHLIB_EXT
-configopts += "-DOPENGL_INCLUDE_DIR=$EBROOTMESA/include "
-# Python
-configopts += "-DVTK_WRAP_PYTHON=ON "
-configopts += "-DVTK_PYTHON_VERSION=%(pyver)s "
-configopts += "-DPYTHON_INCLUDE_DIR=$EBROOTPYTHON/include/python%(pyshortver)s$(python%(pyshortver)s-config --abiflags) "
-configopts += "-DPYTHON_LIBRARY=$EBROOTPYTHON/lib/libpython%%(pyshortver)s$(python%%(pyshortver)s-config --abiflags).%s " % SHLIB_EXT
-# Other
-configopts += "-DCMAKE_INSTALL_LIBDIR=lib"
+configopts = "-DVTK_USE_SYSTEM_LZMA=ON -DVTK_USE_SYSTEM_HDF5=ON -DVTK_USE_SYSTEM_NETCDF=ON -DOPENGL_glu_LIBRARY=$EBROOTLIBGLU/lib/libGLU.so -DOPENGL_gl_LIBRARY=$EBROOTMESA/lib/libGL.so -DOPENGL_INCLUDE_DIR=$EBROOTMESA/include -DVTK_WRAP_PYTHON=ON -DVTK_PYTHON_VERSION=%(pyver)s -DPYTHON_INCLUDE_DIR=$EBROOTPYTHON/include/python%(pyshortver)s$(python%(pyshortver)s-config --abiflags) -DPYTHON_LIBRARY=$EBROOTPYTHON/lib/libpython%(pyshortver)s$(python%(pyshortver)s-config --abiflags).so -DCMAKE_INSTALL_LIBDIR=lib"
 
 preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s$(python%(pyshortver)s-config --abiflags)/site-packages:$PYTHONPATH && "
-installopts = " && mv %(installdir)s/bin/vtkpython %(installdir)s/bin/vtkpython%(pyshortver)s " 
-installopts += ' && sed "s/#VTK_VERSION#/%(version)s/" %(builddir)s/VTK-%(version)s/vtk-version.egg-info > %(installdir)s/lib/python%(pyshortver)s/site-packages/vtk-%(version)s.egg-info '
-postinstallcmds = [
-	'/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib --add_path %(installdir)s/lib --any_interpreter',
-	'ln -s %(installdir)s/bin/vtkpython3.8 %(installdir)s/bin/vtkpython'
-]
+installopts = ' && mv %(installdir)s/bin/vtkpython %(installdir)s/bin/vtkpython%(pyshortver)s  && sed "s/#VTK_VERSION#/%(version)s/" %(builddir)s/%(name)s-%(version)s/%(namelower)s-version.egg-info > %(installdir)s/lib/python%(pyshortver)s/site-packages/%(namelower)s-%(version)s.egg-info '
 
-modextrapaths = {'EBPYTHONPREFIXES': ['']}
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib --add_path %(installdir)s/lib --any_interpreter",
+    "ln -s %(installdir)s/bin/vtkpython3.8 %(installdir)s/bin/vtkpython",
+]
+multi_deps_load_default = False
 
 sanity_check_paths = {
-    'files': ['bin/vtk%s-%%(version_major_minor)s' % x for x in
-              ['WrapJava', 'ParseJava', 'WrapPythonInit', 'WrapPython', 'WrapHierarchy']] +
-             ['bin/vtkpython'],
-    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'include/vtk-%(version_major_minor)s'],
+    'files': ['bin/vtkWrapJava-%(version_major_minor)s', 'bin/vtkParseJava-%(version_major_minor)s', 'bin/vtkWrapPythonInit-%(version_major_minor)s', 'bin/vtkWrapPython-%(version_major_minor)s', 'bin/vtkWrapHierarchy-%(version_major_minor)s', 'bin/vtkpython'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'include/%(namelower)s-%(version_major_minor)s'],
 }
 
 sanity_check_commands = [
     ('python', "-c 'import %(namelower)s'"),
-    ('python', "-c 'import pkg_resources; pkg_resources.get_distribution(\"vtk\")'"),
+    ('python', '-c \'import pkg_resources; pkg_resources.get_distribution("%(namelower)s")\''),
 ]
 
+modextrapaths = {'EBPYTHONPREFIXES': ['']}
 
 moduleclass = 'vis'
 
 # Build statistics
 buildstats = [{
-    "build_time": 42.54,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", '--backup-modules', "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", '--module-only', "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'VTK-8.2.0-iccifort-2020.1.217.eb'],
+    "build_time": 4943.03,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/intel2020/vtk/8.2.0/easybuild/reprod/VTK-8.2.0-iccifort-2020.1.217.eb'],
     "core_count": 16,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
@@ -110,7 +93,7 @@ buildstats = [{
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
     "hostname": "build-node.computecanada.ca",
-    "install_size": 849707889,
+    "install_size": 587322704,
     "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
     "os_name": "centos linux",
     "os_type": "Linux",
@@ -119,6 +102,6 @@ buildstats = [{
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.6.10/bin/python",
-    "timestamp": 1626275997,
+    "timestamp": 1626286978,
     "total_memory": 60232,
 }]
