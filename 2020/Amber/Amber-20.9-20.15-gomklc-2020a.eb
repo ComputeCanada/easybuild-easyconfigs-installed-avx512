@@ -1,0 +1,98 @@
+# Built with EasyBuild version 4.4.1-r73a32642a48430484a7c9a4654e7afda27268be4 on 2021-08-28_00-56-50
+name = 'Amber'
+version = '20.9-20.15'
+
+homepage = 'http://ambermd.org/amber.html'
+description = """Amber (originally Assisted Model Building with Energy
+ Refinement) is software for performing molecular dynamics and structure
+ prediction."""
+
+toolchain = {'name': 'gomklc', 'version': '2020a'}
+toolchainopts = {'usempi': True, 'openmp': True}
+
+sources = ['%(name)s%(version_major)s.tar.bz2', 'AmberTools%(version_major)s.tar.bz2']
+patches = [
+    '%(name)s-%(version_major)s-AT-20_fix_hardcoding.patch',
+    '%(name)s-%(version_major)s-AT-20_fix_intel_mpi_compiler_version_detection.patch',
+    '%(name)s-%(version_major)s-AT-20_use_fftw_from_mkl_or_external.patch',
+    '%(name)s-%(version_major)s-AT-20_use_FFTW_FFT_instead_of_PUBFFT.patch',
+    '%(name)s-%(version_major)s-AT-20_fix_sander_link_with_external_fftw.patch',
+    '%(name)s-%(version_major)s-AT-20_fix-cpptraj-dont-use-static.patch',
+    '%(name)s-%(version_major)s-AT-20_use_CUSTOMBUILDFLAGS_for_nab.patch',
+    '%(name)s-%(version_major)s-AT-20_ignore_X11_checks.patch',
+    '%(name)s-%(version_major)s-AT-20_use_easybuild_pythonpath.patch',
+#    '%(name)s-%(version_major)s-AT-20_use_external_boost_in_packmol_memembed.patch',
+    '%(name)s-%(version_major)s-AT-20_make_cpptraj_link_with_EBs_blas_lapack_fftw.patch',
+    '%(name)s-%(version_major)s_fix_missing_build_target.patch',
+    '%(name)s-%(version_major)s_dont_use_ipo.patch',
+    '%(name)s-%(version_major)s-AT-20_fix_gentoo_hardcoding.patch',
+]
+checksums = [
+    'a4c53639441c8cc85adee397933d07856cc4a723c82c6bea585cd76c197ead75',  # Amber20.tar.bz2
+    'b1e1f8f277c54e88abc9f590e788bbb2f7a49bcff5e8d8a6eacfaf332a4890f9',  # AmberTools20.tar.bz2
+    '02081e65b9bad6599b906eb678e71e2130897ac530088531737b3844bcc7573f',  # Amber-20-AT-20_fix_hardcoding.patch
+    # Amber-20-AT-20_fix_intel_mpi_compiler_version_detection.patch
+    '27362fec7838be36dc97619c8b932a8dde8a010d510626b6adb37cbe122ed948',
+    # Amber-20-AT-20_use_fftw_from_mkl_or_external.patch
+    'ba91b954e487ae1c28856486ad08998fa14b1e667da71662290df5bf68eb4fb0',
+    # Amber-20-AT-20_use_FFTW_FFT_instead_of_PUBFFT.patch
+    'cd8a4cd408fea37176666cd6ac4473fcd3bbf1a630685695ccb11f9412f32f2f',
+    # Amber-20-AT-20_fix_sander_link_with_external_fftw.patch
+    '509ce0c17863039101a3c004c5f016ee7193e929fc5a2892ac15df055a314487',
+    # Amber-20-AT-20_fix-cpptraj-dont-use-static.patch
+    '4b043ba84793d4d7feec4444fb4feefb687dc2f691193b4f64101d0d58e9a396',
+    # Amber-20-AT-20_use_CUSTOMBUILDFLAGS_for_nab.patch
+    '5e0a27e807123d465db0fda1ccce0c6450beac969b0503499bd2cbf13044a564',
+    '7a0d0ec2c5e1a55464af088e58047946023ac2d30b632bd64ecde98039fe8882',  # Amber-20-AT-20_ignore_X11_checks.patch
+    '9a278aeaea7abd12ce3fc9ab15ddadb2c2732cef7e81aab40fecd22e7fc53aa4',  # Amber-20-AT-20_use_easybuild_pythonpath.patch
+    # Amber-20-AT-20_use_external_boost_in_packmol_memembed.patch
+#    '926c63d41a2f18d15621a6515f40fdaf3fe160763d5ddac635075109fcc650b2',
+    # Amber-20-AT-20_make_cpptraj_link_with_EBs_blas_lapack_fftw.patch
+    '1f5ce4156a16d6c56659b8f8465d4dcfad0100b6982f839425d9b83cbed849c0',
+    '1a009bab4117f4f3ffd91a7d0607cfc6d47a6514fdda91118470f0f4d22cd618',  # Amber-20_fix_missing_build_target.patch
+    '035fb2765c403799d328f7a6d459993b5cf7e1b9acf48bfb924a4c80fc7c1198',  # Amber-20_dont_use_ipo.patch
+    'c5a084176c20489ffb5eed93b7e90b1f3e622927e669fa91675cdd05d4950745',  # Amber-20-AT-20_fix_gentoo_hardcoding.patch
+]
+
+builddependencies = [
+    ('Python', '3.6.10', '', True),
+]
+dependencies = [
+    ('netCDF', '4.7.4'),
+    ('netCDF-Fortran', '4.5.2'),
+    ('FFTW', '3.3.8', '-mpi'),
+    ('Boost', '1.72.0'),
+]
+
+runtest = False
+patchlevels = (9, 15)  # Amber-18-AT-18_make_cpptraj_link_with_EBs_blas_lapack_fftw.patch
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 7650.66,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/restricted.computecanada.ca/easybuild/software/2020/avx2/MPI/gcc9/cuda11.0/openmpi4/amber/20.9-20.15/easybuild/reprod/easyblocks/amber.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2020'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'Amber-20.9-20.15-gomklc-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.4.1-r070e0eae9cb186ca3d7d08fb4b9214463bbe8a7e",
+    "easybuild-framework_version": "4.4.1-r73a32642a48430484a7c9a4654e7afda27268be4",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 6462098061,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.6.10/bin/python",
+    "timestamp": 1630112167,
+    "total_memory": 60232,
+}]
