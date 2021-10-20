@@ -1,14 +1,14 @@
-# Built with EasyBuild version 4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007 on 2021-04-27_13-58-36
+# Built with EasyBuild version 4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535 on 2020-12-14_18-56-29
 easyblock = "CMakeMake"
 
-name = "arrow"
-version = "2.0.0"
+name = 'Arrow'
+version = "1.0.0"
 
 homepage = "https://arrow.apache.org"
 description = """Apache Arrow is a cross-language development platform for in-memory data."""
 
 # On AVX512, there is a bug with GCC 7.3.0
-toolchain = {"name": "GCC", "version": "9.3.0"}
+toolchain = {"name": "gcccuda", "version": "2020a"}
 toolchainopts = {"cstd": "c++17"}
 
 # Fetching from Github to obtain test data which is not part of released tarball
@@ -36,6 +36,8 @@ multi_deps = {"Python": ["3.6", "3.7", "3.8"]}
 
 local_cmake_opts = " ".join([
     "-DARROW_PYTHON=ON",
+    "-DARROW_CUDA=ON",
+    "-DCMAKE_PREFIX_PATH=$EBROOTCUDA/lib64/stubs",
     "-DARROW_PLASMA=ON",
     "-DARROW_PARQUET=ON",
     "-DARROW_DATASET=ON",
@@ -48,7 +50,7 @@ local_cmake_opts = " ".join([
     "-DARROW_WITH_BZ2=ON",
     "-DARROW_WITH_LZ4=ON",
     "-DARROW_WITH_SNAPPY=ON",
-    "-DARROW_BUILD_TESTS=ON",
+    "-DARROW_BUILD_TESTS=OFF", # No GPU device to test on
     "-DCMAKE_BUILD_TYPE=Release",
     "-DBOOST_ROOT=$EBROOTBOOST",
     "-DPYTHON_EXECUTABLE=$EBROOTPYTHON/bin/python",
@@ -59,9 +61,9 @@ local_cmake_opts = " ".join([
 
 local_exports = " && ".join([
     "export PYARROW_WITH_PLASMA=1",
+    "export PYARROW_WITH_CUDA=1",
     "export PYARROW_WITH_PARQUET=1",
     "export PYARROW_WITH_DATASET=1",
-    "export PYARROW_WITH_IPC=1",
     "export PYARROW_WITH_ZSTD=1",
     "export PYARROW_WITH_SNAPPY=1",
     'export PYARROW_CMAKE_OPTIONS="{}"'.format(local_cmake_opts),
@@ -83,11 +85,12 @@ installopts = (
 start_dir = "cpp"
 separate_build_dir = True
 
-pretestopts = " && ".join([
-    "export PARQUET_TEST_DATA=%(builddir)s/arrow/cpp/submodules/parquet-testing/data"
-    "export ARROW_TEST_DATA=%(builddir)s/arrow/testing/data"
-])
-runtest = "unittest"
+# No GPU device to test on. The tests were run with the version without CUDA.
+# runtest = "unittest"
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib --any_interpreter"
+]
 
 modextrapaths = {"EBPYTHONPREFIXES": ""}
 
@@ -96,6 +99,7 @@ sanity_check_paths = {
         "lib/libarrow_python.so",
         "lib/libarrow.so",
         "lib/libplasma.so",
+        "lib/libarrow_cuda.so",
         "lib/libparquet.so",
         "lib/libarrow_dataset.so",
     ],
@@ -110,6 +114,7 @@ sanity_check_paths = {
 sanity_check_commands = [
     "python -c 'import pyarrow'",
     "python -c 'import pyarrow.plasma'",
+    "python -c 'import pyarrow.cuda'",
     "python -c 'import pyarrow.parquet'",
     "python -c 'import pyarrow.dataset'",
     "python -c 'import pyarrow.csv'",
@@ -126,21 +131,21 @@ moduleclass = "data"
 
 # Build statistics
 buildstats = [{
-    "build_time": 1651.0,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--try-software-version='2.0.0'", "--use-ccache=''", '--use-existing-modules', 'Arrow-1.0.0-GCC-9.3.0.eb'],
+    "build_time": 1883.98,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--try-software-version='1.0.0'", "--use-ccache=''", '--use-existing-modules', 'Arrow-1.0.0-gcccuda-2020a.eb'],
     "core_count": 16,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
     "cpu_speed": 2494.14,
     "cpu_vendor": "Intel",
-    "easybuild-easyblocks_version": "4.3.4-rc9cef27d40d72d04cacf6ddfa6e9ec28257e2982",
-    "easybuild-framework_version": "4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007",
+    "easybuild-easyblocks_version": "4.3.1-radab546e8802c71434d64fd6f4ee22e02c3bfff4",
+    "easybuild-framework_version": "4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
     "hostname": "build-node.computecanada.ca",
-    "install_size": 218831900,
-    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "install_size": 208861158,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.16'),
     "os_name": "centos linux",
     "os_type": "Linux",
     "os_version": "7.9.2009",
@@ -148,6 +153,6 @@ buildstats = [{
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
-    "timestamp": 1619546316,
+    "timestamp": 1607990189,
     "total_memory": 60232,
 }]

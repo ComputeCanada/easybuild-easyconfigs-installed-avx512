@@ -1,7 +1,7 @@
 # Built with EasyBuild version 4.3.4-rb538cf08261fd3bc40f99577ceda72fcf34cb007 on 2021-04-27_15-14-40
 easyblock = "CMakeMake"
 
-name = "arrow"
+name = 'Arrow'
 version = "4.0.0"
 
 homepage = "https://arrow.apache.org"
