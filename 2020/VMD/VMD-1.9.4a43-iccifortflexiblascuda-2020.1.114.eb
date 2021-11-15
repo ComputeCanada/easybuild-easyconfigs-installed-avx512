@@ -1,0 +1,97 @@
+# Built with EasyBuild version 4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218 on 2021-11-15_19-58-29
+##
+# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
+# Authors::   Stephane Thiell <sthiell@stanford.edu>
+##
+name = 'VMD'
+version = '1.9.4a43'
+
+homepage = 'https://www.ks.uiuc.edu/Research/vmd'
+description = """VMD is a molecular visualization program for displaying, animating, and analyzing large biomolecular
+ systems using 3-D graphics and built-in scripting."""
+
+toolchain = {'name': 'iccifortflexiblascuda', 'version': '2020.1.114'}
+
+source_urls = [
+    'https://www.ks.uiuc.edu/Research/vmd/vmd-1.9.4/files/alpha/',
+    'https://www.ks.uiuc.edu/Research/vmd/vmd-%(version)s/files/final',
+    'http://webclu.bio.wzw.tum.de/stride/'
+]
+sources = [
+    'vmd-%(version)s.src.tar.gz',
+    {'filename': 'stride.tar.gz', 'extract_cmd': "tar -C vmd-%(version)s/lib/stride -xf %s"},
+]
+patches = [
+    ('VMD-1.9.3_plugins.patch'),
+    ('VMD-1.9.3_surf_Makefile.patch', 'vmd-%(version)s'),
+    ('VMD-1.9.3_surf_bad_printfs.patch', 'vmd-%(version)s'),
+    ('VMD-1.9.3_stride_Makefile.patch', 'vmd-%(version)s'),
+    ('VMD-1.9.3_stride_MAX_AT_IN_RES.patch', 'vmd-%(version)s'),
+    ('VMD-%(version)s_configure.patch', 'vmd-%(version)s'),
+    ('VMD-%(version)s_extra_colors.patch', 'vmd-%(version)s'),
+    ('VMD-1.9.4a43-fltk-gentoo.patch'),
+    ('VMD-1.9.4a43-CUDA11.4-gencodes.patch'),
+]
+checksums = [
+    '84323b2c34db8ce5739372dd6e225ef1fa1dc5c4b82d3810d55923a653b1bdc0',  # vmd-1.9.4a43.src.tar.gz
+    '51a8bc2988bb184bd08216124f61725225bb1a6f563bdf8cd35154cb5d621c1a',  # stride.tar.gz
+    '85760d6ae838e2b09801e34b36b484532383f7aaf2e8634b3ef808002a92baa3',  # VMD-1.9.3_plugins.patch
+    'd5cfa88064b7cffbc75accd69707d4e45fda974e8127de9ab606fdad501bd68a',  # VMD-1.9.3_surf_Makefile.patch
+    'f3c2a8c155e38db8e644cee6a01f6beaea5988e72ac74cde26b71670b151cc34',  # VMD-1.9.3_surf_bad_printfs.patch
+    'eb194ac0d8c086b73f87b29f7d732687f902431b1cdfa139c090401fefdee51e',  # VMD-1.9.3_stride_Makefile.patch
+    'eff1ca00cec637a6c8a156b2fb038e078d1835ba0eb15a571ed820bca5a866d9',  # VMD-1.9.3_stride_MAX_AT_IN_RES.patch
+    '67430fb48dc847874098603dff82952af6dc939cc0c9621fd876a182f9aeed04',  # VMD-1.9.4a43_configure.patch
+    '253eba282b570eb00e4764f46f77fd5ca898d10360d5707dd50ad1f14615af80',  # VMD-1.9.4a43_extra_colors.patch
+    '8dffc0ed6f39e3d26e2b153cf9b1ed0bef0323cacd3600bd820407916b68beac',  # VMD-1.9.4a43-fltk-gentoo.patch
+    'b145d1dfbf6436b6f33a37b68d2a77afc719b9b6e62fcca5fd94ee8d9a4e74c9',  # VMD-1.9.4a43-CUDA11.4-gencodes.patch
+]
+
+builddependencies = [
+    ('Python', '3.8'),
+]
+
+dependencies = [
+    ('Tcl', '8.6.9'),
+    ('Tk', '8.6.9'),
+    ('FLTK', '1.3.5'),
+    ('SciPy-bundle', '2019.10', '-Python-%(pyver)s'),
+#    ('Tkinter', '3.7.4'),
+    ('Mesa', '19.1.7'),
+    ('netCDF.Serial', '4.7.4'),
+    ('FFmpeg', '4.2.1'),
+    ('ImageMagick', '7.0.9-5'),
+    ('ACTC', '1.1'),
+    ('OptiX', '6.5.0', '', True),
+    ('zlib', '1.2.11'),
+    ('libpng', '1.6.37'),
+]
+
+moduleclass = 'vis'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1923.75,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'VMD-1.9.4a43-iccifortflexiblascuda-2020.1.114.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.0-r57756ad4a5d7fbb0a9af3b2b99b188089f753c9b",
+    "easybuild-framework_version": "4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 198316876,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1637006204,
+    "total_memory": 60232,
+}]
