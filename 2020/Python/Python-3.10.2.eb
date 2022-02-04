@@ -1,0 +1,254 @@
+# Built with EasyBuild version 4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218 on 2022-02-04_19-18-38
+name = 'Python'
+version = '3.10.2'
+
+homepage = 'https://python.org/'
+description = """Python is a programming language that lets you work more quickly and integrate your systems
+ more effectively."""
+
+toolchain = {'name': 'GCCcore', 'version': '9.3.0'}
+toolchainopts = {'pic': True}
+
+source_urls = ['https://www.python.org/ftp/%(namelower)s/%(version)s/']
+sources = [SOURCE_TGZ]
+
+builddependencies = [
+    ('UnZip', '6.0'),
+    ('Rust', '1.52.1'),  # required for setuptools-rust, which is needed for cryptography
+    ('pkg-config', '0.29.2'),
+#    ('git', '2.32.0', '-nodocs'),  # required for pbr
+]
+
+dependencies = [
+    ('binutils', '2.36.1'),
+    ('bzip2', '1.0.8'),  # required for bz2 package in Python stdlib
+    ('zlib', '1.2.11'),
+    ('libreadline', '8.1'),
+    ('ncurses', '6.2'),
+    ('SQLite', '3.35.4'),
+    ('XZ', '5.2.5'),
+    ('GMP', '6.2.1'),  # required for pycrypto
+    ('libffi', '3.3'),
+    ('OpenSSL', '1.1', '', True),
+]
+
+install_pip = True
+
+exts_default_options = {
+    'download_dep_fail': True,
+    'sanity_pip_check': True,
+    'source_urls': [PYPI_SOURCE],
+    'use_pip': True,
+}
+
+# order is important!
+# package versions updated 10 May 2021
+exts_list = [
+    ('wheel', '0.37.1'),
+    ('setuptools', '60.7.1'),
+    ('pip', '22.0.3'),
+    ('packaging', '21.3'),
+    ('nose', '1.3.7'),
+    ('blist', '1.3.6', {
+        'patches': ['Python-3_9-blist-1.3.6-fix-undefined_symbol_PyObject_GC_IS_TRACKED.patch'],
+    }),
+    ('paycheck', '1.0.2'),
+    ('pbr', '5.8.0'),
+    ('Cython', '0.29.27'),
+    ('six', '1.16.0'),
+    ('toml', '0.10.2'),
+    ('setuptools_scm', '6.4.2'),
+    ('python-dateutil', '2.8.2', {
+        'modulename': 'dateutil',
+    }),
+    ('decorator', '5.1.1'),
+    ('liac-arff', '2.5.0', {
+        'modulename': 'arff',
+    }),
+    ('pycrypto', '2.6.1', {
+        'modulename': 'Crypto',
+        'patches': ['pycrypto-2.6.1_remove-usr-include.patch'],
+    }),
+    ('ecdsa', '0.17.0'),
+    ('ipaddress', '1.0.23'),
+    ('asn1crypto', '1.4.0'),
+    ('idna', '3.3'),
+    ('pycparser', '2.21'),
+    ('cffi', '1.15.0'),
+    ('setuptools-rust', '1.1.2'),
+    ('semantic_version', '2.8.5'),
+    ('cryptography', '36.0.1', {
+        # avoid that cargo uses $HOME/.cargo, which can lead to build failures if home directory is NFS mounted,
+        # see https://github.com/rust-lang/cargo/issues/6652
+        'preinstallopts': "export CARGO_HOME=%(builddir)s/cargo && ",
+    }),
+    ('pyasn1', '0.4.8'),
+    ('PyNaCl', '1.5.0', {
+        'modulename': 'nacl',
+    }),
+    ('bcrypt', '3.2.0'),
+    ('paramiko', '2.9.2'),
+    ('flit-core', '3.6.0', {
+        'source_tmpl': 'flit_core-%(version)s.tar.gz',
+    }),
+    ('tomli', '2.0.0'),
+    ('pyparsing', '3.0.7'),
+    ('netifaces', '0.11.0'),
+    ('netaddr', '0.8.0'),
+    ('mock', '4.0.3'),
+    ('pytz', '2021.3'),
+    ('bitstring', '3.1.9'),
+    ('flit', '3.6.0'),
+    ('appdirs', '1.4.4'),
+    ('distlib', '0.3.4', {
+        'source_tmpl': 'distlib-%(version)s.zip',
+    }),
+    ('filelock', '3.4.2'),
+    ('importlib_metadata', '4.10.1'),
+    ('platformdirs', '2.4.1'),
+    ('virtualenv', '20.13.0'),
+    ('docopt', '0.6.2'),
+    ('joblib', '1.1.0'),
+    ('chardet', '4.0.0'),
+    ('certifi', '2021.10.8'),
+    ('urllib3', '1.26.8'),
+    ('requests', '2.27.1'),
+    ('xlrd', '2.0.1'),
+    ('py_expression_eval', '0.3.14'),
+    ('tabulate', '0.8.9'),
+    ('ujson', '5.1.0'),
+    ('atomicwrites', '1.4.0'),
+    ('py', '1.11.0'),
+    ('scandir', '1.10.0'),
+    ('pathlib2', '2.3.6'),
+    ('zipp', '3.7.0'),
+    ('pluggy', '1.0.0'),
+    ('more-itertools', '8.12.0'),
+    ('attrs', '21.4.0', {
+        'modulename': 'attr',
+    }),
+    ('wcwidth', '0.2.5'),
+    ('iniconfig', '1.1.1'),
+    ('pytest', '6.2.5'),
+    ('MarkupSafe', '2.0.1'),
+    ('Jinja2', '3.0.3'),
+    ('sphinxcontrib-websupport', '1.2.4', {
+        'modulename': 'sphinxcontrib.websupport',
+    }),
+    ('Pygments', '2.11.2'),
+    ('imagesize', '1.3.0'),
+    ('docutils', '0.18.1'),
+    ('snowballstemmer', '2.2.0'),
+    ('Babel', '2.9.1'),
+    ('alabaster', '0.7.12'),
+    ('sphinxcontrib-applehelp', '1.0.2', {
+        'modulename': 'sphinxcontrib.applehelp',
+    }),
+    ('sphinxcontrib-devhelp', '1.0.2', {
+        'modulename': 'sphinxcontrib.devhelp',
+    }),
+    ('sphinxcontrib-htmlhelp', '1.0.3', {
+        'modulename': 'sphinxcontrib.htmlhelp',
+    }),
+    ('sphinxcontrib-jsmath', '1.0.1', {
+        'modulename': 'sphinxcontrib.jsmath',
+    }),
+    ('sphinxcontrib-qthelp', '1.0.3', {
+        'modulename': 'sphinxcontrib.qthelp',
+    }),
+    ('sphinxcontrib-serializinghtml', '1.1.5', {
+        'modulename': 'sphinxcontrib.serializinghtml',
+    }),
+    ('Sphinx', '4.4.0'),
+    ('sphinx-bootstrap-theme', '0.8.1'),
+    ('colorama', '0.4.4'),
+    ('click', '8.0.1'),
+    ('psutil', '5.9.0'),
+    ('future', '0.18.2'),
+    ('sortedcontainers', '2.4.0'),
+    ('intervaltree', '3.1.0'),
+    ('pytoml', '0.1.21'),
+    ('regex', '2022.1.18'),
+    ('intreehooks', '1.0'),
+    ('pylev', '1.4.0'),
+    ('pastel', '0.2.1', {
+        'source_tmpl': SOURCE_WHL,
+    }),
+    ('clikit', '0.6.2', {
+        'source_tmpl': SOURCE_WHL,
+    }),
+    ('SecretStorage', '3.3.1'),
+    ('keyring', '23.5.0', {
+        'modulename': False,  # Doesn't work properly if HOME directory contains keys
+    }),
+    ('keyrings.alt', '4.1.0', {
+        'modulename': False,
+    }),
+    ('tomlkit', '0.9.0', {
+        'source_tmpl': SOURCE_PY3_WHL,
+    }),
+    ('shellingham', '1.4.0'),
+    ('requests-toolbelt', '0.9.1'),
+    ('pyrsistent', '0.18.1'),
+    ('pkginfo', '1.8.2'),
+    ('pexpect', '4.8.0'),
+    ('jsonschema', '4.4.0'),
+    ('simplejson', '3.17.6'),
+    ('webencodings', '0.5.1'),
+    ('html5lib', '1.1'),
+    ('cleo', '0.8.1', {
+        'source_tmpl': SOURCE_WHL,
+    }),
+    ('cachy', '0.3.0'),
+    ('msgpack', '1.0.3'),
+    ('CacheControl', '0.12.10'),
+    ('ptyprocess', '0.7.0', {
+        'source_tmpl': SOURCE_WHL,
+    }),
+    ('lockfile', '0.12.2'),
+    ('poetry-core', '1.0.7', {
+        'modulename': 'poetry.core',
+    }),
+    ('poetry', '1.1.12'),
+    ('crashtest', '0.3.1', {
+        'source_tmpl': SOURCE_PY3_WHL,
+    }),
+    ('jeepney', '0.7.1', {
+        'source_tmpl': SOURCE_PY3_WHL,
+    }),
+    ('fsspec', '2022.1.0'),
+    ('threadpoolctl', '3.1.0'),
+    ('simplegeneric', '0.8.1', {
+        'source_tmpl': 'simplegeneric-%(version)s.zip',
+    }),
+]
+
+moduleclass = 'lang'
+
+# Build statistics
+buildstats = [{
+    "build_time": 832.14,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', 'Python-3.10.2-GCCcore-9.3.0.eb', 'Python-3.10-GCCcore-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.0-rce21bd8758bda3e28ace9d4e3c7527e50077cd81",
+    "easybuild-framework_version": "4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 290561679,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
+    "os_name": "centos linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1644002222,
+    "total_memory": 60232,
+}]
