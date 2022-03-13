@@ -1,0 +1,83 @@
+# Built with EasyBuild version 4.5.3-r7ef8e492dc501c62e1cd706105e5d4e3e5fe41a1 on 2022-03-13_00-45-16
+name = 'NWChem'
+
+version = '7.0.2-p1'
+local_version = '7.0.2'
+
+local_verdate = '2020-10-12'
+local_revision = 'b9985dfa'
+
+homepage = 'https://www.nwchem-sw.org'
+description = """NWChem aims to provide its users with computational chemistry tools that are scalable both in
+ their ability to treat large scientific computational chemistry problems efficiently, and in their use of available
+ parallel computing resources from high-performance parallel supercomputers to conventional workstation clusters.
+ NWChem software can handle: biomolecules, nanostructures, and solid-state; from quantum to classical, and all
+ combinations; Gaussian basis functions or plane-waves; scaling from one to thousands of processors; properties
+ and relativity."""
+
+toolchain = {'name': 'iofbf', 'version': '2020a'}
+toolchainopts = {'i8': True}
+
+# https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/
+# nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2
+
+source_urls = ['https://github.com/nwchemgit/nwchem/releases/download/v%(version)s-release/']
+sources = ['nwchem-%s-release.revision-%s-src.%s.tar.bz2' % (local_version, local_revision, local_verdate)]
+patches = [
+    'NWChem-7.0.2_fix_gnumakefile.patch',
+    '52b09da6d9121dfb6d6538f3167d2cae8d9bcb69.patch',
+]
+checksums = [
+    # nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2
+    'd9d19d87e70abf43d61b2d34e60c293371af60d14df4a6333bf40ea63f6dc8ce',
+    '89c634a652d4c8c358f8388ac01ee441659e3c0256c39b6494e2885c91f9aca4',  # NWChem-7.0.2_fix_gnumakefile.patch
+    # 52b09da6d9121dfb6d6538f3167d2cae8d9bcb69.patch
+    '8f502a3a7ab7d92917e2ca27fed25526833777613380baf590e480599c35ffb9',
+]
+
+dependencies = [
+    ('GlobalArrays', '5.7.2', '-peigs', ('iomkl', '2020a')),
+    ('Python', '3.9'),
+]
+
+preconfigopts  = 'export EXTRA_LIBS=-lutil && '
+
+modules = 'all python'
+
+modloadmsg = """
+  ------------------------------------------------------------------------------
+  This module includes a patch for the issue 475 reported at:
+  https://githubhot.com/repo/nwchemgit/nwchem/issues/475
+  Discrepancy between code and docs: D3 and D3(BJ) correction with B2PLYP #475 
+  ------------------------------------------------------------------------------
+"""
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 7321.39,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/n/NWChem/NWChem-7.0.2-p1-iofbf-2020a-Python-3.9.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.3-rd32a51a54e5df3e21ee5a8f5190fb6c1eab75be6",
+    "easybuild-framework_version": "4.5.3-r7ef8e492dc501c62e1cd706105e5d4e3e5fe41a1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 172439005,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.6.11'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.9.6/bin/python",
+    "timestamp": 1647132188,
+    "total_memory": 60232,
+}]
