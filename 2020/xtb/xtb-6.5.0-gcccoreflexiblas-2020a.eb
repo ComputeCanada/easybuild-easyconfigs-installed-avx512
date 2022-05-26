@@ -1,0 +1,102 @@
+# Built with EasyBuild version 4.5.3-rcedab47f0c5e8614620aa6cfaae78c9c422e675f on 2022-05-26_15-50-10
+easyblock = 'MesonNinja'
+
+name = 'xtb'
+version = '6.5.0'
+
+homepage = 'https://github.com/grimme-lab/xtb'
+description = "xtb - Extended tight-binding semi-empirical quantum mechanics"
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '2020a'}
+toolchainopts = {'openmp': True}
+
+source_urls = ['https://github.com/grimme-lab/%(name)s/archive/']
+sources = [
+    {'download_filename': 'v%(version)s.tar.gz', 'filename': SOURCE_TAR_GZ},
+    {'filename': '%(name)s-python-%(version)s.tar.gz', 'download_filename': '%(name)s-python-%(version)s.tar.gz', 'git_config': {'url': 'https://github.com/grimme-lab', 'repo_name': '%(name)s-python', 'commit': '0aaf169', 'recursive': False, 'keep_git_dir': False}},
+]
+
+# Must use --disable-enforce-checksums as checksums are not reliable on a JIT created tarball
+
+builddependencies = [
+    ('CMake', '3.22.1'),
+]
+dependencies = [
+    ('SciPy-Stack', '2022a'),
+]
+multi_deps = {'Python': ['3.8', '3.9', '3.10']}
+
+configopts = "--buildtype release --optimization=2 -Dopenmp=true -Dla_backend=custom -Dcustom_libraries=flexiblas"
+
+runtest = 'meson'
+testopts = "test -C %(builddir)s/easybuild_obj -t 60"
+multi_deps_load_default = False
+multi_deps_extensions_only = True
+exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    "python -c 'import %(ext_name)s'",
+    '',
+)
+
+exts_default_options = {
+    'runtest': False,
+    'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'],
+    'use_pip': True,
+}
+
+exts_list = [
+    ('xtb', '6.5.0', {'sources': [{'filename': 'xtb-python-%(version)s.tar.gz', 'download_filename': 'xtb-python-%(version)s.tar.gz'}], 'use_pip': True, 'preinstallopts': 'meson setup ./build%(pyshortver)s --prefix=%(installdir)s/lib/python%(pyshortver)s/site-packages --default-library=shared --libdir=xtb --optimization=2 -Dpy=%(pyshortver)s && ninja -C ./build%(pyshortver)s install && '}),
+    ('ase', '3.22.1', {'checksums': ['004df6b0ea04b1114c790fadfe45d4125eb0e53125c66a93425af853d82ab432']}),
+    ('qcelemental', '0.24.0', {'checksums': ['5dcb11f3db6edba106e40717aa69dd90448b19667c78a99392368bce2a2c6b01']}),
+    ('pydantic', '1.9.1', {'checksums': ['1ed987c3ff29fff7fd8c3ea3a3ea877ad310aae2ef9889a119e22d3f2db0691a']}),
+    ('Pint', '0.19.2', {'checksums': ['e1d4989ff510b378dad64f91711e7bdabe5ca78d75b06a18569ac454678c4baf']}),
+    # BUT extension source must use xtb-python archive!
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(name)s', 'include/%(name)s.h', 'lib64/libxtb.a', 'lib64/libxtb.so'],
+    'dirs': ['share', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    "%(name)s --help",
+    "python -c 'from %(name)s.libxtb import get_api_version;print(get_api_version())'",
+    """module load scipy-stack/2022a && python -c 'from ase import Atoms; from %(name)s.ase.calculator import XTB; atoms = Atoms("CO", positions=[(0, 0, 0), (0, 0, 1.1)]); calc = XTB(method="GFN0-xTB"); atoms.calc = calc; print(atoms.get_potential_energy())'""",
+]
+
+modextrapaths = {'EBPYTHONPREFIXES': ''}
+
+modextravars = {
+    'XTBHOME': '%(installdir)s',
+    'XTBPATH': '%(installdir)s/share/%(name)s',
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1078.29,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--try-toolchain='gccflexiblas,2020a'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/x/xtb/xtb-6.5.0-gccflexiblas-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.3-r4a9148f8d7cd587a13ff498fe4fd4f425adb8de4",
+    "easybuild-framework_version": "4.5.3-rcedab47f0c5e8614620aa6cfaae78c9c422e675f",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 294918323,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.6.16'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.10.2/bin/python",
+    "timestamp": 1653594486,
+    "total_memory": 60232,
+}]
