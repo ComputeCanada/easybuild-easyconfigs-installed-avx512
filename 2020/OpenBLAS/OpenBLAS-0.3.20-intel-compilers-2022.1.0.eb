@@ -1,0 +1,62 @@
+# Built with EasyBuild version 4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665 on 2022-06-10_14-44-06
+name = 'OpenBLAS'
+version = '0.3.20'
+
+homepage = 'https://xianyi.github.com/OpenBLAS/'
+description = "OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version."
+
+toolchain = {'name': 'intel-compilers', 'version': '2022.1.0'}
+
+source_urls = [
+    # order matters, trying to download the large.tgz/timing.tgz LAPACK tarballs from GitHub causes trouble
+    'https://www.netlib.org/lapack/timing/',
+    'https://github.com/xianyi/%(name)s/archive/',
+]
+sources = ['v%(version)s.tar.gz']
+patches = [
+    ('large.tgz', '.'),
+    ('timing.tgz', '.'),
+]
+checksums = [
+    '8495c9affc536253648e942908e88e097f2ec7753ede55aca52e5dead3029e3c',  # v0.3.20.tar.gz
+    'f328d88b7fa97722f271d7d0cfea1c220e0f8e5ed5ff01d8ef1eb51d6f4243a1',  # large.tgz
+    '999c65f8ea8bd4eac7f1c7f3463d4946917afd20a997807300fe35d70122f3af',  # timing.tgz
+]
+
+# work around test failures by using gcc instead of icc
+prebuildopts = "declare -A ARCH_MAP=( [sse3]='nocona -mtune=generic' [avx]='corei7-avx' [avx2]='core-avx2' [avx512]='skylake-avx512' ) && "
+buildopts = ' CC=gcc CFLAGS="-O2 -ftree-vectorize -march=${ARCH_MAP[$RSNT_ARCH]} -fno-math-errno" BINARY="64" FC="ifort" MAKE_NB_JOBS="-1" USE_OPENMP="1" USE_THREAD="1" #'
+
+
+# extensive testing can be enabled by uncommenting the line below
+# runtest = 'PATH=.:$PATH lapack-timing'
+
+moduleclass = 'numlib'
+
+# Build statistics
+buildstats = [{
+    "build_time": 525.74,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/intel2022/openblas/0.3.20/easybuild/reprod/OpenBLAS-0.3.20-intel-compilers-2022.1.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.4-rdbf0a82c20853ae2a3b5c7f9ecabd270f583648b",
+    "easybuild-framework_version": "4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/libexec/gcc/x86_64-pc-linux-gnu/11.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold --enable-ld=default --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/11.3.0/system-system/gcc-11.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 11.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 120989469,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1654872246,
+    "total_memory": 60232,
+}]
