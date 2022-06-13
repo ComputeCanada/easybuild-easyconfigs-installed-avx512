@@ -1,0 +1,81 @@
+# Built with EasyBuild version 4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665 on 2022-06-13_21-29-08
+easyblock = 'CMakeMake'
+
+name = 'VTK'
+version = '9.1.0'
+
+homepage = 'http://www.vtk.org'
+description = """The Visualization Toolkit (VTK) is an open-source, freely available software system for
+ 3D computer graphics, image processing and visualization. VTK consists of a C++ class library and several
+ interpreted interface layers including Tcl/Tk, Java, and Python. VTK supports a wide variety of visualization
+ algorithms including: scalar, vector, tensor, texture, and volumetric methods; and advanced modeling techniques
+ such as: implicit modeling, polygon reduction, mesh smoothing, cutting, contouring, and Delaunay triangulation."""
+
+toolchain = {'name': 'GCC', 'version': '9.3.0'}
+
+source_urls = ['https://www.%(namelower)s.org/files/release/%(version_major_minor)s']
+sources = [
+    SOURCE_TAR_GZ,
+    '%(name)sData-%(version)s.tar.gz',
+]
+checksums = [
+    '8fed42f4f8f1eb8083107b68eaa9ad71da07110161a3116ad807f43e5ca5ce96',  # %(name)s-%(version)s.tar.gz
+    'b9442cf1c30e1e44502e6dc36d3c6c2dc3d3f7d03306ee1d10737e9abadaa85d',  # VTKData-%(version)s.tar.gz
+]
+
+builddependencies = [
+]
+dependencies = [
+    ('SciPy-Stack', '2022a', '', ('GCCcore', '9.3.0')),
+    ('HDF5', '1.10.6'),
+    ('netCDF', '4.7.4'),
+]
+multi_deps = {'Python': ['3.10', '3.9', '3.8']}
+
+configopts = "-DVTK_USE_SYSTEM_LZMA=ON -DVTK_USE_SYSTEM_HDF5=ON -DVTK_USE_SYSTEM_NETCDF=ON -DVTK_WRAP_PYTHON=ON -DVTK_PYTHON_VERSION=3 -DPYTHON_INCLUDE_DIR=$EBROOTPYTHON/include/python%(pyshortver)s -DPYTHON_LIBRARY=$EBROOTPYTHON/lib/libpython%(pyshortver)s.so -DPython3_EXECUTABLE=$EBROOTPYTHON/bin/python -DCMAKE_INSTALL_LIBDIR=lib"
+
+preinstallopts = "export PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH && "
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib --add_path %(installdir)s/lib --any_interpreter",
+]
+multi_deps_load_default = False
+
+sanity_check_paths = {
+    'files': ['bin/vtkWrapJava-%(version_major_minor)s', 'bin/vtkParseJava-%(version_major_minor)s', 'bin/vtkWrapPythonInit-%(version_major_minor)s', 'bin/vtkWrapPython-%(version_major_minor)s', 'bin/vtkWrapHierarchy-%(version_major_minor)s', 'bin/vtkpython'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages/', 'include/%(namelower)s-%(version_major_minor)s', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [('python', "-c 'import %(namelower)s'")]
+
+modextrapaths = {'EBPYTHONPREFIXES': ['']}
+
+moduleclass = 'vis'
+
+# Build statistics
+buildstats = [{
+    "build_time": 3784.16,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/vtk/9.1.0/easybuild/reprod/VTK-9.1.0-GCC-9.3.0.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.4-rff6a2047aa01c6e109b2cf05685e60ec501f29dc",
+    "easybuild-framework_version": "4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 629493083,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1655155740,
+    "total_memory": 60232,
+}]
