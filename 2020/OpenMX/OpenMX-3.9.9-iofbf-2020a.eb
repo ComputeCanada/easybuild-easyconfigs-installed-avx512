@@ -1,0 +1,81 @@
+# Built with EasyBuild version 4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665 on 2022-06-15_18-52-25
+#
+# Grigory A Shamov, University of Manitoba / ComputeCanada
+#
+
+easyblock = 'MakeCp'
+
+name = 'OpenMX'
+version = '3.9.9'
+
+homepage = 'http://www.openmx-square.org/'
+description = """
+OpenMX (Open source package for Material eXplorer) is a software package 
+for nano-scale material simulations based on density functional theories (DFT), 
+norm-conserving pseudopotentials, and pseudo-atomic localized basis functions. 
+The methods and algorithms used in OpenMX and their implementation are carefully 
+designed for the realization of large-scale ab initio electronic structure calculations 
+on parallel computers based on the MPI or MPI/OpenMP hybrid parallelism.
+"""
+
+toolchain = {'name': 'iofbf', 'version': '2020a'}
+toolchainopts = {'pic': True}
+
+# There is no direct download. Follow the instructions from this link:
+# http://www.openmx-square.org/bugfixed/21Oct17/README.txt
+# and apply the corresponding path.
+# Then create the archive: openmx%(version)s.tar.gz
+
+# source_urls = ['http://t-ozaki.issp.u-tokyo.ac.jp/' ]
+
+sources = ['%(namelower)s%(version)s.tar.gz']
+checksums = ['8017e9215bd5c5f6223a1501cc9a8ced5f0248bfebd8e62284c883b0fa1e904b']
+
+prebuildopts = " cd %(builddir)s/%(namelower)s%(version)s/source && make clean && "
+buildopts = 'all CC="mpicc -qopenmp $CFLAGS -I$EBROOTFFTW/include -Dscalapack -Dkcomp" FC="mpif90 -qopenmp $FCFLAGS -I$EBROOTFFTW/include" LIB="-L${EBROOTFFTW}/lib -lfftw3 $LIBBLAS $LIBLAPACK $LIBSCALAPACK -lmpi_mpifh -liomp5 -lifcore -lpthread -lm -ldl"'
+
+#dependencies = [
+# ('FFTW', '3.3.8'),
+# ]
+
+parallel = 1
+
+files_to_copy = [
+    (['./source/ADenBand', './source/analysis_example', './source/BandDispersion', './source/bandgnu13', './source/bin2txt', './source/calB', './source/cube2xsf', './source/DosMain', './source/esp', './source/example_mpi_spawn', './source/FermiLoop', './source/gcube2oned', './source/GridCalc', './source/intensity_map', './source/jx', './source/kSpin', './source/md2axsf', './source/MulPCalc', './source/MulPOnly', './source/%(namelower)s', './source/polB', './source/tp', './source/Z2FH'], 'bin'),
+    (['./DFT_DATA19', 'work'], ''),
+]
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s', 'bin/DosMain'],
+    'dirs': ['bin', 'DFT_DATA19', 'work'],
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 391.72,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/intel2020/openmpi4/openmx/3.9.9/easybuild/reprod/OpenMX-3.9.9-iofbf-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.5.4-rff6a2047aa01c6e109b2cf05685e60ec501f29dc",
+    "easybuild-framework_version": "4.5.4-r910b1ac0ff640820a0cbd19985a230f3f6806665",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 543259046,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1655319145,
+    "total_memory": 60232,
+}]
