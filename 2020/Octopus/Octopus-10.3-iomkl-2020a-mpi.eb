@@ -1,0 +1,81 @@
+# Built with EasyBuild version 4.6.0-ra6dbb4b22832c431590f725219d89d82c9946dba on 2022-11-16_19-25-41
+easyblock = 'ConfigureMake'
+
+name = 'Octopus'
+version = '10.3'
+versionsuffix = '-mpi'
+
+homepage = 'http://www.tddft.org/programs/octopus/wiki/index.php/Main_Page'
+description = """Octopus is a scientific program aimed at the ab initio virtual experimentation 
+ on a hopefully ever-increasing range of system types. Electrons are described quantum-mechanically 
+ within density-functional theory (DFT), in its time-dependent form (TDDFT) when doing simulations 
+ in time. Nuclei are described classically as point particles. 
+ Electron-nucleus interaction is described within the pseudopotential approximation."""
+
+toolchain = {'name': 'iomkl', 'version': '2020a'}
+toolchainopts = {'usempi': True, 'pic': True}
+
+source_urls = ['http://%(namelower)s-code.org/down.php?file=%(version)s/']
+sources = [SOURCELOWER_TAR_GZ]
+
+builddependencies = [
+    ('Bison', '3.0.4'),
+    ('Perl', '5.30.2', '', True),
+]
+dependencies = [
+    ('libxc', '4.3.4', '', ('iccifort', '2020.1.217')),
+    ('METIS', '5.1.0', '', ('GCCcore', '9.3.0')),
+    ('netCDF', '4.7.4', None, ('iompi', '2020a')),
+    ('netCDF-Fortran', '4.5.2', None, ('iompi', '2020a')),
+    ('FFTW', '3.3.8', '-mpi', ('iompi', '2020a')),
+    ('BerkeleyGW', '2.1.0'),
+    ('arpack-ng', '3.7.0', '', ('iimkl', '2020a')),
+    ('PFFT', '1.0.8-alpha'),
+    ('ETSF_IO', '1.0.4', '-mpi', ('iompi', '2020a')),
+    ('GSL', '2.6', '', ('iccifort', '2020.1.217')),
+    ('ParMETIS', '4.0.3', '', ('iompi', '2020a')),
+]
+
+preconfigopts = 'BLAS_LIBS="$LIBBLAS" LAPACK_LIBS="$LIBLAPACK"'
+configopts = 'CC=mpicc CXX=mpicxx FC=mpif90 FF=mpif77 --disable-python --disable-gdlib --disable-openmp --disable-metis --enable-mpi --enable-newuoa --with-blas="-L$BLAS_LIB_DIR $LIBBLAS" --with-libxc-prefix=$EBROOTLIBXC --with-gsl-prefix=$EBROOTGSL --with-netcdf-prefix=$EBROOTNETCDFMINFORTRAN --with-etsf-io-prefix=$EBROOTETSF_IO --with-blacs="$MKLROOT/lib/intel64/libmkl_blacs_intelmpi_lp64.a" --with-scalapack="$MKLROOT/lib/intel64/libmkl_scalapack_lp64.a" --with-mpifftw-prefix=$EBROOTFFTW --with-pfft-prefix=$EBROOTPFFT --with-arpack=$EBROOTARPACKMINNG/lib --with-berkeleygw-prefix=$EBROOTBERKELEYGW --with-parmetis-prefix=$EBROOTPARMETIS '
+
+modluafooter = """
+depends_on("perl")
+"""
+
+sanity_check_paths = {
+    'files': ['bin/%(namelower)s'],
+    'dirs': ['include', 'share', 'share/%(namelower)s'],
+}
+
+modextrapaths = {'PATH': 'share/%(namelower)s/pseudopotentials'}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 381.31,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/intel2020/openmpi4/octopus/10.3/easybuild/reprod/Octopus-10.3-iomkl-2020a-mpi.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.6.0-r9a09ad5a6c046bbc1a0092f75b2d57a02aeb770e",
+    "easybuild-framework_version": "4.6.0-ra6dbb4b22832c431590f725219d89d82c9946dba",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 1127619025,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1668626541,
+    "total_memory": 60232,
+}]
