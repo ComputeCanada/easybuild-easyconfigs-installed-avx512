@@ -1,0 +1,85 @@
+# Built with EasyBuild version 4.6.2-r65a52a344b53103bca8477cf34a3032a8f269f1a on 2022-12-12_19-18-13
+easyblock = 'CMakeMake'
+
+name = 'dealii'
+version = '9.4.1'
+
+homepage = 'http://www.dealii.org/'
+description = "A C++ software library supporting the creation of finite element codes and an open community of users and developers."
+
+toolchain = {'name': 'gofbf', 'version': '2020a'}
+toolchainopts = {'usempi': True, 'pic': True, 'strict': True}
+
+source_urls = ['https://github.com/%(name)s/%(namelower)s/releases/download/v%(version)s']
+sources = [SOURCELOWER_TAR_GZ]
+checksums = ['bfe5e4bf069159f93feb0f78529498bfee3da35baf5a9c6852aa59d7ea7c7a48']
+
+builddependencies = [
+    ('CMake', '3.23.1', '', SYSTEM),
+    ('Boost', '1.72.0', '-mpi', ('gompi', '2020a')),
+    ('SymEngine', '0.6.0', '', ('GCCcore', '9.3.0')),
+    ('nanoflann', '1.3.2', '', SYSTEM),
+]
+dependencies = [
+    ('p4est', '2.3.2', '', ('gofb', '2020a')),
+    ('GSL', '2.6', '', ('GCC', '9.3.0')),
+    ('SuiteSparse', '5.10.1', '', ('gccflexiblas', '2020a')),
+    ('tbb', '2020.2', '', SYSTEM),
+    ('SUNDIALS', '6.4.1', '', ('gofb', '2020a')),
+    ('gmsh', '4.10.5', '', ('gccflexiblas', '2020a')),
+    ('ADOL-C', '2.7.2', '', ('gompi', '2020a')),
+    ('arpack-ng', '3.8.0', '', ('gccflexiblas', '2020a')),
+    ('ASSIMP', '5.0.0'),
+    ('HDF5', '1.10.6', '-mpi', ('gompi', '2020a')),
+    ('METIS', '5.1.0', '', ('GCCcore', '9.3.0')),
+    ('muParser', '2.3.2', '', ('GCCcore', '9.3.0')),
+    ('netCDF-C++', '4.2', '-mpi', ('gompi', '2020a')),
+    ('PETSc', '3.17.1'),
+    ('SLEPc', '3.17.2'),
+    ('occt', '7.4.0', '', ('GCCcore', '9.3.0')),
+    ('Trilinos', '13.4.1', '', ('gofb', '2020a')),
+    ('METIS', '5.1.0', '', ('GCCcore', '9.3.0')),
+]
+
+preconfigopts = "export TRILINOS_DIR=$EBROOTTRILINOS && declare -A ARCH_MAP=( [sse3]=SSE2 [avx]=AVX [avx2]=AVX [avx512]=AVX512 ) && "
+configopts = '-DDEAL_II_ALLOW_PLATFORM_INTROSPECTION=OFF -DDEAL_II_HAVE_${ARCH_MAP[$RSNT_ARCH]}=ON -DDEAL_II_WITH_BOOST=ON -DBOOST_DIR=$EBROOTBOOST -DDEAL_II_WITH_P4EST=ON -DDEAL_II_WITH_MPI=ON -DDEAL_II_WITH_TRILINOS=ON -DTBB_DIR=$EBROOTTBB -DTrilinos_ENABLE_Sacado=ON -DTrilinos_ENABLE_Stratimikos=ON -DTrilinos_FIND_COMPONENTS="Pike;PikeImplicit;PikeBlackBox;TrilinosCouplings;Panzer;PanzerMiniEM;PanzerAdaptersSTK;PanzerDiscFE;PanzerDofMgr;PanzerCore;Piro;ROL;Stokhos;Tempus;Rythmos;ShyLU;ShyLU_DD;ShyLU_DDCommon;ShyLU_DDFROSch;ShyLU_DDBDDC;Zoltan2;Zoltan2Sphynx;MueLu;Moertel;NOX;Phalanx;Percept;STK;STKExprEval;STKDoc_tests;STKUnit_tests;STKBalance;STKTools;STKTransfer;STKSearchUtil;STKSearch;STKUnit_test_utils;STKNGP_TEST;STKIO;STKMesh;STKTopology;STKSimd;STKUtil;STKMath;Compadre;Intrepid2;Intrepid;Teko;FEI;Stratimikos;Ifpack2;Anasazi;Komplex;SEACAS;SEACASEx2ex1v2;SEACASTxtexo;SEACASNumbers;SEACASNemspread;SEACASNemslice;SEACASMat2exo;SEACASMapvar-kd;SEACASMapvar;SEACASMapvarlib;SEACASExplore;SEACASGrepos;SEACASGenshell;SEACASGen3D;SEACASGjoin;SEACASFastq;SEACASEx1ex2v2;SEACASExo_format;SEACASExotxt;SEACASExomatlab;SEACASExodiff;SEACASExo2mat;SEACASEpu;SEACASEjoin;SEACASConjoin;SEACASBlot;SEACASAprepro;SEACASAlgebra;SEACASPLT;SEACASSVDI;SEACASSuplibCpp;SEACASSuplibC;SEACASSuplib;SEACASSupes;SEACASAprepro_lib;SEACASChaco;SEACASIoss;SEACASNemesis;SEACASExoIIv2for32;SEACASExodus_for;SEACASExodus;Amesos2;ShyLU_Node;ShyLU_NodeTacho;ShyLU_NodeHTS;Belos;ML;Ifpack;Zoltan2Core;Pamgen;Amesos;Galeri;AztecOO;Pliris;Isorropia;Xpetra;Thyra;ThyraTpetraAdapters;ThyraEpetraExtAdapters;ThyraEpetraAdapters;ThyraCore;Domi;TrilinosSS;Tpetra;TpetraCore;TpetraTSQR;TpetraClassic;EpetraExt;Triutils;Shards;Zoltan;Epetra;MiniTensor;Sacado;RTOp;KokkosKernels;Teuchos;TeuchosKokkosComm;TeuchosKokkosCompat;TeuchosRemainder;TeuchosNumerics;TeuchosComm;TeuchosParameterList;TeuchosParser;TeuchosCore;Kokkos;KokkosAlgorithms;KokkosContainers;KokkosCore;Gtest;TrilinosATDMConfigTests;TrilinosFrameworkTests" -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpiCC -DCMAKE_Fortran_COMPILER=mpif90 -DLAPACK_FOUND=true -DLAPACK_LIBRARIES="$LIBLAPACK" -DSCALAPACK_DIR=$SCALAPACK_LIB_DIR -DSCALAPACK_LIBRARIES="$LIBSCALAPACK -lm" -DP4EST_DIR=${EBROOTP4EST} -DTRILINOS_DIR=${EBROOTTRILINOS} -DGSL_LIBRARIES=${EBROOTGSL}/lib/libgsl.a -DGSL_INCLUDE_DIRS=${EBROOTGSL}/include -DDEAL_II_HAVE_USABLE_FLAGS_RELEASE=ON -DGMSH_DIR=$EBROOTGMSH -DSUNDIALS_DIR=$EBROOTSUNDIALS -DUMFPACK_DIR=$EBROOTSUITESPARSE/UMFPACK -DZLIB_INCLUDE_DIR=$EBROOTGENTOO/include -DZLIB_LIBRARY=$EBROOTGENTOO/lib/libz.so -DADOLC_DIR=$EBROOTADOLMINC -DARPACK_DIR=$EBROOTARPACKMINNG -DASSIMP_DIR=$EBROOTASSIMP -DHDF5_DIR=$EBROOTHDF5 -DMETIS_DIR=$EBROOTMETIS -DMETIS_INCLUDE_DIR=$EBROOTMETIS/include -DMETIS_LIBRARY=$EBROOTMETIS/lib/libmetis.so -DMUPARSER_DIR=$EBROOTMUPARSER -DNETCDF_DIR=$EBROOTNETCDFMINCPLUSPLUS -DPETSC_DIR=$EBROOTPETSC -DSLEPC_DIR=$EBROOTSLEPC '
+
+# Too parallel is too slow, and may cause build/tests to fail:
+
+maxparallel = 10
+
+
+sanity_check_paths = {
+    'files': ['lib/libdeal_II.so'],
+    'dirs': ['include', 'lib'],
+}
+
+moduleclass = 'numlib'
+
+# Build statistics
+buildstats = [{
+    "build_time": 2385.7,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/MPI/gcc9/openmpi4/dealii/9.4.1/easybuild/reprod/dealii-9.4.1-gofbf-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.6.0-rd2b93c0b2a89c99b926b7bbbbd83cea30d59665c",
+    "easybuild-framework_version": "4.6.2-r65a52a344b53103bca8477cf34a3032a8f269f1a",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 804711243,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1670872693,
+    "total_memory": 60232,
+}]
