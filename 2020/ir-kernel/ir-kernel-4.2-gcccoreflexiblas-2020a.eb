@@ -1,0 +1,149 @@
+# Built with EasyBuild version 4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b on 2023-02-10_15-41-11
+easyblock = 'Bundle'
+
+name = 'ir-kernel'
+version = '4.2'
+
+homepage = 'https://irkernel.github.io'
+description = """The R kernel for the 'Jupyter' environment executes R code 
+ which the front-end (Jupyter Notebook or other front-ends) submits to the 
+ kernel via the network."""
+
+toolchain = {'name': 'gcccoreflexiblas', 'version': '2020a'}
+
+dependencies = [
+    ('R', '4.2.1'),
+    ('ipykernel', '2022a'),
+#    ('Python', '3.9.6'),
+#    ('IPython', '7.26.0'),
+#    ('ZeroMQ', '4.3.4'),
+]
+
+exts_defaultclass = 'RPackage'
+exts_filter = ("R -q --no-save", "library(%(ext_name)s)")
+
+exts_default_options = {
+    'source_urls': [
+        'https://cran.r-project.org/src/contrib/',
+        'https://cran.rstudio.com/src/contrib/',
+        'https://cran.r-project.org/src/contrib/Archive/%(name)s/',
+    ],
+    'source_tmpl': '%(name)s_%(version)s.tar.gz',
+}
+
+exts_list = [
+    ('base64enc', '0.1-3', {
+        'checksums': ['6d856d8a364bcdc499a0bf38bfd283b7c743d08f0b288174fba7dbf0a04b688d'],
+    }),
+    ('digest', '0.6.31', {
+        'checksums': ['5a284f490eaca6750f695f00a584cfca3f180ca1046ac1107202141149d431b9'],
+    }),
+    ('rlang', '1.0.6', {
+        'checksums': ['e6973d98a0ea301c0da1eeaa435e9e65d1c3f0b95ed68bdc2d6cb0c610166760'],
+    }),
+    ('fastmap', '1.1.0', {
+        'checksums': ['9113e526b4c096302cfeae660a06de2c4c82ae4e2d3d6ef53af6de812d4c822b'],
+    }),
+    ('ellipsis', '0.3.2', {
+        'checksums': ['a90266e5eb59c7f419774d5c6d6bd5e09701a26c9218c5933c9bce6765aa1558'],
+    }),
+    ('htmltools', '0.5.4', {
+        'checksums': ['008228a8690d39d8ae2716bc614e76337fdbe2bac4e96258c10245fdf24f327e'],
+    }),
+    ('jsonlite', '1.8.4', {
+        'checksums': ['79eaabe042226b0918aa828cc63d54fee8be67ae7c67f5e0d3010f468efb1278'],
+    }),
+    ('cli', '3.6.0', {
+        'checksums': ['b6078131803043d53d4e670aa3a0506f614e0b40fda8e0102afd48a6188ab896'],
+    }),
+    ('fansi', '1.0.4', {
+        'checksums': ['3163214e6c40922bbb495229259ed8ce1bebd98b77098a6936d234e43da9c49f'],
+    }),
+    ('glue', '1.6.2', {
+        'checksums': ['9da518f12be584c90e75fe8e07f711ee3f6fc0d03d817f72c25dc0f66499fdbf'],
+    }),
+    ('lifecycle', '1.0.3', {
+        'checksums': ['6459fdc3211585c0cdf120427579c12149b02161efe273a64b825c05e9aa69c2'],
+    }),
+    ('utf8', '1.2.3', {
+        'checksums': ['c0a88686591f4ad43b52917d0964e9df4c62d8858fe25135a1bf357dfcbd6347'],
+    }),
+    ('vctrs', '0.5.2', {
+        'checksums': ['76bf10243b9b31e23f56ffdaa1677a01767699e2098487f86bd42cb801d8c047'],
+    }),
+    ('pillar', '1.8.1', {
+        'checksums': ['2f06a7cc9e5638390c9b98a6ec9a9ec1beec0f2b9dbdfa42e39a5ab2456d87ec'],
+    }),
+    ('repr', '1.1.4', {
+        'checksums': ['6f799ca83e0940618dd8c22e62ffdce5ec11ba3366c5306ae58b55b53c097040'],
+    }),
+    ('IRdisplay', '1.1', {
+        'checksums': ['83eb030ff91f546cb647899f8aa3f5dc9fe163a89a981696447ea49cc98e8d2b'],
+    }),
+    ('pbdZMQ', '0.3-7', {
+        'checksums': ['df2d2be14b2f57a64d76cdda4c01fd1c3d9aa12221c63524c01c71849df11808'],
+    }),
+    ('evaluate', '0.20', {
+        'checksums': ['35f5d9e85603600b58960923d591c5ca1115153febba7c612867d8b5598afff0'],
+    }),
+    ('crayon', '1.5.2', {
+        'checksums': ['70a9a505b5b3c0ee6682ad8b965e28b7e24d9f942160d0a2bad18eec22b45a7a'],
+    }),
+    ('uuid', '1.1-0', {
+        'checksums': ['e75b50ee7dc8c4c8e7083023e954ffd1c6a004431bf5e9094463e46aa760f42f'],
+    }),
+    ('IRkernel', '1.3.2', {
+        'checksums': ['e1c6d8bddc23e5039dd9c537feb371f937d60028fb753b90345698c58ae424a6'],
+    }),
+]
+
+modextrapaths = {
+    'R_LIBS_SITE': '',
+    'JUPYTER_PATH': 'IRkernel'
+}
+
+# IPython notebook looks for the json kernel file in kernels/IRkernel
+# We start the kernel with default bitmapType 'cairo'. This is a more sensible default
+# for headless nodes. See https://github.com/IRkernel/IRkernel/issues/388
+local_kerneldir = '%(installdir)s/IRkernel'
+postinstallcmds = [
+    'mkdir -p %s/kernels/ir' % local_kerneldir,
+    'cp %s/kernelspec/* %s/kernels/ir' % (local_kerneldir, local_kerneldir),
+    ('sed -i \'s/"IRkernel::main()"/"options(bitmapType=\\x27cairo\\x27); IRkernel::main()"/g\''
+        ' %s/kernels/ir/kernel.json') % local_kerneldir
+]
+
+sanity_check_paths = {
+    'files': ['%s/kernels/ir/kernel.json' % local_kerneldir],
+    'dirs': ['IRkernel'],
+}
+
+moduleclass = 'tools'
+
+# Build statistics
+buildstats = [{
+    "build_time": 207.0,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/i/ir-kernel/ir-kernel-4.2-gcccoreflexiblas-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.0-r5ac448ff6f1f36b45e973e6dd6cc8f83d921883b",
+    "easybuild-framework_version": "4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 13402315,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
+    "timestamp": 1676043670,
+    "total_memory": 60232,
+}]
