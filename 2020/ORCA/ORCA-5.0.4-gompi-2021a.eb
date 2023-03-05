@@ -1,0 +1,105 @@
+# Built with EasyBuild version 4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b on 2023-03-05_00-29-44
+easyblock = 'CmdCp'
+
+name = 'ORCA'
+version = '5.0.4'
+
+homepage = 'http://cec.mpg.de/forum/'
+description = """ORCA is a flexible, efficient and easy-to-use general purpose tool for quantum chemistry
+ with specific emphasis on spectroscopic properties of open-shell molecules.
+  It features a wide variety of standard quantum chemical methods ranging from semiempirical methods to DFT to single-
+ and multireference correlated ab initio methods.
+ It can also treat environmental and relativistic effects."""
+
+toolchain = {'name': 'gompi', 'version': '2021a'}
+
+# Download from https://cec.mpg.de/orcadownload/index.php
+
+source_urls = ['https://github.com/grimme-lab/xtb/releases/download/v6.5.1/']
+sources = [
+    '%%(namelower)s_%s_linux_x86-64_openmpi411_part1.tar.xz' % (version.replace('.', '_') ),
+    '%%(namelower)s_%s_linux_x86-64_openmpi411_part2.tar.xz' % (version.replace('.', '_') ),
+    '%%(namelower)s_%s_linux_x86-64_openmpi411_part3.tar.xz' % (version.replace('.', '_') ),
+    'xtb-6.5.1-linux-x86_64.tar.xz',
+]
+checksums = [
+    {'orca_5_0_4_linux_x86-64_openmpi411_part1.tar.xz':
+     'e22ba96d302e402e7fd41e1801812702b8a1e9215b8c65dc02abc61fca028f68'},
+    {'orca_5_0_4_linux_x86-64_openmpi411_part2.tar.xz':
+     'a63f91fad77118fa462358e7301040f1b4b33e6a039079f9bbc785a9813d0cd3'},
+    {'orca_5_0_4_linux_x86-64_openmpi411_part3.tar.xz':
+     '3251574df0928ed52c875147fa87883ce90397fc9ceb7a7bbdc3656ef9fb20fe'},
+    {'xtb-6.5.1-linux-x86_64.tar.xz': 'd207dd8ebed1eeff21ccceb4cd9e921b639716618416dea79158581bb2804ef1'},
+]
+
+keepsymlinks = True
+
+# Implementing XTB with ORCA:
+# Download the binary:
+# https://github.com/grimme-lab/xtb/releases/download/v6.5.1/xtb-6.5.1-linux-x86_64.tar.xz
+# Create a symlink: ln -s %(installdir)s/bin/xtb %(installdir)s/otool_xtb
+
+files_to_copy = ['%(builddir)s/orca_5_0_4_linux_x86-64_openmpi411_part*/*']
+
+cmds_map = [('.*', ' ')]
+
+postinstallcmds = [
+    "cp %(builddir)s/xtb-6.5.1/bin/xtb %(installdir)s/otool_xtb",
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s --add_path=$EBROOTOPENMPI/lib",
+    "chmod -R go+X %(installdir)s",
+]
+
+local_orca_binaries = [
+    'anoint', 'casscf', 'cis', 'cpscf', 'eprnmr', 'mdci', 'mp2',
+    'mrci', 'pc', 'rocis', 'scf', 'scfgrad', 'soc', 'gtoint',
+]
+
+local_orca_suffixes = [
+    '2mkl', 'asa', 'chelpg', 'ciprep', 'eca', 'ecplib', 'euler',
+    'fci', 'fitpes', 'gstep', 'loc', 'mapspc', 'md', 'mergefrag',
+    'ndoint', 'numfreq', 'plot', 'pltvib', 'pop', 'rel', 'vib', 'vpot',
+]
+
+sanity_check_paths = {
+    'files': ['orca_%s%s' % (x, y) for x in local_orca_binaries for y in ["", "_mpi"]] +
+             ['orca_%s' % x for x in local_orca_suffixes] +
+             ['orca'] +
+	     ['otool_xtb'],
+    'dirs': ['ORCACompoundMethods'],
+}
+
+group = 'soft_orca'
+
+modloadmsg = """To execute %(name)s, run: 
+   ${EBROOTORCA}/%(namelower)s %(namelower)s.inp > %(namelower)s.out
+"""
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1811.6,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--installpath-software='/cvmfs/restricted.computecanada.ca/easybuild/software/2020'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/restricted.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/o/ORCA/ORCA-5.0.4-gompi-2021a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.0-r5ac448ff6f1f36b45e973e6dd6cc8f83d921883b",
+    "easybuild-framework_version": "4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0/libexec/gcc/x86_64-pc-linux-gnu/10.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/10.3.0/system-system/gcc-10.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 10.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 34258547368,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1677975800,
+    "total_memory": 60232,
+}]
