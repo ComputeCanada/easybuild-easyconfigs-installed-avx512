@@ -1,4 +1,4 @@
-# Built with EasyBuild version 4.6.0-ra6dbb4b22832c431590f725219d89d82c9946dba on 2022-09-28_16-16-45
+# Built with EasyBuild version 4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b on 2023-03-23_19-01-56
 name = 'OpenBabel'
 version = '3.1.1'
 
@@ -15,85 +15,80 @@ toolchain = {'name': 'iccifort', 'version': '2020.1.217'}
 toolchainopts = {'pic': True, 'optarch': 'mavx2'}
 
 source_urls = [GITHUB_LOWER_SOURCE]
-sources = ['%%(namelower)s-%s.tar.gz' % version.replace('.', '-')]
-patches = [
-    # Fix test failure with Python 3
-    # Ref: https://github.com/openbabel/openbabel/commit/7de27f309db5f7ec026ef5c5235e5b33bf7d1a85.patch
-    'OpenBabel-3.1.1_fix-distgeom-test.patch'
-]
+sources = ['%(namelower)s-3-1-1.tar.gz']
+patches = ['%(name)s-%(version_major_minor)s.1_fix-distgeom-test.patch']
 checksums = [
-    'c97023ac6300d26176c97d4ef39957f06e68848d64f1a04b0b284ccff2744f02',  # openbabel-3-1-1.tar.gz
-    '8d7687eb49142bb5ba2997cf90805b42480f313515c44b3912a9f826aaf4fbcd',  # OpenBabel-3.1.1_fix-distgeom-test.patch
+    'c97023ac6300d26176c97d4ef39957f06e68848d64f1a04b0b284ccff2744f02',  # %(namelower)s-3-1-1.tar.gz
+    '8d7687eb49142bb5ba2997cf90805b42480f313515c44b3912a9f826aaf4fbcd',  # %(name)s-%(version_major_minor)s.1_fix-distgeom-test.patch
 ]
 
 builddependencies = [
-    ('CMake', '3.16.4'),
-    ('SWIG', '4.0.1'),
+    ('CMake', '3.23.1', '', SYSTEM),
+    ('SWIG', '4.0.1', '', ('GCCcore', '9.3.0')),
 ]
 dependencies = [
     ('zlib', '1.2.11'),
     ('libxml2', '2.9.10'),
-    ('Eigen', '3.3.7', '', True),
-    ('RapidJSON', '1.1.0'),
+    ('Eigen', '3.3.7', '', SYSTEM),
+    ('RapidJSON', '1.1.0', '', ('GCCcore', '9.3.0')),
     ('cairo', '1.16.0'),  # optional: for .png output
-    ('Boost.Serial', '1.72.0'),  # optional: for Maestro formats
+    ('Boost', '1.72.0'),
     ('maeparser', '1.2.4'),  # avoid auto-download
-    ('CoordgenLibs', '1.4.2'), # avoid auto-download
+    ('CoordgenLibs', '1.4.2'),  # avoid auto-download
 ]
-with_python_bindings = False
+multi_deps = {'Python': ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11']}
 
-multi_deps = {'Python': ['3.6', '3.7', '3.8']}
-multi_deps_extensions_only = True
+configopts = "-DBoost_INCLUDE_DIR=$EBROOTBOOSTSERIAL/include -DBoost_LIBRARY_DIR_RELEASE=$EBROOTBOOSTSERIAL/lib -DENABLE_OPENMP=OFF "
 
-exts_defaultclass = 'PythonPackage'
-exts_filter = ("python -c 'import %(ext_name)s'", '')
-exts_list = [
-    ('openbabel', '3.1.1.1', {
-#    	'prebuildopts': 'PKG_CONFIG_PATH=%(installdir)s/lib/pkgconfig:$PKG_CONFIG_PATH ',
-	'buildcmd':  'build_ext',
-	'buildopts': ' -I%(installdir)s/include/openbabel3 -L%(installdir)s/lib ',
-        'source_tmpl': '%(name)s-%(version)s.tar.gz',
-        'source_urls': ['https://pypi.python.org/packages/source/o/openbabel/'],
-        'checksums': ['bb7f8cad15f3a208f4869d7943cbb14eb7125372eba397588f207f8d19e78373'],
-    }),
-]
-modextrapaths = {'EBPYTHONPREFIXES': ['']}
-
-configopts = '-DBoost_INCLUDE_DIR=$EBROOTBOOSTSERIAL/include -DBoost_LIBRARY_DIR_RELEASE=$EBROOTBOOSTSERIAL/lib '
-
-# Disable OpenMP so that user don't inadvertently overload the login-node.
-# Module openbabel-omp has OpenMP enabled.
-configopts += '-DENABLE_OPENMP=OFF '
-
+enhance_sanity_check = True
 # OpenBabel-3.1.1 creates directories named 3.1.0, which leads to BABEL_LIBDIR and BABEL_DATDIR
 # (set in the easyblock) having invalid values.  Work around this with some symlinks.
 postinstallcmds = [
-    'ln -s %(installdir)s/lib/openbabel/3.1.0 %(installdir)s/lib/openbabel/%(version)s',
-    'ln -s %(installdir)s/share/openbabel/3.1.0 %(installdir)s/share/openbabel/%(version)s',
-    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib/openbabel --any_interpreter --add_path %(installdir)s/lib:%(installdir)s/lib64",
+    "ln -s %(installdir)s/lib/%(namelower)s/%(version_major_minor)s.0 %(installdir)s/lib/%(namelower)s/%(version)s",
+    "ln -s %(installdir)s/share/%(namelower)s/%(version_major_minor)s.0 %(installdir)s/share/%(namelower)s/%(version)s",
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib/%(namelower)s --any_interpreter --add_path %(installdir)s/lib:%(installdir)s/lib64",
+]
+multi_deps_load_default = False
+multi_deps_extensions_only = True
+exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    "python -c 'import %(ext_name)s'",
+    '',
+)
+with_python_bindings = False
+
+exts_list = [
+    ('openbabel', '3.1.1.1', {'buildcmd': 'build_ext', 'buildopts': ' -I%(installdir)s/include/openbabel3 -L%(installdir)s/lib ', 'source_tmpl': '%(name)s-%(version)s.tar.gz', 'source_urls': ['https://pypi.python.org/packages/source/o/openbabel/'], 'checksums': ['bb7f8cad15f3a208f4869d7943cbb14eb7125372eba397588f207f8d19e78373']}),
 ]
 
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {'EBPYTHONPREFIXES': ['']}
+
 #pretestopts = 'cp lib/_openbabel.%s %%(builddir)s/openbabel-*/scripts/python/openbabel/ && ' % SHLIB_EXT
-#runtest = 'test'
+# runtest = 'test'
 
 moduleclass = 'chem'
 
 # Build statistics
 buildstats = [{
-    "build_time": 948.21,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/m/maeparser/maeparser-1.2.4-iccifort-2020.1.217.eb', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/c/CoordgenLibs/CoordgenLibs-1.4.2-iccifort-2020.1.217.eb', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/o/OpenBabel/OpenBabel-3.1.1-iccifort-2020.1.217.eb', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/o/OpenBabel/OpenBabel-3.1.1-iccifort-2020.1.217-omp.eb'],
+    "build_time": 1210.2,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/intel2020/openbabel/3.1.1/easybuild/reprod/OpenBabel-3.1.1-iccifort-2020.1.217.eb'],
     "core_count": 16,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
     "cpu_speed": 2494.14,
     "cpu_vendor": "Intel",
-    "easybuild-easyblocks_version": "4.6.0-r4673cfc266558fe82bad2d19dd7b73c8b576bedb",
-    "easybuild-framework_version": "4.6.0-ra6dbb4b22832c431590f725219d89d82c9946dba",
+    "easybuild-easyblocks_version": "4.7.0-r5ac448ff6f1f36b45e973e6dd6cc8f83d921883b",
+    "easybuild-framework_version": "4.7.0-r906ea5725f2e1dfcbceaa79ded1950f683ff5e1b",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
     "hostname": "build-node.computecanada.ca",
-    "install_size": 115791700,
+    "install_size": 168538635,
     "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
     "os_name": "CentOS Linux",
     "os_type": "Linux",
@@ -101,7 +96,7 @@ buildstats = [{
     "platform_name": "x86_64-unknown-linux",
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
-    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.10/bin/python",
-    "timestamp": 1664390802,
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.11.2/bin/python",
+    "timestamp": 1679598115,
     "total_memory": 60232,
 }]
