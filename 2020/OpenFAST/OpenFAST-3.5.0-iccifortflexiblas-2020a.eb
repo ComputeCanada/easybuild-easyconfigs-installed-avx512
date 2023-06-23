@@ -1,0 +1,68 @@
+# Built with EasyBuild version 4.7.2-r59d2f54bdcdfe06afe5574d9d28d40b929cdbfb1 on 2023-06-23_06-32-21
+# #
+# @author :: Ali Kerrache, WestGrid/Compute Canada, University of Manitoba.
+# @date :: Apr 25, 2022
+# #
+
+easyblock = 'CMakeMake'
+
+name = 'OpenFAST'
+version = '3.5.0'
+
+#versionsuffix = '-dp'
+# modaltsoftname = 'openfast-dp'
+
+homepage = 'https://openfast.readthedocs.io/en/main/index.html'
+description = "OpenFAST is a multi-physics, multi-fidelity tool for simulating the coupled dynamic response of wind turbines. Practically speaking, OpenFAST is the framework (or “glue code”) that couples computational modules for aerodynamics, hydrodynamics for offshore structures, control and electrical system (servo) dynamics, and structural dynamics to enable coupled nonlinear aero-hydro-servo-elastic simulation in the time domain. OpenFAST enables the analysis of a range of wind turbine configurations, including two- or three-blade horizontal-axis rotor, pitch or stall regulation, rigid or teetering hub, upwind or downwind rotor, and lattice or tubular tower. The wind turbine can be modeled on land or offshore on fixed-bottom or floating substructures."
+
+toolchain = {'name': 'iccifortflexiblas', 'version': '2020a'}
+toolchainopts = {'openmp': True}
+
+source_urls = ['https://github.com/%(name)s/%(namelower)s/archive/refs/tags/']
+sources = ['v%(version)s.tar.gz']
+checksums = ['159bdd00d8483da77146c7a2d316e65150eee027a5a63dd1efbbbddee677e793']
+
+builddependencies = [
+    ('CMake', '3.23.1', '', SYSTEM),
+]
+
+configopts = [
+    '-DBUILD_DOCUMENTATION=OFF -DBUILD_FASTFARM=ON -DBUILD_OPENFAST_CPP_API=OFF -DBUILD_OPENFAST_SIMULINK_API=OFF -DBUILD_TESTING=OFF -DFPE_TRAP_ENABLED=ON -DGENERATE_TYPES=ON -DOPENMP=ON -DORCA_DLL_LOAD=ON -DUSE_DLL_INTERFACE=ON -DBLAS_LIBRARIES="$LIBBLAS" -DDOUBLE_PRECISION=ON -DBUILD_SHARED_LIBS=ON',
+    '-DBUILD_DOCUMENTATION=OFF -DBUILD_FASTFARM=ON -DBUILD_OPENFAST_CPP_API=OFF -DBUILD_OPENFAST_SIMULINK_API=OFF -DBUILD_TESTING=OFF -DFPE_TRAP_ENABLED=ON -DGENERATE_TYPES=ON -DOPENMP=ON -DORCA_DLL_LOAD=ON -DUSE_DLL_INTERFACE=ON -DBLAS_LIBRARIES="$LIBBLAS" -DDOUBLE_PRECISION=ON -DBUILD_SHARED_LIBS=OFF',
+]
+
+
+sanity_check_paths = {
+    'files': ['bin/aerodyn_driver', 'bin/FAST.Farm', 'bin/hydrodyn_driver', 'bin/moordyn_driver', 'bin/openfast_cpp', 'bin/servodyn_driver', 'bin/turbsim', 'bin/beamdyn_driver', 'bin/feam_driver', 'bin/inflowwind_driver', 'bin/%(namelower)s', 'bin/orca_driver', 'bin/subdyn_driver', 'bin/unsteadyaero_driver'],
+    'dirs': ['include/%(namelower)s'],
+}
+
+moduleclass = 'phys'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1491.45,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/intel2020/openfast/3.5.0/easybuild/reprod/OpenFAST-3.5.0-iccifortflexiblas-2020a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.2-rbe91198af8fecf1af51a8c0a04545389be5cbd61",
+    "easybuild-framework_version": "4.7.2-r59d2f54bdcdfe06afe5574d9d28d40b929cdbfb1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 316454598,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1687501940,
+    "total_memory": 60231,
+}]
