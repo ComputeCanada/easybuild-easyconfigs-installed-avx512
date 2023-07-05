@@ -1,0 +1,104 @@
+# Built with EasyBuild version 4.7.2-r59d2f54bdcdfe06afe5574d9d28d40b929cdbfb1 on 2023-07-05_16-34-26
+# This file is an EasyBuild reciPY as per https://github.com/easybuilders/easybuild
+# Author: Grigory Shamov, University of Manitoba / ComputeCanada
+# 
+# A recipe for GAMESS-US without interactive Easyblock
+# 
+# The recent version of GAMESS seem to not require actvte.x anymore
+# So providing install.info as a patch seems to work. Change the patch for a given system.
+# It is difficult to keep track of hardcoded Fortran options in the "comp" to make EB toolchain options work
+# Therefore a CPU dispatch for linux64 ifort -axCORE-AVX512,CORE-AVX2  is added as comp.patch
+# For running GAMESS, rungms-dev is used, and copied over rungms. install.info should BTW refer to
+# the final installation directory for it to work; thus at the build time, it is overridden 
+# in the prebuild and make steps.
+#
+# OpenMPI should be 4.x , better 4.1, for mixed mode to work properly support for "yield" is needed.
+# The runmgs-dev patch contains hardcoded UCX pml and osc options! A variable GMS_OPENMPI_FLAGS can be used
+# to override them, depending on the fabric drivers used.
+# As an alternative, OMPI_ options may be added to install.info patch, which gets sourced by runmgs-dev.
+#
+# As of GAMESS 2023 R1, it seems to do away with Makefile.in and just uses a big Makefile. 
+# GAS: to avoid patch quirkiness in different EB versions, copy tuple is used for install.info and rungms
+#
+
+easyblock = 'MakeCp'
+name = 'GAMESS-US'
+version = "20230630-R1"
+
+homepage = 'https://www.msg.chem.iastate.edu/GAMESS/GAMESS.html'
+description = """
+The General Atomic and Molecular Electronic Structure System (GAMESS) is a general ab initio quantum chemistry package. This version of GAMESS-US is built with Intel compilers, mixed DDI, and OpenMPI 4.1. 
+"""
+
+toolchain = {'name': 'iomkl', 'version': '2021a'}
+toolchainopts = {'openmp': False }
+
+sources = ['gamess-current-%(version)s.tar.gz']
+patches = [ 
+'compddi-GAMESS-US-20230630-R1.patch',
+'comp-GAMESS-US-20230630-R1.patch',
+'gms-files-20230630-R1.patch',
+( 'install.info-20230630-R1', 'gamess/install.info' ),
+('rungms-dev_openmpi-20230630-R1', 'gamess/rungms' ),
+]
+checksums = [
+    {'gamess-current-20230630-R1.tar.gz': 'baafee128fb1d5e1367e8c06ead70f2727dc134e94896544d7898b83901707e7'},
+    {'compddi-GAMESS-US-20230630-R1.patch': '585cb39c60b95829ce48531dc88079ebef3bff17c7208b493d2e15b1671b1b16'},
+    {'comp-GAMESS-US-20230630-R1.patch': '59d77526cb382e390ec72f32edf17d94df823b4b0aad0b0b8734b16fb9f2df18'},
+    {'gms-files-20230630-R1.patch': '6fe58ad83c06434e49832427ed8b436d12971336b72dec8b8faa385c9fbb738f'},
+    {'install.info-20230630-R1': '58e2116c8cfd763704433b33db14509c58da506ffb02015b184d3d110168c7cd'},
+    {'rungms-dev_openmpi-20230630-R1': 'f94458267675fbc49694f886b69fae6ca85033fd546636b3d198e54116018921'},
+]
+
+start_dir = 'gamess'
+
+prebuildopts = ' cd %(builddir)s/gamess &&  EBROOTGAMESSMINUS=%(builddir)s/gamess make ddi GMS_PATH=%(builddir)s/gamess&& EBROOTGAMESSMINUS=%(builddir)s/gamess make modules GMS_PATH=%(builddir)s/gamess && EBROOTGAMESSMINUS=%(builddir)s/gamess'
+
+buildopts = 'GMS_PATH=%(builddir)s/gamess GMS_BUILD_PATH=%(builddir)s/gamess && chmod 755 %(builddir)s/gamess/rungms '
+
+parallel = 24
+
+files_to_copy = [
+    'gamess.00.x', 'rungms', 'gms-files.csh', 'runall', 'CITATION.md', 'VERSION.md',
+     'tests', 'auxdata', 'tools', 'install.info', 'DEVELOPERS.md', 'bin/my_ipcrm',
+     'docs-hardware.txt',  'docs-input.txt',  'docs-intro.txt',  'docs-prog.txt',  'docs-references.txt',  'docs-tests.txt',
+]
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s ",
+]
+
+sanity_check_paths = { 'files': ["rungms", "gamess.00.x", "gms-files.csh", "install.info", "runall", ], 'dirs': ['tests', 'auxdata', 'tools',  ], }
+
+modextrapaths = { 'PATH': '', }
+
+moduleclass = 'chem'
+
+
+# Build statistics
+buildstats = [{
+    "build_time": 787.37,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/easyconfigs/g/GAMESS-US/GAMESS-US-20230630-R1-iomkl-2021a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.2-rbe91198af8fecf1af51a8c0a04545389be5cbd61",
+    "easybuild-framework_version": "4.7.2-r59d2f54bdcdfe06afe5574d9d28d40b929cdbfb1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0/libexec/gcc/x86_64-pc-linux-gnu/10.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/10.3.0/system-system/gcc-10.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 10.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 636217782,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/10.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1688574513,
+    "total_memory": 60231,
+}]
