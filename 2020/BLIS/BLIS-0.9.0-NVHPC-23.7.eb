@@ -1,0 +1,67 @@
+# Built with EasyBuild version 4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3 on 2023-09-13_01-17-10
+easyblock = 'ConfigureMake'
+
+name = 'BLIS'
+version = '0.9.0'
+
+homepage = 'https://github.com/flame/blis/'
+description = """BLIS is a portable software framework for instantiating high-performance
+BLAS-like dense linear algebra libraries."""
+
+toolchain = {'name': 'NVHPC', 'version': '23.7'}
+
+source_urls = ['https://github.com/flame/%(namelower)s/archive/']
+sources = ['%(version)s.tar.gz']
+patches = [
+    '%(name)s-%(version)s_blastest-enable-complex-return-intel.patch',
+    '%(name)s-%(version)s_family-avx2-%(toolchain_name)s.patch',
+    '%(name)s-%(version)s_add-%(toolchain_name)s-support.patch',
+]
+checksums = [
+    '1135f664be7355427b91025075562805cdc6cc730d3173f83533b2c5dcc2f308',  # %(version)s.tar.gz
+    '0f1966b340d1f24cf02070f00f72f232b4cbfcd242ee9ce8c5f09f7220397cb4',  # %(name)s-%(version_major_minor)s.0_blastest-enable-complex-return-intel.patch
+    'cc05f0f60b7f25ca4c0bbd1e6073e73d5a8bfbb67c9fe0cad2ab48e79dd516cb',  # %(name)s-%(version_major_minor)s.0_family-avx2-%(toolchain_name)s.patch
+    '56ec0149956371767edf0ee2cb9c4411116aeabfb71a160d22ec5921d974815f',  # %(name)s-%(version_major_minor)s.0_add-%(toolchain_name)s-support.patch
+]
+
+preconfigopts = "declare -A ARCH_MAP=( [sse3]='%(arch)s' [avx]='sandybridge' [avx2]='avx2' [avx512]='skx' ) &&"
+configopts = '--complex-return=intel --enable-cblas --enable-threading=openmp --enable-shared CC="$CC" ${ARCH_MAP[$RSNT_ARCH]} && sed -i "s/clang/nvc/g" config/{excavator,haswell,skx,zen,zen2,zen3}/make_defs.mk && sed -i "s/-mfpmath=sse//g" config/{excavator,haswell,skx,zen,zen2,zen3}/make_defs.mk && sed -i "s/-funsafe-math-optimizations -ffp-contract=fast//g" config/{excavator,haswell,skx,zen,zen2,zen3}/make_defs.mk && sed -i "s/bdver4/piledriver/g" config/excavator/make_defs.mk'
+
+runtest = 'check'
+
+sanity_check_paths = {
+    'files': ['include/%(namelower)s/cblas.h', 'include/%(namelower)s/%(namelower)s.h', 'lib/libblis.a', 'lib/libblis.so'],
+    'dirs': [],
+}
+
+modextrapaths = {'CPATH': 'include/%(namelower)s'}
+
+moduleclass = 'numlib'
+
+# Build statistics
+buildstats = [{
+    "build_time": 407.28,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/nvhpc23/blis/0.9.0/easybuild/reprod/BLIS-0.9.0-NVHPC-23.7.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.2-rfca97f691f57da1bf1f680040fe78fa0ab6529dd",
+    "easybuild-framework_version": "4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/libexec/gcc/x86_64-pc-linux-gnu/11.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold --enable-ld=default --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/11.3.0/system-system/gcc-11.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 11.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 20721342,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
+    "timestamp": 1694567828,
+    "total_memory": 60231,
+}]
