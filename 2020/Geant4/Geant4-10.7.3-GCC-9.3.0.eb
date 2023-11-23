@@ -1,4 +1,4 @@
-# Built with EasyBuild version 4.5.3-r7ef8e492dc501c62e1cd706105e5d4e3e5fe41a1 on 2022-03-09_05-42-56
+# Built with EasyBuild version 4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3 on 2023-11-23_22-29-36
 name = 'Geant4'
 version = '10.7.3'
 
@@ -12,60 +12,67 @@ toolchainopts = {'pic': True, 'openmp': True}
 
 source_urls = [GITHUB_SOURCE]
 sources = [{'download_filename': 'v%(version)s.tar.gz', 'filename': SOURCELOWER_TAR_GZ}]
-checksums = ['8ee2892529d16f60cc5f08d984ab13fb74e1566ae85a3f7e86a94ab474e93568']
+patches = ['geant4_10_07_p03.patch']
+checksums = [
+    {SOURCELOWER_TAR_GZ: '8ee2892529d16f60cc5f08d984ab13fb74e1566ae85a3f7e86a94ab474e93568'},
+    {'geant4_10_07_p03.patch': '38e9191f9b6d0b51041a3fc999455b4bbadc80e89a3e71063e4c01bcb064ebcb'},
+]
 
 builddependencies = [
-    ('CMake', '3.18.4', '', True),
+    ('CMake', '3.23.1', '', SYSTEM),
 ]
-# Recommended CLHEP version - 2.4.4.0, see:
-# https://geant4-data.web.cern.ch/ReleaseNotes/ReleaseNotes4.10.7.html
-
 dependencies = [
-    ('expat', '2.2.9', '', True),
+    ('expat', '2.2.9', '', SYSTEM),
     ('CLHEP', '2.4.4.0'),
     ('Qt5', '5.12.8', '', ('GCCcore', '9.3.0')),
-    ('Geant4-data', '10.7.3', '', True),
+    ('GDCM', '2.6.8'),
+    ('Geant4-data', '10.7.3', '', SYSTEM),
 ]
 
-configopts = "-DGEANT4_INSTALL_DATA:BOOL=OFF -DGEANT4_INSTALL_DATADIR=${EBROOTGEANT4MINDATA} -DGEANT4_INSTALL_EXAMPLES:BOOL=ON -DGEANT4_BUILD_MULTITHREADED=ON -DBUILD_STATIC_LIBS:BOOL=ON -DGEANT4_USE_GDML:BOOL=ON -DGEANT4_FORCE_QT4:BOOL=ON -DQT_QMAKE_EXECUTABLE=$EBROOTQT/bin/qmake -DEXPAT_LIBRARY=$EBROOTGENTOO/lib/libexpat.so -DEXPAT_INCLUDE_DIR=$EBROOTGENTOO/include -DCLHEP_DIR=$EBROOTCLHEP/lib/%(name)s-%(version)s/ -DGEANT4_BUILD_STORE_TRAJECTORY:BOOL=ON -DGEANT4_BUILD_TESTS:BOOL=ON "
+# from topas-3.9-src
+# -DGEANT4_INSTALL_DATA=OFF
+# -DGEANT4_BUILD_MULTITHREADED=ON
+# -DCMAKE_BUILD_TYPE=Release
+# -DGEANT4_USE_OPENGL_X11=ON
+# -DGEANT4_USE_RAYTRACER_X11=ON
+# -DCMAKE_INSTALL_PREFIX=~/geant4.10.07.p03-install
+# -DGEANT4_USE_QT=ON
 
-parallel = 1
 
+configopts = "-DGEANT4_INSTALL_DATA:BOOL=OFF -DGEANT4_INSTALL_EXAMPLES:BOOL=OFF -DGEANT4_BUILD_MULTITHREADED=ON -DBUILD_STATIC_LIBS:BOOL=ON -DGEANT4_USE_GDML:BOOL=ON -DQT_QMAKE_EXECUTABLE=$EBROOTQT/bin/qmake -DEXPAT_LIBRARY=$EBROOTGENTOO/lib/libexpat.so -DEXPAT_INCLUDE_DIR=$EBROOTGENTOO/include -DCLHEP_DIR=$EBROOTCLHEP/lib/%(name)s-%(version)s/ -DGEANT4_BUILD_STORE_TRAJECTORY:BOOL=ON -DGEANT4_BUILD_TESTS:BOOL=ON -DGEANT4_USE_OPENGL_X11:BOOL=ON -DGEANT4_USE_RAYTRACER_X11:BOOL=ON -DGEANT4_USE_QT:BOOL=ON DCMAKE_BUILT_TYPE=Release"
+
+parallel = 16
+
+#sources = [{'download_filename': 'v%(version)s.tar.gz', 'filename': SOURCELOWER_TAR_GZ, 'filename': '%(namelower)s-v%(version)s.tar.gz'}]
 github_account = '%(name)s'
+modluafooter = """
+conflict("%(namelower)s")
+conflict("%(namelower)s-topasmc*")
+setenv("TOPAS_G4_DATA_DIR", "" .. os.getenv("EBROOTGEANT4MINDATA"))
+"""
+modaltsoftname = '%(namelower)s-topasmc3.9'
 
-#modextravars = {
-# 'G4NEUTRONHPDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4NDL4.6',
-# 'G4LEDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4EMLOW7.13',
-# 'G4LEVELGAMMADATA': '%(installdir)s/share/Geant4-10.7.3/data/PhotonEvaporation5.7',
-# 'G4RADIOACTIVEDATA': '%(installdir)s/share/Geant4-10.7.3/data/RadioactiveDecay5.6',
-# 'G4PARTICLEXSDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4PARTICLEXS3.1.1',
-# 'G4PIIDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4PII1.3',
-# 'G4REALSURFACEDATA': '%(installdir)s/share/Geant4-10.7.3/data/RealSurface2.2',
-# 'G4SAIDXSDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4SAIDDATA2.0',
-# 'G4ABLADATA': '%(installdir)s/share/Geant4-10.7.3/data/G4ABLA3.1',
-# 'G4INCLDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4INCL1.0',
-# 'G4ENSDFSTATEDATA': '%(installdir)s/share/Geant4-10.7.3/data/G4ENSDFSTATE2.3',
-# }
+modextravars = {'TOPAS_G4_DATA_DIR': '$EBROOTGEANT4MINDATA'}
 
 moduleclass = 'phys'
 
 # Build statistics
 buildstats = [{
-    "build_time": 10193.43,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/geant4/10.7.3/easybuild/reprod/Geant4-10.7.3-GCC-9.3.0.eb'],
+    "build_time": 1398.8,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/geant4-topasmc3.9/10.7.3/easybuild/reprod/Geant4-10.7.3-GCC-9.3.0.eb'],
     "core_count": 16,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
     "cpu_speed": 2494.14,
     "cpu_vendor": "Intel",
-    "easybuild-easyblocks_version": "4.5.3-rd32a51a54e5df3e21ee5a8f5190fb6c1eab75be6",
-    "easybuild-framework_version": "4.5.3-r7ef8e492dc501c62e1cd706105e5d4e3e5fe41a1",
+    "easybuild-easyblocks_version": "4.7.2-r6db181ebcec255126760273cd347450abd8d8b7d",
+    "easybuild-framework_version": "4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
     "hostname": "build-node.computecanada.ca",
-    "install_size": 290867933,
-    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.6.11'),
+    "install_size": 214795891,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
     "os_name": "CentOS Linux",
     "os_type": "Linux",
     "os_version": "7.9.2009",
@@ -73,6 +80,6 @@ buildstats = [{
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
-    "timestamp": 1646804475,
-    "total_memory": 60232,
+    "timestamp": 1700778575,
+    "total_memory": 60231,
 }]
