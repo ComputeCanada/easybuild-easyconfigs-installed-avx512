@@ -1,0 +1,127 @@
+# Built with EasyBuild version 4.8.2 on 2023-12-05_15-12-07
+easyblock = 'EB_Amber'
+
+name = 'AmberTools'
+version = '23.5'
+
+homepage = 'https://ambermd.org/AmberTools.php'
+description = """AmberTools consists of several independently developed packages that work well by themselves,
+ and with Amber itself. The suite can also be used to carry out complete molecular dynamics simulations,
+ with either explicit water or generalized Born solvent models."""
+
+toolchain = {'name': 'gofb', 'version': '2023a'}
+toolchainopts = {'usempi': True, 'openmp': True}
+
+source_urls = ['https://ambermd.org/cgi-bin/AmberTools23-get.pl']
+sources = [
+    {'download_filename': '?Name=Easybuild&Institution=Easybuild&City=Internet&State=Other&Country=Belgium', 'filename': 'AmberTools23.tar.bz2'},
+]
+patches = [
+    '%(name)s-20_cmake-locate-netcdf.patch',
+    '%(name)s-20_fix_missing_MPI_LIBRARY_error.patch',
+    '%(name)s-20_fix_xblas_missing_make_dependency.patch',
+    '%(name)s-22_CMake-FlexiBLAS.patch',
+    '%(name)s-21_fix_incorrect_dvout_call.patch',
+    '%(name)s-21_fix_more_blas_argument_problems.patch',
+    '%(name)s-21_fix_potential_use_before_init.patch',
+    '%(name)s-21_fix_rism_argument_mismatch.patch',
+    '%(name)s-21_fix_xray_fftpack_arg_mismatch.patch',
+    '%(name)s-22_fix_test_missing_cuda_dir.patch',
+]
+checksums = [
+    'debb52e6ef2e1b4eaa917a8b4d4934bd2388659c660501a81ea044903bf9ee9d',  # AmberTools23.tar.bz2
+    '473e07c53b6f641d96d333974a6af2e03413fecef79f879d3fdecf7fecaab4d0',  # %(name)s-20_cmake-locate-netcdf.patch
+    # %(name)s-20_fix_missing_MPI_LIBRARY_error.patch
+    '0b89a0624167bc23876bcdefcb1055f591e38e3bd559a71d5749e342bd311acc',
+    # %(name)s-20_fix_xblas_missing_make_dependency.patch
+    'ff25e91fdc72347a778c3837b581e174d6a8c71efa5b46e11391b18bca84fd65',
+    '9543812c24c4b7842f64f1f8abaf2c92b5c4c0fadcdbd9811e76b81a778f0d36',  # %(name)s-22_CMake-FlexiBLAS.patch
+    '1054d4007f5c79126a41582e1e80514267cf406416ed6c471574cd708b16319b',  # %(name)s-21_fix_incorrect_dvout_call.patch
+    # %(name)s-21_fix_more_blas_argument_problems.patch
+    'c6279b57752239184b942d37f760749494ae0eff95236f3368c76ac0d2726a7c',
+    # %(name)s-21_fix_potential_use_before_init.patch
+    '377e645b5bd2c91ebb4d0b6fbca0407a94289e5ddc5b1e7ed0cb0b0724ad2139',
+    # %(name)s-21_fix_rism_argument_mismatch.patch
+    '14255e5739cec39303df570f06820c7532f7395e1b73b1e4104377984e2c9fc1',
+    # %(name)s-21_fix_xray_fftpack_arg_mismatch.patch
+    '99c954e693659efc2a1d121f91510f56408006f0751d91595f45a34b03364e2f',
+    'fb1ab74314d7816169bb9f3f527b78085654aae2825c52cebf50a5760401b737',  # %(name)s-22_fix_test_missing_cuda_dir.patch
+]
+
+builddependencies = [
+    ('CMake', '3.26.5', '', ('system', 'system')),
+    ('Bison', '3.8.2'),
+    ('flex', '2.6.4'),
+    ('make', '4.4.1'),
+]
+dependencies = [
+    ('zlib', '1.2.13'),
+    ('bzip2', '1.0.8'),
+    ('Python', '3.11', '', SYSTEM),
+    ('SciPy-Stack', '2023b', '', SYSTEM),
+    ('Perl', '5.36.1', '', SYSTEM),
+    ('Boost', '1.82.0', '', ('gompi', '2023a')),
+    ('libreadline', '8.1'),
+    ('matplotlib', '3.4.3'),
+    ('netCDF', '4.9.2', '-mpi', ('gompi', '2023a')),
+    ('netCDF-Fortran', '4.6.1', '-mpi', ('gompi', '2023a')),
+    ('arpack-ng', '3.9.1', '', ('gccflexiblas', '2023a')),
+    ('PnetCDF', '1.12.3', '', ('gompi', '2023a')),
+    ('Tkinter', '3.11.3'),
+    ('X11', '20230603'),
+    ('FFTW.MPI', '3.3.10', '', ('gompi', '2023a')),
+    ('mpi4py', '3.1.4', '', ('gompi', '2023a')),
+]
+
+#static = False
+configopts = " -DBUILD_QUICK=TRUE  -DMPI=TRUE -DFORCE_DISABLE_LIBS=plumed -DINSTALL_TESTS=TRUE"
+
+#configopts += ' -DNetCDF_INCLUDES=$EBROOTNETCDFMINFORTRAN/include '
+
+postinstallcmds = [
+    "/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/ --any_interpreter --add_origin --add_path %(installdir)s/lib",
+]
+patchlevels = (
+    5,
+    0,
+)  # (AmberTools, Amber)
+
+modextrapaths = {
+    'EBPYTHONPREFIXES': [''],
+    'PERL5LIB': ['lib/perl'],
+}
+
+modextravars = {
+    'AMBERHOME': '%(installdir)s',
+    'QUICK_BASIS': '%(installdir)s/%(name)s/src/quick/basis',
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1235.53,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/ambertools/23.5/easybuild/reprod/AmberTools-23.5-gofb-2023a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.8.2",
+    "easybuild-framework_version": "4.8.2",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 2593495268,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7 (Core)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.11.5/bin/python",
+    "timestamp": 1701789127,
+    "total_memory": 60231,
+}]
