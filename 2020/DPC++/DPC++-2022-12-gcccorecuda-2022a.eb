@@ -1,0 +1,69 @@
+# Built with EasyBuild version 4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3 on 2024-01-23_23-53-05
+easyblock = 'CMakeMake'
+
+name = 'DPC++'
+version = '2022-12'
+
+homepage = 'https://github.com/intel/llvm'
+description = """DPC++ is a LLVM-based compiler project that implements 
+compiler and runtime support for the SYCL language."""
+
+toolchain = {'name': 'gcccorecuda', 'version': '2022a'}
+
+source_urls = ['https://github.com/intel/llvm/archive/refs/tags']
+sources = ['%(version)s.tar.gz']
+checksums = ['13151d5ae79f7c9c4a9b072a0c486ae7b3c4993e301bb1268c92214451025790']
+
+builddependencies = [
+    ('binutils', '2.38'),
+    ('CMake', '3.23.1', '', SYSTEM),
+    ('Python', '3.10', '', SYSTEM),
+]
+dependencies = [
+    ('ncurses', '6.3'),
+    ('zlib', '1.2.12'),
+]
+
+preconfigopts = """pushd %(builddir)s/llvm-%(version)s//clang;sed -i -e "s@DEFAULT_SYSROOT \\"\\"@DEFAULT_SYSROOT \\"${EPREFIX}\\"@" CMakeLists.txt;pushd lib/Driver/ToolChains;sed -i -e "/LibDir.*Loader/s@return \\"\\/\\"@return \\"${EPREFIX%/}/\\"@" Linux.cpp;sed -i -e "$(grep -n -B1 sysroot= Gnu.cpp | sed -ne '{1s/-.*//;1p}'),+1 d" Gnu.cpp;popd;popd;CUDA_LIB_PATH=$CUDA_ROOT/lib64/stubs """
+configopts = "-DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_TARGETS_TO_BUILD='X86;NVPTX' -DLLVM_EXTERNAL_PROJECTS='sycl;llvm-spirv;opencl;libdevice;xpti;xptifw;openmp' -DLLVM_EXTERNAL_OPENMP_SOURCE_DIR=%(builddir)s/llvm-%(version)s/openmp -DOPENMP_ENABLE_LIBOMPTARGET=OFF -DLLVM_EXTERNAL_SYCL_SOURCE_DIR=%(builddir)s/llvm-%(version)s/sycl -DLLVM_EXTERNAL_LLVM_SPIRV_SOURCE_DIR=%(builddir)s/llvm-%(version)s/llvm-spirv -DLLVM_EXTERNAL_XPTI_SOURCE_DIR=%(builddir)s/llvm-%(version)s/xpti -DXPTI_SOURCE_DIR=%(builddir)s/llvm-%(version)s/xpti -DLLVM_EXTERNAL_XPTIFW_SOURCE_DIR=%(builddir)s/llvm-%(version)s/xptifw -DLLVM_EXTERNAL_LIBDEVICE_SOURCE_DIR=%(builddir)s/llvm-%(version)s/libdevice -DLLVM_ENABLE_PROJECTS='clang;sycl;llvm-spirv;opencl;libdevice;xpti;xptifw;libclc;openmp' -DLIBCLC_TARGETS_TO_BUILD='nvptx64--;nvptx64--nvidiacl' -DLIBCLC_GENERATE_REMANGLED_VARIANTS=ON -DSYCL_BUILD_PI_HIP_PLATFORM=AMD -DLLVM_BUILD_TOOLS=ON -DSYCL_INCLUDE_TESTS=ON -DSYCL_ENABLE_XPTI_TRACING=ON -DBUILD_SHARED_LIBS=ON -DSYCL_ENABLE_PLUGINS='level_zero;cuda;opencl'"
+
+buildopts = 'sycl-toolchain'
+
+srcdir = 'llvm'
+
+sanity_check_paths = {
+    'files': ['bin/llvm-ar', 'bin/clang++'],
+    'dirs': ['include/llvm', 'include/llvm-c'],
+}
+
+sanity_check_commands = ['llvm-ar --help']
+
+moduleclass = 'compiler'
+
+# Build statistics
+buildstats = [{
+    "build_time": 5867.65,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/CUDA/cuda11.7/dpc++/2022-12/easybuild/reprod/DPC++-2022-12-gcccorecuda-2022a.eb'],
+    "core_count": 16,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "UNKNOWN",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.7.2-rd2512b8289427cc2075f3e3843cb4dc7764cf13c",
+    "easybuild-framework_version": "4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/libexec/gcc/x86_64-pc-linux-gnu/11.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold --enable-ld=default --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/11.3.0/system-system/gcc-11.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 11.3.0 (GCC) ; ",
+    "glibc_version": "2.30",
+    "hostname": "build-node.computecanada.ca",
+    "install_size": 1655611920,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "CentOS Linux",
+    "os_type": "Linux",
+    "os_version": "7.9.2009",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/11.3.0/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.10.2/bin/python",
+    "timestamp": 1706053848,
+    "total_memory": 60231,
+}]
