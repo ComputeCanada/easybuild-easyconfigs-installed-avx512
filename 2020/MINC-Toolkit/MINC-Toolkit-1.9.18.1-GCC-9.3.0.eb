@@ -1,4 +1,4 @@
-# Built with EasyBuild version 4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535 on 2021-01-12_22-53-45
+# Built with EasyBuild version 4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3 on 2024-03-06_15-37-17
 easyblock = 'CMakeMake'
 
 name = 'MINC-Toolkit'
@@ -9,12 +9,12 @@ description = "Medical Imaging NetCDF Toolkit"
 
 toolchain = {'name': 'GCC', 'version': '9.3.0'}
 
-source_urls = ['https://github.com/BIC-MNI/%(namelower)s-v2/releases/download/release-%(version)s/']
-sources = ['%(namelower)s-v2-%(version)s.tar.gz']
-patches = ['%(name)s-%(version)s-ITK-build.patch']
+source_urls = ['https://github.com/BIC-MNI/minc-toolkit-v2/releases/download/release-%(version)s/']
+sources = ["%(namelower)s-v2-%(version)s.tar.gz"]
+patches = ["MINC-Toolkit-1.9.18.1-ITK-build.patch"]
 checksums = [
-    '82dfc0211958f5aa7b9915414f055d0d79eac462a2ee8c6c6298707f28748a95',  # %(namelower)s-v2-%(version)s.tar.gz
-    'e2d60311b4288a6d9ff666ba2abfdaee738317de9cd8c04d71a604d0efb0940c',  # %(name)s-%(version)s-ITK-build.patch
+    '82dfc0211958f5aa7b9915414f055d0d79eac462a2ee8c6c6298707f28748a95',  # minc-toolkit-v2-1.9.18.1.tar.gz
+    'e2d60311b4288a6d9ff666ba2abfdaee738317de9cd8c04d71a604d0efb0940c',  # MINC-Toolkit-1.9.18.1-ITK-build.patch
 ]
 
 dependencies = [
@@ -22,48 +22,73 @@ dependencies = [
     ('GSL', '2.6'),
     ('HDF5', '1.10.6'),
     ('netCDF', '4.7.4'),
-    #    ('ITK', '4.13.3'),
+#    ('ITK', '4.13.3'),
     ('OpenBLAS', '0.3.9'),
-    #    ('ANTs', '2.3.2'),
+#    ('ANTs', '2.3.2'),
 ]
+builddependencies = [('CMake', '2.8.0')]
 
+configopts = '-DUSE_SYSTEM_FFTW3D=ON -DFFTW3D_DIR=$EBROOTFFTW '
+configopts += '-DUSE_SYSTEM_FFTW3F=ON '
+configopts += '-DUSE_SYSTEM_OPENJPEG=ON -DOPENJPEG_INCLUDE_DIR=$EBROOTGENTOO/include/openjpeg-2.3 '
+configopts += '-DUSE_SYSTEM_GSL=ON '
+configopts += '-DUSE_SYSTEM_HDF5=ON '
+configopts += '-DUSE_SYSTEM_NETCDF=ON '
+configopts += '-DUSE_SYSTEM_PCRE=ON '
+configopts += '-DUSE_SYSTEM_ZLIB=ON '
+#configopts += '-DUSE_SYSTEM_ITK=ON '
+configopts += '-DUSE_SYSTEM_JPEG=ON '
+configopts += '-DMT_BUILD_SHARED_LIBS=ON '
 preconfigopts = "LDFLAGS='-lhdf5' "
-configopts = "-DUSE_SYSTEM_FFTW3D=ON -DFFTW3D_DIR=$EBROOTFFTW -DUSE_SYSTEM_FFTW3F=ON -DUSE_SYSTEM_OPENJPEG=ON -DOPENJPEG_INCLUDE_DIR=$EBROOTGENTOO/include/openjpeg-2.3 -DUSE_SYSTEM_GSL=ON -DUSE_SYSTEM_HDF5=ON -DUSE_SYSTEM_NETCDF=ON -DUSE_SYSTEM_PCRE=ON -DUSE_SYSTEM_ZLIB=ON -DUSE_SYSTEM_JPEG=ON -DMT_BUILD_SHARED_LIBS=ON "
+prebuildopts = preconfigopts
 
-prebuildopts = "LDFLAGS='-lhdf5' "
-
+separate_build_dir = True
 
 sanity_check_paths = {
-    'files': ['%(namelower)s-config.sh', 'lib/libminc2.so'],
-    'dirs': ['bin', 'etc', 'include', 'lib', 'man', 'perl', 'pipeline', 'share'],
+    'files': ['minc-toolkit-config.sh', 'lib/libminc2.so' ],
+    'dirs': ['bin', 'etc', 'include', 'lib', 'man', 'perl', 'pipeline', 'share' ],
+}
+modextrapaths = {
+    'PATH': ['pipeline'],
+    'PERL5LIB': ['perl', 'pipeline'],
+    'MNI_DATAPATH': ['share'],
+    'MANPATH': ['man'],
+    'ANTSPATH': ['bin'],
+    'MINC_TOOLKIT': ''
+}
+modextravars = {
+    'MINC_TOOLKIT_VERSION': "%(version)s",
+    'MINC_FORCE_V2': '1',
+    'MINC_COMPRESS': '4',
+    'VOLUME_CACHE_THRESHOLD': '1'
 }
 
 moduleclass = 'lib'
 
 # Build statistics
 buildstats = [{
-    "build_time": 1700.27,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='3.5,3.7,5.0,6.0,7.0,7.5,8.0'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'PGI\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Compiler/gcc9/minc-toolkit/1.9.18.1/easybuild/reprod/MINC-Toolkit-1.9.18.1-GCC-9.3.0.eb'],
-    "core_count": 16,
+    "build_time": 29.49,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", '--backup-modules', "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", '--module-only', "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--tmp-logdir='/cvmfs/local/var/log'", "--use-ccache=''", '--use-existing-modules', 'MINC-Toolkit-1.9.18.1-GCC-9.3.0.eb'],
+    "core_count": 8,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
     "cpu_speed": 2494.14,
     "cpu_vendor": "Intel",
-    "easybuild-easyblocks_version": "4.3.1-r733dc3ff343737e567a2b31dacf001c734b8636a",
-    "easybuild-framework_version": "4.3.1-rda6f1d3a85efeb0d1bea31fc1d991f1f825c7535",
+    "easybuild-easyblocks_version": "4.7.2-rd2512b8289427cc2075f3e3843cb4dc7764cf13c",
+    "easybuild-framework_version": "4.7.2-r13850b24a8e46dbf6f3cd2d0a8bb915a119d52c3",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
-    "hostname": "build-node.computecanada.ca",
-    "install_size": 1258474095,
-    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.16'),
-    "os_name": "centos linux",
+    "hostname": "login1.int.archimedes.c3.ca",
+    "install_size": 1297909299,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "Rocky Linux",
     "os_type": "Linux",
-    "os_version": "7.9.2009",
+    "os_version": "8.9",
     "platform_name": "x86_64-unknown-linux",
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/python",
-    "timestamp": 1610492024,
-    "total_memory": 60232,
+    "timestamp": 1709739258,
+    "total_memory": 30116,
 }]
