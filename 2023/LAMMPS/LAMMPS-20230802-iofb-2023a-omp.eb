@@ -1,0 +1,243 @@
+# Built with EasyBuild version 4.9.0 on 2024-03-27_12-26-31
+name = 'LAMMPS'
+version = '20230802'
+versionsuffix = '-omp'
+
+homepage = 'https://www.lammps.org'
+description = """LAMMPS is a classical molecular dynamics code, and an acronym
+for Large-scale Atomic/Molecular Massively Parallel Simulator. LAMMPS has
+potentials for solid-state materials (metals, semiconductors) and soft matter
+(biomolecules, polymers) and coarse-grained or mesoscopic systems. It can be
+used to model atoms or, more generically, as a parallel particle simulator at
+the atomic, meso, or continuum scale. LAMMPS runs on single processors or in
+parallel using message-passing techniques and a spatial-decomposition of the
+simulation domain. The code is designed to be easy to modify or extend with new
+functionality.
+"""
+
+toolchain = {'name': 'iofb', 'version': '2023a'}
+toolchainopts = {'openmp': True, 'usempi': True, 'extra_cflags': '-march=x86-64-v3 -axCore-AVX512 ', 'extra_cxxflags': '-march=x86-64-v3 -axCore-AVX512 ', 'extra_fflags': '-march=core-avx2 -axCore-AVX512 ', 'extra_fcflags': '-march=core-avx2 -axCore-AVX512 ', 'extra_f90flags': '-march=core-avx2 -axCore-AVX512 ', 'optarch': ''}
+
+source_urls = ['https://github.com/%(namelower)s/%(namelower)s/releases/download/stable_2Aug2023_update3']
+sources = ['%(namelower)s-src-2Aug2023-update3.tar.gz']
+patches = [
+    '%(name)s-2Aug2023_install_lammps_python_package_in_eb_software_module.patch',
+    '%(name)s-2Aug2023_fix-timestep-balance-example.patch',
+]
+checksums = [
+    {'%(namelower)s-src-2Aug2023-update3.tar.gz': '0b0bf69d7d323c25a6eeb1f483113c0da3bfbedea9878e72f15a0a3b5c492a16'},
+    {'%(name)s-2Aug2023_install_lammps_python_package_in_eb_software_module.patch': '723c944b62b9d28427d25e80a7a67049631702d344df49268a6846aa0cd0fe04'},
+    {'%(name)s-2Aug2023_fix-timestep-balance-example.patch': '6f68387ced2b4bd0a06e4c3d31b0ffd47042476777d87d8a0ca6b19a4e6a1777'},
+]
+
+builddependencies = [
+    ('CMake', '3.27.7', '', SYSTEM),
+    ('pkgconf', '1.9.5'),
+    ('python-build-bundle', '2023b', '', SYSTEM),
+]
+dependencies = [
+    ('FFTW', '3.3.10', '', ('intel-compilers', '2023.2.1')),
+    ('libpng', '1.6.39'),
+    ('libjpeg-turbo', '2.1.5.1'),
+    ('netCDF', '4.9.2', '-mpi', ('iompi', '2023a')),
+    ('PnetCDF', '1.12.3', '', ('iompi', '2023a')),
+    ('GSL', '2.7', '', ('intel-compilers', '2023.2.1')),
+    ('zlib', '1.2.13'),
+    ('gzip', '1.12'),
+    ('cURL', '8.0.1'),
+    ('HDF5', '1.14.2', '-mpi', ('iompi', '2023a')),
+    ('PCRE', '8.45'),
+    ('libxml2', '2.11.4'),
+    ('FFmpeg', '6.0'),
+    ('Voro++', '0.4.6', '', SYSTEM),
+    ('kim-api', '2.3.0', '', SYSTEM),
+    ('Eigen', '3.4.0', '', SYSTEM),
+    # AK ('PLUMED', '2.9.0'),
+    # VTK package is auto-disabled if this dep is not available
+    # AK ('VTK', '9.3.0'),
+    # We use a custom build of MDI
+    # AK ('MDI', '1.4.26'),
+]
+multi_deps = {'Python': ['3.11', '3.10']}
+
+preconfigopts = "ln -s %(builddir)s/%(namelower)s-* %(builddir)s/%(namelower)s-stable_%(version)s && "
+configopts = '-DPKG_INTEL=off -DBUILD_DOC=off -DWITH_GZIP=yes -DBLAS_LIBRARIES="$LIBBLAS" -DLAPACK_LIBRARIES="$LIBLAPACK" -DDOWNLOAD_KIM=OFF -DKokkos_ENABLE_OPENMP=no -DPKG_KOKKOS=off '
+
+# copying examples and potentials twice doesn't work
+preinstallopts = "rm -rf %(installdir)s/{examples,potentials} && "
+
+# Not installed yet:
+
+# 'GPU', 'INTEL', 'KOKKOS', 'MDI', 'ML-HDNNP',
+# 'ML-QUIP', 'MSCG', 'PLUMED', 'SCAFACOS', 'VTK'
+
+# Excluded packages due to requiring additional (non-trivial) deps
+# - ADIOS
+# - LATTE
+# - MESONT (requires very large files downloaded during build)
+# - ML-HDNNP (requires N2P2)
+# - ML-QUIP
+# - MSCG
+# - QMMM (setup seems complex)
+
+enhance_sanity_check = True
+multi_deps_load_default = False
+modaltsoftname = '%(namelower)s-omp'
+build_shared_libs = True
+# To use additional custom configuration options, use the 'configopts' easyconfig parameter
+# See docs and lammps easyblock for more information.
+# https://github.com/lammps/lammps/blob/master/cmake/README.md#lammps-configuration-options
+
+# OpenMP-Kokkos build is default in the current easyblock. One can switch to serial backend of Kokkos,
+# which is claimed to be faster in pure MPI calculations
+# configopts  = "-DKokkos_ENABLE_SERIAL=yes "
+
+
+# packages auto-enabled by easyblock
+# 'GPU'    - if cuda package is present and kokkos is disabled
+# 'KOKKOS' - if kokkos is enabled (by default)
+# 'INTEL'  - if builing on Intel CPU
+# 'OPENMP' - if OpenMP swithed on in 'toolchainopts'
+
+# include the following extra packages into the build
+general_packages = [
+    'AMOEBA',
+    'ASPHERE',
+    'ATC',
+    'AWPMD',
+    'BOCS',
+    'BODY',
+    'BPM',
+    'BROWNIAN',
+    'CG-DNA',
+    'CG-SPICA',
+    'CLASS2',
+    'COLLOID',
+    'COLVARS',
+    'COMPRESS',
+    'CORESHELL',
+    'DIELECTRIC',
+    'DIFFRACTION',
+    'DIPOLE',
+    'DPD-BASIC',
+    'DPD-MESO',
+    'DPD-REACT',
+    'DPD-SMOOTH',
+    'DRUDE',
+    'EFF',
+    'ELECTRODE',
+    'EXTRA-COMPUTE',
+    'EXTRA-DUMP',
+    'EXTRA-FIX',
+    'EXTRA-MOLECULE',
+    'EXTRA-PAIR',
+    'FEP',
+    'GRANULAR',
+    'H5MD',
+    'INTERLAYER',
+    'KIM',
+    'KSPACE',
+    'LATBOLTZ',
+    'LEPTON',
+    'MACHDYN',
+    'MANIFOLD',
+    'MANYBODY',
+    'MC',
+    'MEAM',
+    'MESONT',
+    'MGPT',
+    'MISC',
+    'ML-IAP',
+    'ML-PACE',
+    'ML-POD',
+    'ML-RANN',
+    'ML-SNAP',
+    'MOFFF',
+    'MOLECULE',
+    'MOLFILE',
+    'MPIIO',
+    'MSCG',
+    'NETCDF',
+    'OPT',
+    'ORIENT',
+    'PERI',
+    'PHONON',
+    'PLUGIN',
+    # 'PLUMED',
+    'POEMS',
+    'PTM',
+    'PYTHON',
+    'QEQ',
+    'QMMM',
+    'QTB',
+    'REACTION',
+    'REAXFF',
+    'REPLICA',
+    'RIGID',
+    'SHOCK',
+    'SMTBQ',
+    'SPH',
+    'SPIN',
+    'SRD',
+    'TALLY',
+    'UEF',
+    'VORONOI',
+    # 'VTK',
+    'YAFF',
+]
+# Complete list of packages for the current version: [ 92 ]
+
+# 'ADIOS', 'AMOEBA', 'ASPHERE', 'ATC', 'AWPMD', 'BOCS', 'BODY', 'BPM',
+# 'BROWNIAN', 'CG-DNA', 'CG-SPICA', 'CLASS2', 'COLLOID', 'COLVARS',
+# 'COMPRESS', 'CORESHELL', 'DIELECTRIC', 'DIFFRACTION', 'DIPOLE',
+# 'DPD-BASIC', 'DPD-MESO', 'DPD-REACT', 'DPD-SMOOTH', 'DRUDE', 'EFF',
+# 'ELECTRODE', 'EXTRA-COMPUTE', 'EXTRA-DUMP', 'EXTRA-FIX',
+# 'EXTRA-MOLECULE', 'EXTRA-PAIR', 'FEP', 'GPU', 'GRANULAR', 'H5MD',
+# 'INTEL', 'INTERLAYER', 'KIM', 'KOKKOS', 'KSPACE', 'LATBOLTZ', 'LEPTON',
+# 'MACHDYN', 'MANIFOLD', 'MANYBODY', 'MC', 'MDI', 'MEAM', 'MESONT', 'MGPT',
+# 'MISC', 'ML-HDNNP', 'ML-IAP', 'ML-PACE', 'ML-POD', 'ML-QUIP', 'ML-RANN',
+# 'ML-SNAP', 'MOFFF', 'MOLECULE', 'MOLFILE', 'MPIIO', 'MSCG', 'NETCDF',
+# 'OPENMP', 'OPT', 'ORIENT', 'PERI', 'PHONON', 'PLUGIN', 'PLUMED', 'POEMS',
+# 'PTM', 'PYTHON', 'QEQ', 'QMMM', 'QTB', 'REACTION', 'REAXFF', 'REPLICA',
+# 'RIGID', 'SCAFACOS', 'SHOCK', 'SMTBQ', 'SPH', 'SPIN', 'SRD', 'TALLY',
+# 'UEF', 'VORONOI', 'VTK', 'YAFF'
+
+kokkos = False
+
+#sanity_check_commands = ["lmp -help | wc -l"]
+# sanity_check_commands = ["cd %(builddir)s && python lammps_vs_yaff_test_single_point_energy.py"]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['share', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+moduleclass = 'chem'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1384.26,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-eb-cmd='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--tmp-logdir='/cvmfs/local/var/log'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/intel2023/openmpi4/lammps-omp/20230802/easybuild/reprod/LAMMPS-20230802-iofb-2023a-omp.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.9.0",
+    "easybuild-framework_version": "4.9.0",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "login1.int.archimedes.c3.ca",
+    "install_size": 923082071,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "Rocky Linux",
+    "os_type": "Linux",
+    "os_version": "8.9 (Green Obsidian)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.10.13/bin/python",
+    "timestamp": 1711542198,
+    "total_memory": 30116,
+}]
