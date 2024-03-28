@@ -1,0 +1,90 @@
+# Built with EasyBuild version 4.9.0 on 2024-03-28_17-32-59
+easyblock = 'CMakeMake'
+
+name = 'MariaDB'
+version = '11.5.0'
+
+homepage = 'https://mariadb.org/'
+description = "MariaDB An enhanced, drop-in replacement for MySQL For more information please take a look at https://docs.computecanada.ca/wiki/Database_servers."
+
+toolchain = {'name': 'GCCcore', 'version': '12.3-gentoo'}
+
+source_urls = ['http://ftp.hosteurope.de/mirror/archive.%(namelower)s.org/%(namelower)s-%(version)s/source']
+sources = [SOURCELOWER_TAR_GZ]
+#patches = ['mariadb-10.4.11.patch']
+checksums = ['977fcaac855cd432bcabe2775e24bca9d80732c34db8757657521eda95a74bd0']
+
+builddependencies = [
+    ('CMake', '3.27.7', '', SYSTEM),
+    ('Boost', '1.82.0', '-core', SYSTEM),
+    ('Judy', '1.0.5', '', SYSTEM),
+    #    ('snappy', '1.1.8'),    # needed by RocksDB; optional for InnoDB
+]
+dependencies = [
+    ('Perl', '5.36.1', '', SYSTEM),
+]
+multi_deps = {'Python': ['3.11.5', '3.10.13']}
+
+configopts = "-DCMAKE_BUILD_TYPE=Release -DCMAKE_SHARED_LINKER_FLAGS='-fuse-ld=bfd' -DMYSQL_MAINTAINER_MODE=OFF -DWITH_PCRE=auto -DWITH_ZLIB=system -DWITH_EMBEDDED_SERVER=ON "
+
+parallel = 12
+
+multi_deps_load_default = False
+multi_deps_extensions_only = True
+exts_classmap = {
+    'PyMySQL': 'PythonPackage',
+    'mysql-connector-python': 'PythonPackage',
+}
+exts_defaultclass = 'PerlModule'
+exts_filter = (
+    "perldoc -lm %(ext_name)s || python -c 'import %(ext_name)s'",
+    '',
+)
+
+exts_list = [
+    ('mysql-connector-python', '8.2.0', {'modulename': 'mysql.connector', 'source_urls': ['https://dev.mysql.com/get/Downloads/Connector-Python/'], 'source_tmpl': '%(name)s-%(version)s-src.tar.gz', 'checksums': ['ec417cbc777d46c0ba3c1243665a998397e869ed6cde5d051e279bf3624c3d33']}),
+    ('PyMySQL', '1.1.0', {'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'], 'checksums': ['4f13a7df8bf36a51e81dd9f3605fede45a4878fe02f9236349fd82a3f0612f96'], 'use_pip': True}),
+    ('IO::CaptureOutput', '1.1105', {'source_tmpl': 'IO-CaptureOutput-1.1104.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DA/DAGOLDEN'], 'runtest': 'test', 'configopts': ''}),
+    ('Devel::CheckLib', '1.16', {'source_tmpl': 'Devel-CheckLib-1.16.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/M/MA/MATTN'], 'runtest': 'test', 'configopts': ''}),
+    ('DBD::mysql', '5.004', {'source_tmpl': 'DBD-mysql-4.050.tar.gz', 'source_urls': ['https://cpan.metacpan.org/authors/id/D/DV/DVEEDEN'], 'runtest': 'test', 'configopts': '', 'checksums': ['4f48541ff15a0a7405f76adc10f81627c33996fbf56c95c26c094444c0928d78']}),
+]
+
+sanity_check_paths = {
+    'files': ['bin/mysql', 'bin/mysqld_safe', 'lib/libmysqlclient.so', 'lib/libmariadb.so', 'lib/plugin/ha_connect.so', 'lib/plugin/ha_rocksdb.so', 'lib/plugin/ha_oqgraph.so', 'scripts/mysql_install_db'],
+    'dirs': ['include', 'share', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+modextrapaths = {
+    'EBPYTHONPREFIXES': '',
+    'PERL5LIB': 'lib/perl5/site_perl/%(perlver)s/:%(installdir)s/lib/perl5/site_perl/%(perlver)s/%(arch)s-linux-thread-multi',
+}
+
+moduleclass = 'data'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1367.09,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-eb-cmd='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--tmp-logdir='/cvmfs/local/var/log'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/mariadb/11.5.0/easybuild/reprod/MariaDB-11.5.0-GCCcore-12.3-gentoo.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.9.0",
+    "easybuild-framework_version": "4.9.0",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "login1.int.archimedes.c3.ca",
+    "install_size": 1079225491,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "Rocky Linux",
+    "os_type": "Linux",
+    "os_version": "8.9 (Green Obsidian)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.10.13/bin/python",
+    "timestamp": 1711647178,
+    "total_memory": 30116,
+}]
