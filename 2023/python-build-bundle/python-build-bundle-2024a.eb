@@ -1,0 +1,175 @@
+# Built with EasyBuild version 4.9.1 on 2024-06-12_17-39-50
+easyblock = 'PythonBundle'
+
+name = 'python-build-bundle'
+version = '2024a'
+
+homepage = 'http://python.org/'
+description = "Bundle which contains Python packages useful for building"
+
+toolchain = {'name': 'GCCcore', 'version': '13.3-gentoo'}
+
+builddependencies = [
+    ('Rust', '1.76.0', '', SYSTEM),
+    ('pytest', '8.2.2', '', SYSTEM),
+]
+multi_deps = {'Python': ['3.12', '3.11', '3.10']}
+
+multi_deps_load_default = False
+# this is a bundle of Python packages
+exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    'python -c "import %(ext_name)s"',
+    '',
+)
+modluafooter = """
+if convertToCanonical(LmodVersion()) >= convertToCanonical("8.2.9") then
+        depends_on(between("python",'3.10<','<3.13'))
+end
+"""
+
+exts_default_options = {
+    'buildcmd': None,
+    'check_ldshared': None,
+    'download_dep_fail': True,
+    'fix_python_shebang_for': ['bin/%(name)s'],
+    'install_src': None,
+    'install_target': 'install',
+    'options': {},
+    'pip_ignore_installed': True,
+    'pip_no_index': None,
+    'preinstallopts': "PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH ",
+    'req_py_majver': None,
+    'req_py_minver': None,
+    'runtest': True,
+    'sanity_pip_check': False,
+    'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'],
+    'testinstall': False,
+    'unpack_sources': None,
+    'unversioned_packages': [],
+    'use_pip': True,
+    'use_pip_editable': False,
+    'use_pip_extras': None,
+    'use_pip_for_deps': False,
+    'use_pip_requirement': False,
+    'zipped_egg': False,
+}
+
+# order is important!
+exts_list = [
+    ('flit-core', '3.9.0', {'source_tmpl': 'flit_core-%(version)s.tar.gz'}),
+    ('wheel', '0.43.0', {'fix_python_shebang_for': ['bin/wheel']}),
+    ('setuptools', '70.0.0', {'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl'}),
+    ('packaging', '24.1'),
+    ('pbr', '6.0.0', {'fix_python_shebang_for': ['bin/pbr']}),
+    ('toml', '0.10.2'),
+    ('tomli', '2.0.1'),
+    ('setuptools_scm', '8.1.0'),
+    ('flit-scm', '1.7.0', {'source_tmpl': 'flit_scm-%(version)s.tar.gz'}),
+    ('pyparsing', '3.1.2'),
+    ('pycparser', '2.22'),
+    ('typing_extensions', '4.12.2'),
+    ('cffi', '1.16.0'),
+    ('setuptools-rust', '1.9.0'),
+    ('semantic_version', '2.10.0'),
+    ('cryptography', '42.0.8', {'preinstallopts': 'export CARGO_HOME=%(builddir)s/cargo && ', 'modulename': 'cryptography.hazmat.bindings.openssl.binding'}),
+    #    ('appdirs', '1.4.4'),
+    ('pathspec', '0.12.1'),
+    ('trove_classifiers', '2024.5.22'),
+    ('hatchling', '1.24.2'),
+    ('hatch_vcs', '0.4.0'),
+    ('hatch_fancy_pypi_readme', '24.1.0', {'fix_python_shebang_for': ['bin/hatch-fancy-pypi-readme']}),
+    ('platformdirs', '4.2.2'),
+    ('filelock', '3.14.0'),
+    ('distlib', '0.3.8'),
+    ('importlib_metadata', '7.1.0'),
+    ('editables', '0.5'),
+    ('exceptiongroup', '1.2.1'),
+    ('importlib_resources', '6.4.0'),
+    ('virtualenv', '20.26.2', {'fix_python_shebang_for': ['bin/virtualenv'], 'patches': ['virtualenv-importlib_metadata.patch']}),
+    ('charset-normalizer', '3.3.2', {'fix_python_shebang_for': ['bin/normalizer']}),
+    ('idna', '3.7'),
+    ('certifi', '2024.6.2'),
+    ('urllib3', '2.2.1'),
+    ('requests', '2.32.3'),
+    ('shellingham', '1.5.4'),
+    ('requests-toolbelt', '1.0.0'),
+    #    ('scandir', '1.10.0'),
+    # ('pathlib2', '2.3.7.post1'),
+    ('zipp', '3.19.2'),
+    #    ('more-itertools', '8.12.0'),
+    # ('attrs', '21.4.0', {
+    # 'modulename': 'attr',
+    # }),
+    ('pytoml', '0.1.21'),
+    ('jeepney', '0.8.0', {'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl'}),
+    ('SecretStorage', '3.3.3'),
+    ('keyring', '25.2.1', {'fix_python_shebang_for': ['bin/keyring'], 'modulename': False}),
+    ('keyrings.alt', '5.0.1', {'modulename': False}),
+    ('tomlkit', '0.12.5', {'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl'}),
+    ('pkginfo', '1.11.1', {'fix_python_shebang_for': ['bin/pkginfo']}),
+    ('pexpect', '4.9.0'),
+    #    ('lockfile', '0.12.2'),
+    ('pylev', '1.4.0'),
+    ('pastel', '0.2.1', {'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl'}),
+    ('clikit', '0.6.2', {'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl'}),
+    ('msgpack', '1.0.8'),
+    ('cachecontrol', '0.14.0', {'fix_python_shebang_for': ['bin/doesitcache']}),
+    ('ptyprocess', '0.7.0', {'source_tmpl': '%(name)s-%(version)s-py2.py3-none-any.whl'}),
+    ('webencodings', '0.5.1'),
+    ('cleo', '2.1.0', {'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl'}),
+    ('cachy', '0.3.0'),
+    ('poetry_core', '1.9.0', {'modulename': 'poetry.core'}),
+    ('crashtest', '0.4.1', {'source_tmpl': '%(name)s-%(version)s-py3-none-any.whl'}),
+    ('poetry', '1.8.3', {'fix_python_shebang_for': ['bin/poetry']}),
+    ('pybind11', '2.12.0', {'source_urls': ['https://github.com/pybind/pybind11/archive/'], 'sources': ['v%(version)s.tar.gz'], 'fix_python_shebang_for': ['bin/pybind11-config']}),
+    ('distro', '1.9.0'),
+    ('scikit_build', '0.17.6', {'modulename': 'skbuild'}),
+    ('scikit_build_core', '0.9.5'),
+    ('archspec', '0.2.4'),
+    ('pyproject_metadata', '0.8.0'),
+    ('meson', '1.4.1', {'modulename': 'mesonbuild'}),
+    ('ninja', '1.11.1.1', {'modulename': False}),
+    ('meson_python', '0.16.0', {'modulename': 'mesonpy'}),
+    ('pyproject_hooks', '1.1.0'),
+    ('build', '1.2.1'),
+]
+
+sanity_check_paths = {
+    'files': [],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = [
+    """if [ -n "$(find %(installdir)s/lib*/python*/site-packages -name '*.egg*')" ] ; then echo 'Found .egg file, please use pip. See https://github.com/ComputeCanada/software-stack/issues/137' ; exit 1; else  exit 0; fi""",
+]
+
+moduleclass = 'lang'
+
+# Build statistics
+buildstats = [{
+    "build_time": 1770.82,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-cores='8'", "--job-eb-cmd='srun --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--tmp-logdir='/cvmfs/local/var/log'", "--tmpdir='/cvmfs/local/tmp'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python-build-bundle/2024a/easybuild/reprod/python-build-bundle-2024a-GCCcore-13.3-gentoo.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.138,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.9.1",
+    "easybuild-framework_version": "4.9.1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/13/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-13.3.0/work/gcc-13.3.0/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/13 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/include/g++-v13 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/13/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 13.3.0 p16' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 13.3.0 (Gentoo 13.3.0 p16) ; ",
+    "glibc_version": "2.37",
+    "hostname": "login1.int.archimedes.c3.ca",
+    "install_size": 142961697,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.4 (Seafoam Ocelot)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/13/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.10.13/bin/python",
+    "timestamp": 1718213980,
+    "total_memory": 29824,
+}]
