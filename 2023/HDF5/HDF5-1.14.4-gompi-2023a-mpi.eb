@@ -1,6 +1,7 @@
-# Built with EasyBuild version 4.9.2 on 2024-07-03_11-50-00
+# Built with EasyBuild version 4.9.2 on 2024-07-03_17-57-28
 name = 'HDF5'
 version = '1.14.4'
+versionsuffix = '-mpi'
 
 homepage = 'https://portal.hdfgroup.org/display/support'
 description = """HDF5 is a data model, library, and file format for storing and managing data.
@@ -10,73 +11,61 @@ description = """HDF5 is a data model, library, and file format for storing and 
 toolchain = {'name': 'gompi', 'version': '2023a'}
 toolchainopts = {'pic': True, 'usempi': True}
 
-source_urls = ['https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-%(version_major_minor)s/hdf5-%(version)s/src']
-sources = [SOURCELOWER_TAR_GZ.replace('%(version)s', version+'-3')]
+source_urls = ['https://support.hdfgroup.org/ftp/%(name)s/releases/%(namelower)s-%(version_major_minor)s/%(namelower)s-%(version)s/src']
+sources = ['%(namelower)s-%(version)s-3.tar.gz']
 checksums = ['019ac451d9e1cf89c0482ba2a06f07a46166caf23f60fea5ef3c37724a318e03']
-
-dependencies = [
-    ('zlib', '1.2.13'),
-    ('Szip', '2.1.1'),
-]
 
 # For the extensions
 builddependencies = [
     ('mpi4py', '3.1.6'),
-    ('Cython', '3.0.10'),
-    ('oldest-supported-numpy', '2024a'),
-    ('python-build-bundle', '2024a'),
+    ('Cython', '3.0.10', '', SYSTEM),
+    ('oldest-supported-numpy', '2024a', '', SYSTEM),
+    ('python-build-bundle', '2024a', '', SYSTEM),
 ]
-
+dependencies = [
+    ('zlib', '1.2.13'),
+    ('Szip', '2.1.1'),
+]
 multi_deps = {'Python': ['3.10', '3.11', '3.12']}
-multi_deps_extensions_only = True
 
 # otherwise blosc2 libs end up in lib64 but HDF5 in lib
-preinstallopts = 'ln -s lib %(installdir)s/lib64 && '
+preinstallopts = "ln -s lib %(installdir)s/lib64 && "
 
+enhance_sanity_check = True
+multi_deps_load_default = False
+multi_deps_extensions_only = True
 exts_defaultclass = 'PythonPackage'
+exts_filter = (
+    "module load python-build-bundle/2024a mpi4py/3.1.6 oldest-supported-numpy/.2024a;  python -c 'import %(ext_name)s'",
+    '',
+)
+modaltsoftname = '%(namelower)s-mpi'
+
 exts_default_options = {
-    'source_urls': [PYPI_SOURCE],
     'download_dep_fail': True,
+    'preinstallopts': 'PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH',
+    'source_urls': ['https://pypi.python.org/packages/source/%(nameletter)s/%(name)s'],
     'use_pip': True,
-    'preinstallopts': "PYTHONPATH=%(installdir)s/lib/python%(pyshortver)s/site-packages:$PYTHONPATH"
 }
+
 exts_list = [
-    ('cached-property', '1.5.2', {
-        'checksums': ['9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130'],
-    }),
-    ('ndindex', '1.8', {
-        'checksums': ['5fc87ebc784605f01dd5367374cb40e8da8f2c30988968990066c5098a7eebe8'],
-    }),
-    ('py-cpuinfo', '9.0.0', {
-        'modulename': 'cpuinfo',
-        'checksums': ['3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690'],
-    }),
-    ('h5py', '3.11.0', {
-        'preinstallopts': 'sed -i -e "/cmdclass = CMDCLASS,/a zip_safe = False," setup.py && HDF5_MPI="ON" H5PY_SETUP_REQUIRES=0 ',
-        'checksums': ['7b7e8f78072a2edec87c9836f25f34203fd492a4475709a18b417a33cfb21fa9'],
-    }),
-    ('numexpr', '2.10.1', {
-        'checksums': ['9bba99d354a65f1a008ab8b87f07d84404c668e66bab624df5b6b5373403cf81'],
-    }),
-    ('blosc2', '2.7.0', {
-        'checksums': ['9b982c1d40560eefb4a01d67c57e786d39a5ee9696f3deadd32ebf5f8885eb2a'],
-    }),
-    ('tables', '3.9.2', {
-        'preinstallopts': 'unset LIBS && rm -r c-blosc/{blosc,internal-complibs} && sed -i "s@/usr/local@$EBROOTGENTOO@" setup.py && BLOSC2_DIR=%(installdir)s ',
-        'checksums': ['d470263c2e50c4b7c8635a0d99ac1ff2f9e704c24d71e5fa33c4529e7d0ad9c3'],
-    }),
+    ('cached-property', '1.5.2', {'checksums': ['9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130']}),
+    ('ndindex', '1.8', {'checksums': ['5fc87ebc784605f01dd5367374cb40e8da8f2c30988968990066c5098a7eebe8']}),
+    ('py-cpuinfo', '9.0.0', {'modulename': 'cpuinfo', 'checksums': ['3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690']}),
+    ('h5py', '3.11.0', {'preinstallopts': 'sed -i -e "/cmdclass = CMDCLASS,/a zip_safe = False," setup.py && HDF5_MPI="ON" H5PY_SETUP_REQUIRES=0 ', 'checksums': ['7b7e8f78072a2edec87c9836f25f34203fd492a4475709a18b417a33cfb21fa9']}),
+    ('numexpr', '2.10.1', {'checksums': ['9bba99d354a65f1a008ab8b87f07d84404c668e66bab624df5b6b5373403cf81']}),
+    ('blosc2', '2.7.0', {'checksums': ['9b982c1d40560eefb4a01d67c57e786d39a5ee9696f3deadd32ebf5f8885eb2a']}),
+    ('tables', '3.9.2', {'preinstallopts': 'unset LIBS && rm -r c-blosc/{blosc,internal-complibs} && sed -i "s@/usr/local@$EBROOTGENTOO@" setup.py && BLOSC2_DIR=%(installdir)s ', 'checksums': ['d470263c2e50c4b7c8635a0d99ac1ff2f9e704c24d71e5fa33c4529e7d0ad9c3']}),
 ]
 
-exts_filter = ("""module load python-build-bundle/2024a mpi4py/3.1.6 oldest-supported-numpy/.2024a;  python -c 'import %(ext_name)s'""", '')
-
 sanity_check_paths = {
-    'files': [
-        'lib/libhdf5.so'
-    ],
-    'dirs': [
-        'lib/python%(pyshortver)s/site-packages'
-    ]
+    'files': ['lib/libhdf5.so'],
+    'dirs': ['lib/python%(pyshortver)s/site-packages'],
 }
+
+sanity_check_commands = [
+    """if [ -n "$(find %(installdir)s/lib*/python*/site-packages -name '*.egg*')" ] ; then echo 'Found .egg file, please use pip. See https://github.com/ComputeCanada/software-stack/issues/137' ; exit 1; else  exit 0; fi""",
+]
 
 modextrapaths = {'EBPYTHONPREFIXES': ''}
 
@@ -84,28 +73,28 @@ moduleclass = 'data'
 
 # Build statistics
 buildstats = [{
-    "build_time": 4842.26,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-cores='8'", "--job-eb-cmd='srun --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--testoutput='/cvmfs/local/var/log/easybuild-build/HDF5-1.14.4-gompi-2023a-mpi'", "--tmp-logdir='/cvmfs/local/var/log'", "--tmpdir='/cvmfs/local/tmp'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/h/HDF5/HDF5-1.14.4-gompi-2023a.eb'],
+    "build_time": 5248.51,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', '--force', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-cores='8'", "--job-eb-cmd='srun --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--tmp-logdir='/cvmfs/local/var/log'", "--tmpdir='/cvmfs/local/tmp'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/MPI/gcc12/openmpi4/hdf5-mpi/1.14.4/easybuild/reprod/HDF5-1.14.4-gompi-2023a-mpi.eb'],
     "core_count": 8,
     "cpu_arch": "x86_64",
-    "cpu_arch_name": "skylake_avx512",
+    "cpu_arch_name": "cascadelake",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
-    "cpu_speed": 2095.078,
+    "cpu_speed": 2494.138,
     "cpu_vendor": "Intel",
     "easybuild-easyblocks_version": "4.9.2",
     "easybuild-framework_version": "4.9.2",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
     "glibc_version": "2.37",
-    "hostname": "node1.int.archimedes.c3.ca",
-    "install_size": 212624203,
+    "hostname": "login1.int.archimedes.c3.ca",
+    "install_size": 212624446,
     "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.4'),
-    "os_name": "Rocky Linux",
+    "os_name": "AlmaLinux",
     "os_type": "Linux",
-    "os_version": "9.4 (Blue Onyx)",
+    "os_version": "9.4 (Seafoam Ocelot)",
     "platform_name": "x86_64-unknown-linux",
     "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.12.4/bin/python",
-    "timestamp": 1720021427,
+    "timestamp": 1720029305,
     "total_memory": 29824,
 }]
