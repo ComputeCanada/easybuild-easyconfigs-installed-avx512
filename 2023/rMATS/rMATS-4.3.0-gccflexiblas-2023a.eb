@@ -1,0 +1,102 @@
+# Built with EasyBuild version 4.9.4 on 2024-12-09_19-44-12
+easyblock = 'CmdCp'
+
+name = 'rMATS'
+version = '4.3.0'
+
+homepage = 'http://rnaseq-mats.sourceforge.net/'
+description = """MATS is a computational tool to detect differential alternative splicing events from RNA-Seq data. The statistical model of MATS calculates the P-value and false discovery rate that the difference in the isoform ratio of a gene between two conditions exceeds a given user-defined threshold. From the RNA-Seq data, MATS can automatically detect and analyze alternative splicing events corresponding to all major types of alternative splicing patterns. MATS handles replicate RNA-Seq data from both paired and unpaired study design."""
+
+toolchain = {'name': 'gccflexiblas', 'version': '2023a'}
+
+source_urls = ['https://github.com/Xinglab/rmats-turbo/archive']
+sources = ['v%(version)s.tar.gz']
+patches = ["rMATS-4.3.0-fix_makefile_blaslapack.patch"]
+checksums = [
+    {'v4.3.0.tar.gz': '8825a16f3ea8186d833ead55df0899c54a3da72b440f9674bcf3a9245d971805'},
+    {'rMATS-4.3.0-fix_makefile_blaslapack.patch': 'b5d4cbc6ca6783416589a57655571358aaf3b21c99c7c0415e3bd16fb267aaa4'},
+]
+
+dependencies = [
+    ('SciPy-Stack', '2024b'),
+]
+
+multi_deps = {'Python': ['3.10', '3.11', '3.12']}
+builddependencies = [
+    ('BamTools', '2.5.2'),
+    ('SAMtools', '1.18'),
+    ('GSL', '2.7'),
+    ('Cython', '3.0.10'),
+]
+
+build_cmd = " && ".join([
+    "cd %(builddir)s/%(namelower)s-turbo-%(version)s/bamtools && mkdir build && cd build && cmake .. && make",
+    "cd %(builddir)s/%(namelower)s-turbo-%(version)s/rMATS_C && make",
+    'cd %(builddir)s/%(namelower)s-turbo-%(version)s/rMATS_pipeline && python setup.py build',
+    'mkdir -p %(installdir)s/lib/python%(pyshortver)s/site-packages'
+])
+
+cmds_map = [('.*', build_cmd)]
+
+files_to_copy = [
+    (['rMATS_C/rMATSexe'], 'rMATS_C'),
+    (['rMATS_P', 'rMATS_R','rmats.py', 'rMATS_pipeline/build/lib.linux-x86_64*/rmats/*.so',], ''),
+    (['rMATS_pipeline/build/lib.linux-x86_64*/rmats/*.so',], 'lib/python%(pyshortver)s/site-packages'),
+    (['tests'], ''),
+]
+
+sanity_check_paths = {
+    'files': ['rMATS_C/rMATSexe',
+              'rMATS_P/FDR.py',
+              'rMATS_P/inclusion_level.py',
+              'rMATS_P/joinFiles.py',
+              'rMATS_P/paste.py',
+              'rMATS_R/paired_model.R',
+              'rmats.py',
+              'rmatspipeline.cpython-310-x86_64-linux-gnu.so',
+              'rmatspipeline.cpython-311-x86_64-linux-gnu.so',
+              'rmatspipeline.cpython-312-x86_64-linux-gnu.so',
+    ],
+    'dirs':  [
+        'rMATS_C',
+        'rMATS_R',
+        'rMATS_P',
+        'tests',
+    ],
+}
+
+sanity_check_commands = [
+    "python %(installdir)s/rmats.py -h",
+]
+
+usage = "python $EBROOTRMATS/rmats.py ..."
+
+moduleclass = 'bio'
+
+# Build statistics
+buildstats = [{
+    "build_time": 533.62,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0,8.6,9.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'march=x86-64-v4\\', \\'Intel\\': \\'march=skylake-avx512\\', \\'GCC\\': \\'march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--testoutput='/shared_tmp/logs/easybuild-build/rMATS-4.3.0-gccflexiblas-2023a'", "--tmp-logdir='/shared_tmp/logs'", '--trace', "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/r/rMATS/rMATS-4.3.0-gccflexiblas-2023a.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.14,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "4.9.4",
+    "easybuild-framework_version": "4.9.4",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "nodepoolcpumedium1.int.archimedes.c3.ca",
+    "install_size": 62809618,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.47'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.4 (Seafoam Ocelot)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.12.4/bin/python",
+    "timestamp": 1733773218,
+    "total_memory": 29824,
+}]
