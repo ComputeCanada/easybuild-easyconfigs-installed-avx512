@@ -1,7 +1,8 @@
-# Built with EasyBuild version 4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218 on 2022-01-25_16-41-59
+# Built with EasyBuild version 4.7.2-r56556e093e457a084308dc2d7eded3e6bbed3b73 on 2025-07-28_19-46-21
 easyblock = 'MakeCp'
 
 name = 'OPERA-MS'
+local_commit = 'c18b4f3'
 version = '0.9.0-20200802'
 versionsuffix = '-Python-%(pyver)s'
 
@@ -14,78 +15,80 @@ description = """OPERA-MS is a hybrid metagenomic assembler which combines the
 #toolchain = {'name': 'foss', 'version': '2020a'}
 toolchain = {'name': 'gcccoreflexiblas', 'version': '2020a'}
 
-source_urls = ['https://github.com/CSB5/%(name)s/archive/']
-sources = [{'download_filename': 'c18b4f3.tar.gz', 'filename': SOURCE_TAR_GZ}]
+source_urls = ['https://github.com/CSB5/OPERA-MS/archive/']
+sources = [{'download_filename': '%s.tar.gz' % local_commit, 'filename': SOURCE_TAR_GZ}]
 checksums = ['fa2caa223e1cd54d26cf650b96fef7c92ced016204deedd120c9844a51656a6d']
 
 dependencies = [
-    ('Perl', '5.30.2', '', True),
+    ('Perl', '5.30.2'),
     ('Statistics-R', '0.34'),
-    ('Python', '3.8.2', '', ('GCCcore', '9.3.0')),
+    ('Python', '3.8.2'),
 ]
 
 buildopts = 'CFLAGS="$CFLAGS"'
 
-fix_perl_shebang_for = [
-    'bin/*.pl',
-    '%(name)s.pl',
-    'OPERA-LG/bin/*.pl',
-]
-fix_python_shebang_for = [
-    'bin/*.py',
-    'OPERA-LG/bin/*.py',
-]
-postinstallcmds = [
-    """echo '#!/bin/sh
- exec perl %(installdir)s/%(name)s.pl $@' > %(installdir)s/bin/%(name)s""",
-    "chmod +x %(installdir)s/bin/%(name)s",
-    "ln -s $EBROOTPERL/bin/perl %(installdir)s/tools_opera_ms/perl",
-    "%(installdir)s/bin/%(name)s --contig-file test_files/contigs.fasta --short-read1 test_files/R1.fastq.gz --short-read2 test_files/R2.fastq.gz --long-read test_files/long_read.fastq --no-ref-clustering --out-dir $TMPDIR",
-]
 files_to_copy = [
-    '%(name)s.pl',
+    'OPERA-MS.pl',
     'bin',
     'src_utils',
     'tools_opera_ms',
     (['OPERA-LG/bin'], 'OPERA-LG'),
 ]
 
+postinstallcmds = [
+    "setrpaths.sh --path %(installdir)s --any_interpreter",
+    "echo '#!/bin/sh\n exec perl %(installdir)s/OPERA-MS.pl $@' > %(installdir)s/bin/OPERA-MS",
+    'chmod +x %(installdir)s/bin/OPERA-MS',
+    'ln -s $EBROOTPERL/bin/perl %(installdir)s/tools_opera_ms/perl',
+    '%(installdir)s/bin/OPERA-MS ' + ' '.join([
+        '--contig-file test_files/contigs.fasta',
+        '--short-read1 test_files/R1.fastq.gz',
+        '--short-read2 test_files/R2.fastq.gz',
+        '--long-read test_files/long_read.fastq',
+        '--no-ref-clustering',
+        '--out-dir $TMPDIR',
+    ]),
+]
+
+fix_perl_shebang_for = ['bin/*.pl', 'OPERA-MS.pl', 'OPERA-LG/bin/*.pl']
+fix_python_shebang_for = ['bin/*.py', 'OPERA-LG/bin/*.py']
+
 sanity_check_paths = {
-    'files': ['bin/%(name)s'],
+    'files': ['bin/OPERA-MS'],
     'dirs': [],
 }
 
 sanity_check_commands = [
-    "%(name)s --help",
-    "%(name)s check-dependency",
+    'OPERA-MS --help',
+    'OPERA-MS check-dependency',
 ]
 
 moduleclass = 'bio'
 
 # Build statistics
 buildstats = [{
-    "build_time": 389.51,
-    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/config-gentoo.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/cc_hooks_gentoo.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:/cvmfs/soft.computecanada.ca/easybuild/easyconfigs'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx2/Core/opera-ms/0.9.0-20200802/easybuild/reprod/OPERA-MS-0.9.0-20200802-gcccoreflexiblas-2020a-Python-3.8.2.eb'],
-    "core_count": 16,
+    "build_time": 826.16,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='6.0,7.0,7.5,8.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2020/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.16.5[,flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.36[,cURL,Doxygen,expat=:2.2.5[,Mesa,libGLU,SWIG=:3.0.12],PCRE,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.4.0[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2020/cc_hooks.py'", '--ignore-osdeps', "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-backend='Slurm'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/easybuild/framework/eb'", '--minimal-toolchains', '--module-depends-on', '--module-extensions', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'tp=skylake\\', \\'Intel\\': \\'xCore-AVX512\\', \\'GCC\\': \\'march=skylake-avx512\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--rebuild', '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2020'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2020:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2020:'", "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2020'", "--subdir-software='software/2020'", "--subdir-user-modules='.local/easybuild/modules/2020'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2020'", "--testoutput='/shared_tmp/logs/easybuild-build/OPERA-MS-0.9.0-20200802-gcccoreflexiblas-2020a-Python-3.8.2'", "--tmp-logdir='/shared_tmp/logs'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/o/OPERA/OPERA-MS-0.9.0-20200802-gcccoreflexiblas-2020a-Python-3.8.2.eb'],
+    "core_count": 1,
     "cpu_arch": "x86_64",
     "cpu_arch_name": "UNKNOWN",
     "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
-    "cpu_speed": 2494.14,
+    "cpu_speed": 2494.144,
     "cpu_vendor": "Intel",
-    "easybuild-easyblocks_version": "4.5.0-rce21bd8758bda3e28ace9d4e3c7527e50077cd81",
-    "easybuild-framework_version": "4.5.0-rbe97b6553afcefae7f1731e6e0e75462bb032218",
+    "easybuild-easyblocks_version": "4.7.2-rab6c3985ebe153d1ef8eb19864bf85ec40f36e98",
+    "easybuild-framework_version": "4.7.2-r56556e093e457a084308dc2d7eded3e6bbed3b73",
     "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/libexec/gcc/x86_64-pc-linux-gnu/9.3.0/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: ../configure --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2020 --enable-languages=c,c++,fortran --without-cuda-driver --enable-offload-targets=nvptx-none --enable-lto --enable-checking=release --disable-multilib --enable-shared=yes --enable-static=yes --enable-threads=posix --enable-plugins --enable-gold=default --enable-ld --with-plugin-ld=ld.gold --prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --with-local-prefix=/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0 --enable-bootstrap --with-isl=/tmp/ebuser/avx2/GCCcore/9.3.0/system-system/gcc-9.3.0/stage2_stuff --build=x86_64-pc-linux-gnu --host=x86_64-pc-linux-gnu; Thread model: posix; gcc version 9.3.0 (GCC) ; ",
     "glibc_version": "2.30",
-    "hostname": "build-node.computecanada.ca",
-    "install_size": 137207753,
-    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.4.20'),
-    "os_name": "centos linux",
+    "hostname": "node1.int.archimedes.c3.ca",
+    "install_size": 136991035,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.47'),
+    "os_name": "AlmaLinux",
     "os_type": "Linux",
-    "os_version": "7.9.2009",
+    "os_version": "9.4",
     "platform_name": "x86_64-unknown-linux",
     "python_version": "3.7.7 (default, May  5 2020, 15:36:34) ; [GCC 9.3.0]",
     "system_gcc_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/Core/gcccore/9.3.0/bin/gcc",
     "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2020/avx512/Core/python/3.8.2/bin/python",
-    "timestamp": 1643128918,
-    "total_memory": 60232,
+    "timestamp": 1753746031,
+    "total_memory": 29824,
 }]
