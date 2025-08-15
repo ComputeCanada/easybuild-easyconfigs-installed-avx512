@@ -1,0 +1,53 @@
+--- arch/makefile.include.intel.orig	2025-08-11 12:44:46.000000000 -0700
++++ arch/makefile.include.intel	2025-08-11 12:56:27.000000000 -0700
+@@ -48,23 +48,39 @@
+ 
+ # When compiling on the target machine itself, change this to the
+ # relevant target when cross-compiling for another architecture
+-VASP_TARGET_CPU ?= -xHOST
++VASP_TARGET_CPU ?= -march=core-avx2 -axCore-AVX2
+ FFLAGS     += $(VASP_TARGET_CPU)
+ 
+ # Intel MKL (FFTW, BLAS, LAPACK, and scaLAPACK)
+ # (Note: for Intel Parallel Studio's MKL use -mkl instead of -qmkl)
+-FCL        += -qmkl=sequential
+-MKLROOT    ?= /path/to/your/mkl/installation
+-LLIBS      += -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
+-INCS        =-I$(MKLROOT)/include/fftw
++#FCL        += -qmkl=sequential
++#MKLROOT    ?= /path/to/your/mkl/installation
++#LLIBS      += -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
++#INCS        =-I$(MKLROOT)/include/fftw
++
++# Flexiblas  (FFTW, BLAS, LAPACK, and scaLAPACK)
++LLIBS      += -lflexiblas_intel -lscalapack -lfftw3 
++INCS        =-I$(EBROOTFFTW)/include
+ 
+ # HDF5-support (optional but strongly recommended)
+-#CPP_OPTIONS+= -DVASP_HDF5
+-#HDF5_ROOT  ?= /path/to/your/hdf5/installation
+-#LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
+-#INCS       += -I$(HDF5_ROOT)/include
++CPP_OPTIONS+= -DVASP_HDF5
++HDF5_ROOT  ?= $(EBROOTHDF5)
++LLIBS      +=  -lhdf5_fortran
++INCS       += -I$(HDF5_ROOT)/include
+ 
+ # For the VASP-2-Wannier90 interface (optional)
+-#CPP_OPTIONS    += -DVASP2WANNIER90
++CPP_OPTIONS    += -DVASP2WANNIER90
+ #WANNIER90_ROOT ?= /path/to/your/wannier90/installation
+-#LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
++LLIBS          +=  -lwannier
++
++#VASPsol support
++CPP_OPTIONS += -Dsol_compat
++
++#Libxc-support
++CPP_OPTIONS += -DUSELIBXC
++LLIBS       += -lxcf03 -lxc
++
++#Libbeef support
++CPP_OPTIONS += -Dlibbeef
++LLIBS       += -lbeef
++
