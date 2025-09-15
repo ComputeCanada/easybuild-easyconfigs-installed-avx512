@@ -1,0 +1,108 @@
+# Built with EasyBuild version 5.1.1 on 2025-09-15_20-31-31
+easyblock = 'CMakeNinja'
+
+name = 'ParaView'
+version = '6.0.0'
+
+homepage = 'https://www.paraview.org'
+description = "ParaView is a scientific parallel visualizer."
+
+toolchain = {'name': 'gofb', 'version': '2023a'}
+toolchainopts = {'pic': True, 'usempi': True}
+
+local_download_suffix = 'download.php?submit=Download&version=v%(version_major_minor)s&type=source&os=all&downloadFile='
+source_urls = ['https://www.paraview.org/paraview-downloads/%s' % local_download_suffix]
+sources = ["%(name)s-v%(version)s.tar.gz"]
+checksums = [
+    {'ParaView-v6.0.0.tar.gz': 'b89d83d0ad7123c1ce33cba2e6a610b646877ef88c6e96026ac4fe9612665978'},
+]
+
+builddependencies = [
+    ('CMake', '3.31.3'),
+    ('Ninja', '1.12.1')
+]
+
+dependencies = [
+    ('Boost', '1.85.0', '', ('GCC', '12.3.0')),
+    ('SciPy-Stack', '2025a'),
+    ('XZ', '5.6.3'),
+    ('HDF5', '1.14.2'),
+    ('netCDF', '4.9.2'),
+    ('libdrm', '2.4.125'),
+    ('Mesa', '25.1.3'),
+    ('Qt6', '6.5.3'),
+    ('zlib', '1.3.1'),
+    ('FFmpeg', '7.1.1'),
+    ('Szip', '2.1.1'),
+    ('OSPRay', '2.12.0'),       # Leads to incorrect coloring when using ospray 3.x
+    ('OpenVKL', '1.3.2'),
+    ('tbb', '2021.10.0'),
+]
+
+# these libraries depend on a specific version of python, move them to their own directory
+python_dependent_libs = ['libpqComponents-pv6.0.so*', 'libpqCore-pv6.0.so*', 'libpqPython-pv6.0.so*', 'libpqWidgets-pv6.0.so*', 'libvtkFiltersPython-pv6.0.so*', 'libvtkPVAdaptorsCTH-pv6.0.so*', 'libvtkPVAdaptorsCam-pv6.0.so*', 'libvtkPVAdaptorsNPIC-pv6.0.so*', 'libvtkPVAdaptorsPagosa-pv6.0.so*', 'libvtkPVAdaptorsParticle-pv6.0.so*', 'libvtkPVAdaptorsPhasta-pv6.0.so*', 'libvtkPVCatalyst-pv6.0.so*', 'libvtkPVClientWeb-pv6.0.so*', 'libvtkPVInSitu-pv6.0.so*', 'libvtkPVPythonCatalyst-pv6.0.so*', 'libvtkPVVTKExtensionsExtraction-pv6.0.so*', 'libvtkPVVTKExtensionsExtractionPython-pv6.0.so*', 'libvtkPVVTKExtensionsFiltersGeneral-pv6.0.so*', 'libvtkPVVTKExtensionsFiltersParallel-pv6.0.so*', 'libvtkPVVTKExtensionsFiltersParallelDIY2-pv6.0.so*', 'libvtkPVVTKExtensionsFiltersPython-pv6.0.so*', 'libvtkPVVTKExtensionsFiltersRendering-pv6.0.so*', 'libvtkPVVTKExtensionsIOAMR-pv6.0.so*', 'libvtkPVVTKExtensionsIOCore-pv6.0.so*', 'libvtkPVVTKExtensionsIOExodus-pv6.0.so*', 'libvtkPVVTKExtensionsIOGeneral-pv6.0.so*', 'libvtkPVVTKExtensionsIOImage-pv6.0.so*', 'libvtkPVVTKExtensionsIOImport-pv6.0.so*', 'libvtkPVVTKExtensionsIOSPCTH-pv6.0.so*', 'libvtkPVVTKExtensionsMisc-pv6.0.so*', 'libvtkPythonInterpreter-pv6.0.so*', 'libvtkRemotingApplication-pv6.0.so*', 'libvtkRemotingApplicationComponents-pv6.0.so*', 'libvtkRemotingCore-pv6.0.so*', 'libvtkRemotingExport-pv6.0.so*', 'libvtkRemotingImport-pv6.0.so*', 'libvtkRemotingLive-pv6.0.so*', 'libvtkRemotingMisc-pv6.0.so*', 'libvtkRemotingServerManager-pv6.0.so*', 'libvtkRemotingServerManagerPython-pv6.0.so*', 'libvtkRemotingSettings-pv6.0.so*', 'libvtkRemotingViews-pv6.0.so*', 'libvtkRemotingViewsPython-pv6.0.so*', 'libvtkRenderingMatplotlib-pv6.0.so*', 'libvtkUtilitiesPythonInitializer-pv6.0.so*', 'libvtkUtilitiesPythonInterpreterPath-pv6.0.so*']
+installopts = ' install && mkdir %(installdir)s/lib-py%(pyshortver)s && cd %(installdir)s/lib && cp -a ' + ' '.join(python_dependent_libs) +  ' %(installdir)s/lib-py%(pyshortver)s #'
+
+multi_deps = {'Python': ['3.10', '3.11', '3.12', '3.13'] }
+
+postinstallcmds = ['/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %%(installdir)s/lib/python%s --add_path %%(installdir)s/lib-py%s:%%(installdir)s/lib' % (v, v) for v in multi_deps['Python']]
+postinstallcmds += ['/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %%(installdir)s/lib-py%s --add_origin' % v for v in multi_deps['Python']]
+
+
+_copts = [
+    # Basic configuration
+    '-DPARAVIEW_INSTALL_DEVELOPMENT_FILES=ON',
+    '-DPARAVIEW_BUILD_SHARED_LIBS=ON',
+    '-DPARAVIEW_USE_MPI=ON',
+    '-DPARAVIEW_ENABLE_FFMPEG=ON',
+    '-DPARAVIEW_USE_PYTHON=ON',
+    '-DPython3_ROOT_DIR=$EBROOTPYTHON',
+    '-DPARAVIEW_USE_QT=ON',
+    '-DPARAVIEW_PLUGIN_ENABLE_pvNVIDIAIndeX=ON',
+    '-DPARAVIEW_ENABLE_RAYTRACING=ON',
+    # Useful input formats
+    '-DPARAVIEW_ENABLE_XDMF2=ON',
+    '-DPARAVIEW_ENABLE_XDMF3=ON',
+    # EGL, X and Mesa
+    '-DVTK_OPENGL_HAS_EGL=ON',
+    '-DVTK_USE_X=ON',
+]
+configopts = ' '.join(_copts)
+
+sanity_check_paths = {
+    'files': ['bin/paraview', 'bin/pvserver', 'bin/pvpython', 'bin/pvbatch'],
+    'dirs': ['include/paraview-%(version_major_minor)s', 'lib/python%(pyshortver)s/site-packages'],
+}
+
+sanity_check_commands = ['python -c "import paraview"']
+
+
+moduleclass = 'vis'
+
+# Build statistics
+buildstats = [{
+    "build_time": 25770.04,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", '--disable-cleanup-tmpdir', "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='7.0,8.0,9.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut,minizip,imlib2,libheif,libde265,x265'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'-march=x86-64-v4\\', \\'Intel\\': \\'-march=skylake-avx512\\', \\'GCC\\': \\'-march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", '--disable-rpath', "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--sourcepath-data='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--testoutput='/shared_tmp/logs/easybuild-build/ParaView-6.0.0-gofb-2023a'", "--tmp-logdir='/shared_tmp/logs'", "--use-ccache=''", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/p/ParaView/ParaView-6.0.0-gofb-2023a.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "skylake_avx512",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2095.078,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "5.1.1",
+    "easybuild-framework_version": "5.1.1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "node2.int.archimedes.c3.ca",
+    "install_size": 2403687859,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.47'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.4 (Seafoam Ocelot)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.13.2/bin/python",
+    "timestamp": 1757967930,
+    "total_memory": 29824,
+}]
