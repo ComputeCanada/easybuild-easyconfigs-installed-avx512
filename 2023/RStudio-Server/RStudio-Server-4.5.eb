@@ -1,0 +1,128 @@
+# Built with EasyBuild version 5.1.2 on 2025-11-07_03-29-20
+easyblock = 'CMakeNinja'
+
+name = 'RStudio-Server'
+version = '4.5'
+
+homepage = 'https://www.rstudio.com/'
+description = """RStudio Server enables you to provide a browser
+based interface to a version of R running on a remote Linux
+server, bringing the power and productivity of the
+RStudio IDE to server-based deployments of R."""
+
+toolchain = {'name': 'GCCcore', 'version': '13.3.0'}
+
+source_urls = ['https://github.com/rstudio/rstudio/archive/']
+sources = ['v2025.09.2+418.tar.gz']
+checksums = ['7e64e65bd3457855e981698dfb61f84e23de0d8bfcb2b1ffc28a38b5b964a769']
+
+#patches = ['rstudio-1.2.1335.patch']
+
+builddependencies = [
+    ('gcccoreflexiblas', '2024a'),
+    ('Boost', '1.87.0', '-core'),
+    ('ant', '1.10.14'),
+    ('SOCI', '4.0.3'),
+    ('CMake', '3.31.0'),
+    ('nodejs', '20.16.0'),
+    ('yaml-cpp', '0.8.0'),
+    ('Java', '17.0.6'),
+]
+
+dependencies = [
+    ('R', '%(version)s.0', '', ('gcccoreflexiblas', '2023a')),
+]
+
+separate_build_dir = False
+
+preconfigopts = " && ".join([
+    "sed -i 's/^add_subdirectory(pam)$/# add_subdirectory(pam)/' src/cpp/server/CMakeLists.txt",
+    "unset JAVA_TOOLS_OPTIONS",
+    "export RSTUDIO_TOOLS_ROOT='%(builddir)s'", # otherwise sudo
+    "cd %(builddir)s/rstudio-*/dependencies/common",
+    "./install-cef",
+    "./install-dictionaries",
+    "./install-npm-dependencies",
+    "./install-mathjax",
+    "./install-pandoc",
+    "./install-panmirror",
+    "./install-packages",
+    "./install-copilot-language-server",
+    "./install-gwt",
+    "cd %(builddir)s/rstudio-*/",
+    "", # To append &&
+])
+
+configopts = " ".join([
+    "-DRSTUDIO_TOOLS_ROOT='%(builddir)s'",
+    "-DRSTUDIO_TARGET=Server",
+    "-DRSTUDIO_BOOST_SIGNALS_VERSION=2",
+    "-DSOCI_CORE_LIB=$EBROOTSOCI/lib/libsoci_core.so",
+    "-DSOCI_POSTGRESQL_LIB=$EBROOTSOCI/lib/libsoci_postgresql.so",
+    "-DSOCI_SQLITE_LIB=$EBROOTSOCI/lib/libsoci_sqlite3.so",
+    "-DRSTUDIO_BOOST_REQUESTED_VERSION=$EBVERSIONBOOST",
+    "-DRSTUDIO_USE_SYSTEM_BOOST=ON",
+    "-DRSTUDIO_USE_SYSTEM_SOCI=ON",
+    "-DQUARTO_ENABLED=OFF",
+    "-DRSTUDIO_USE_SYSTEM_YAML_CPP=ON",
+    "-DRSTUDIO_USE_PAM=OFF",
+])
+
+# R has a dep on Java 17 which is incompatible at build time, so explicitly use 11 here...
+#prebuildopts = "module load java/11.0.22 && "
+
+sanity_check_paths = {
+    'files': ["bin/rstudio-server", "bin/rsession", "bin/rserver", "bin/rpostback"],
+    'dirs': ["R", "resources", "www", "www-symbolmaps"],
+}
+
+sanity_check_commands = [
+    # This command requires environment variables R_HOME and R_DOC_DIR
+    "R_HOME=$EBROOTR/lib64/R R_DOC_DIR=$R_HOME/doc rsession --verify-installation=1",
+
+    # This command requires a db conf (this may also be needed for live use)
+    # and need the current user, otherwise defaults to root
+    ' && '.join([
+        'MYTMP=$(mktemp -d)',
+        'echo -e "provider=sqlite\ndirectory=$MYTMP/db" >> $MYTMP/db.conf',
+        'rserver --verify-installation=1 --database-config-file=$MYTMP/db.conf --server-data-dir=$MYTMP/sdd --server-user=$USER',
+    ])
+]
+
+# do not store user state in home directories, but keep backward compat
+# for users starting an interactive job with rstudio
+modluafooter = """
+if os.getenv('SLURM_TMPDIR') then
+    setenv('RSTUDIO_DATA_HOME', pathJoin(os.getenv('SLURM_TMPDIR'), '.rstudio/{version}'))
+else
+    setenv('RSTUDIO_DATA_HOME', pathJoin(os.getenv('HOME'), '.rstudio/{version}'))
+end
+""".format(version=version)
+
+# Build statistics
+buildstats = [{
+    "build_time": 9278.83,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='7.0,8.0,9.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp=:0.8.0[,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut,minizip,imlib2,libheif,libde265,x265'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'-march=x86-64-v4\\', \\'Intel\\': \\'-march=skylake-avx512\\', \\'GCC\\': \\'-march=x86-64-v4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", '--disable-rpath', "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--sourcepath-data='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--tmp-logdir='/shared_tmp/logs'", "--use-ccache=''", '--use-existing-modules', 'RStudio-Server-4.5-GCCcore-13.3.0.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "cascadelake",
+    "cpu_model": "Intel Xeon Processor (Skylake, IBRS)",
+    "cpu_speed": 2494.138,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "5.1.2",
+    "easybuild-framework_version": "5.1.2",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/13/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-13.3.0/work/gcc-13.3.0/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/13 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/13/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/include/g++-v13 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/13/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 13.3.0 p16' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 13.3.0 (Gentoo 13.3.0 p16) ; ",
+    "glibc_version": "2.37",
+    "hostname": "node3.int.archimedes.c3.ca",
+    "install_size": 684794031,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.60'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.4 (Seafoam Ocelot)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/13/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/python",
+    "timestamp": 1762483638,
+    "total_memory": 29824,
+}]
