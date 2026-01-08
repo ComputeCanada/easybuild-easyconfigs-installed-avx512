@@ -1,0 +1,155 @@
+# Built with EasyBuild version 5.2.0 on 2026-01-08_13-31-06
+easyblock = "CMakeMake"
+
+name = "OpenCV"
+version = "4.13.0"
+
+homepage = "http://opencv.org/"
+description = """OpenCV (Open Source Computer Vision Library) is an open source computer vision
+ and machine learning software library. OpenCV was built to provide
+ a common infrastructure for computer vision applications and to accelerate
+ the use of machine perception in the commercial products."""
+
+toolchain = {"name": "gccflexiblascuda", "version": "2023.1.129"}
+
+sources = [
+    {
+        # opencv
+        'source_urls': ["https://github.com/%(namelower)s/%(namelower)s/archive/"],
+        "download_filename": "%(version)s.zip",
+        "filename": "%(name)s-%(version)s.zip"
+    },
+    {
+        # opencv-contrib
+        'source_urls': ['https://github.com/%(namelower)s/opencv_contrib/archive/'],
+        'download_filename': '%(version)s.tar.gz',
+        'filename': '%(name)s-contrib-%(version)s.tar.gz',
+    }
+]
+patches = ["%(name)s-4.2.0-hal-internal.patch"]
+
+builddependencies = [
+    ("ant", "1.10.14"),
+    ("Java", "17"),
+    ("Eigen", "3.4.0"),
+    ("JasPer", "4.0.0"),
+    ("CMake", "3.27.7"),
+    ('HDF5', '1.14.2'),
+    # ("Julia", "1.9.3"),
+    ('numpy', '2.1.1'),
+    ('cuDNN', '9.13.1.26')
+]
+
+multi_deps = {"Python": ["3.11", "3.12", "3.13"]}
+multi_deps_load_default = False
+
+configopts = " ".join(
+    [
+        "-DWITH_IPP=ON",
+        "-DWITH_OPENMP=ON",
+        "-DWITH_CUDA=ON",
+        "-DWITH_NVCUVID=OFF",
+        "-DWITH_NVCUVENC=OFF",
+        "-DCMAKE_CUDA_ARCHITECTURES='%(cuda_cc_cmake)s'",
+        "-DENABLE_CUDA_FIRST_CLASS_LANGUAGE=ON",
+        "-DBUILD_opencv_cudev=ON",
+        "-DOPENCV_SKIP_LAPACK_EXTERN_C=ON",
+        "-DPYTHON_PACKAGES_PATH=%(installdir)s/lib/python%(pyshortver)s/site-packages",
+        "-DPYTHON3_EXECUTABLE=$EBROOTPYTHON/bin/python3",
+        "-DPYTHON3_NUMPY_INCLUDE_DIRS=$EBROOTNUMPY/lib/python%(pyshortver)s/site-packages/numpy/_core/include",
+        "-DENABLE_HEADLESS=ON",
+        "-DENABLE_CONTRIB=ON",
+        "-DOPENCV_EXTRA_MODULES_PATH=%(builddir)s/opencv_contrib-%(version)s/modules",
+        "-DOPENCV_GENERATE_PKGCONFIG=ON",
+    ]
+)
+
+# Provide four names as somes packages request one of the four, but mostly `opencv_python` or `opencv_contrib_python` is used.
+local_dist_names = ['opencv_python', 'opencv_contrib_python', 'opencv_python_headless', 'opencv_contrib_python_headless']
+
+# This step does not iterate as sanity_check does.
+postinstallcmds = [
+    local_cmd.format(py=local_py)
+    for local_py in multi_deps["Python"]
+    for local_cmd in
+        ["/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --path %(installdir)s/lib/python{py}/site-packages --add_path %(installdir)s/lib64"] +
+        ["mkdir -p %(installdir)s/lib/python{py}/site-packages/{dist}-%(version)s.dist-info && echo -e 'Metadata-Version: 2.3\nName: {dist}\nVersion: %(version)s' > %(installdir)s/lib/python{py}/site-packages/{dist}-%(version)s.dist-info/METADATA".format(py='{py}', dist=dist)
+         for dist in local_dist_names]
+]
+
+local_contrib_libs = [
+    "alphamat", "aruco", "bgsegm", "bioinspired", "ccalib", "cudaarithm", "cudabgsegm", "cudacodec", "cudafeatures2d", "cudafilters",
+    "cudaimgproc", "cudalegacy", "cudaobjdetect", "cudaoptflow", "cudastereo", "cudawarping", "cudev", "datasets", "dnn_objdetect",
+    "dnn_superres", "dpm", "face", "freetype", "fuzzy", "hdf", "hfs", "img_hash", "line_descriptor", "optflow", "phase_unwrapping",
+    "plot", "quality", "reg", "rgbd", "saliency", "shape", "stereo", "structured_light", "superres", "surface_matching", "text",
+    "tracking", "videostab", "xfeatures2d", "ximgproc", "xobjdetect", "xphoto"
+]
+
+sanity_check_paths = {
+    "files": [
+        "lib/libopencv_core.so",
+        "bin/opencv_annotation",
+        "bin/opencv_interactive-calibration",
+        "bin/opencv_version",
+        "bin/opencv_visualisation",] + [
+        "lib/python%(pyshortver)s/site-packages/{}-%(version)s.dist-info/METADATA".format(n) for n in local_dist_names] + [
+        "lib64/libopencv_{}.so".format(l) for l in local_contrib_libs],
+    "dirs": [
+        "bin",
+        "include",
+        "lib/python%(pyshortver)s/site-packages",
+        "lib64",
+        "share"
+    ],
+}
+
+sanity_check_commands = [
+    "module load scipy-stack && python -c 'import cv2'",
+]
+
+modextrapaths = {
+    "CLASSPATH": "share/java/opencv4",
+    "EBPYTHONPREFIXES": "",
+}
+
+# Depends on any numpy at runtime.
+modluafooter = """
+if convertToCanonical(LmodVersion()) >= convertToCanonical("8.2.9") then
+  depends_on("scipy-stack")
+end
+
+if convertToCanonical(LmodVersion()) >= convertToCanonical("8.2.9") then
+    extensions("{}")
+end
+""".format(",".join(["{}/{}".format(dist, version) for dist in local_dist_names]))
+
+
+moduleclass = "vis"
+
+# Build statistics
+buildstats = [{
+    "build_time": 9576.65,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--buildpath='/tmp/ebuser/avx512'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='7.0,8.0,9.0,10.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:3.26.5],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.42.0],cURL,Doxygen,expat=:2.5.0],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.9.1[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp=:0.8.0[,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut,minizip,imlib2,libheif,libde265,x265'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2023/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2023/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/compiler/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'-march=x86-64-v4\\', \\'Intel\\': \\'-march=skylake-avx512\\', \\'GCC\\': \\'-march=x86-64-v4\\', \\'LLVM\\': \\'-march=x86-64-v4 -mtune=znver5\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2023'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2023:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2023:'", '--disable-rpath', "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--sourcepath-data='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2023'", "--subdir-software='software/2023'", "--subdir-user-modules='.local/easybuild/modules/2023'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3'", "--testoutput='/shared_tmp/logs/easybuild-build/OpenCV-4.13.0-gccflexiblascuda-2023.1.129'", "--tmp-logdir='/shared_tmp/logs'", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/o/OpenCV/OpenCV-4.13.0-gccflexiblascuda-2023.1.129.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "icelake",
+    "cpu_model": "Intel Xeon Processor (SapphireRapids)",
+    "cpu_speed": 2300.0,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "5.2.0",
+    "easybuild-framework_version": "5.2.0",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/12/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; Target: x86_64-pc-linux-gnu; Configured with: /cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/var/tmp/portage/sys-devel/gcc-12.3.1_p20230526/work/gcc-12-20230526/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/12/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/12/include/g++-v12 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/12/python --enable-languages=c,c++,fortran --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 12.3.1_p20230526 p2' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-libgomp --disable-libssp --disable-libada --disable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --disable-default-pie --disable-default-ssp --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config=bootstrap-lto; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 12.3.1 20230526 (Gentoo 12.3.1_p20230526 p2) ; ",
+    "glibc_version": "2.37",
+    "hostname": "nodepoolcpusmall1.int.archimedes.c3.ca",
+    "install_size": 2511156162,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/custom/software/lmod/lmod/libexec/lmod', '8.7.60'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.7 (Moss Jungle Cat)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.11.4 (main, Nov  4 2023, 03:43:13) [GCC 12.3.1 20230526]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/12/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v4/Compiler/gcccore/python/3.13.2/bin/python",
+    "timestamp": 1767897039,
+    "total_memory": 15729,
+}]
