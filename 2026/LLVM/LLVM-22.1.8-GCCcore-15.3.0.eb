@@ -1,0 +1,121 @@
+# Built with EasyBuild version 5.4.0 on 2026-09-17_14-19-53
+name = 'LLVM'
+version = '22.1.8'
+modaltsoftname = 'llvmcore'
+hidden = True
+
+homepage = "https://llvm.org/"
+description = """
+The LLVM Core libraries provide a modern source- and target-independent
+optimizer, along with code generation support for many popular CPUs
+(as well as some less common ones!) These libraries are built around a well
+specified code representation known as the LLVM intermediate representation
+("LLVM IR"). The LLVM Core libraries are well documented, and it is
+particularly easy to invent your own language (or port an existing compiler)
+to use LLVM as an optimizer and code generator.
+"""
+
+toolchain = {'name': 'GCCcore', 'version': '15.3.0'}
+toolchainopts = {
+    'pic': True,
+}
+
+source_urls = ['https://github.com/llvm/llvm-project/releases/download/llvmorg-%(version)s/']
+sources = [
+    'llvm-project-%(version)s.src.tar.xz',
+]
+patches = [
+    'LLVM-18.1.8_envintest.patch',
+    'LLVM-19.1.7_clang_rpathwrap_test.patch',
+]
+checksums = [
+    {'llvm-project-22.1.8.src.tar.xz': '922f1817a0df7b1489272d18134ee0087a8b068828f87ac63b9861b1a9965888'},
+    {'LLVM-18.1.8_envintest.patch': '8e25dfab8a29a860717b4bd2d8cdd0e795433766d7fffbda32d06a2bde47058d'},
+    {'LLVM-19.1.7_clang_rpathwrap_test.patch': '5ee6a87ec8ff1c8b736ffe0513aa2098bd2b83a1ffc647a1ad2cf966f567e8a1'},
+]
+
+builddependencies = [
+    ('binutils', '2.46.1'),
+    ('Python', '3.14.7'),
+    ('CMake', '4.4.2'),
+    #('psutil', '7.2.1'),  # Needed to enable test timeout in lit
+    #('lit', '18.1.8'),
+    ('git', '2.54.0'),
+]
+
+dependencies = [
+    ('libffi', '3.5.2'),
+    ('libxml2', '2.15.1'),
+    ('ncurses', '6.6'),
+    ('zlib', '2.3.3'),
+    ('Z3', '4.15.4'),
+    ('zstd', '1.5.7'),
+]
+
+
+build_shared_libs = True
+
+bootstrap = True
+full_llvm = False
+build_clang_extras = True
+build_runtimes = True
+build_lld = True
+build_lldb = True
+build_bolt = True
+build_openmp = True
+build_openmp_tools = True
+build_openmp_offload = True
+use_polly = True
+
+python_bindings = True
+
+build_targets = ['all']
+# disable_werror = True
+
+pretestopts = "pip install --target %(builddir)s/lit lit==18.1.8 && PATH=$PATH:%(builddir)s/lit/bin PYTHONPATH=%(builddir)s/lit "
+
+skip_all_tests = True
+skip_sanitizer_tests = True
+test_suite_max_failed = 10
+test_suite_timeout_single = 5 * 60
+test_suite_ignore_patterns = [
+    "X86/register-fragments-bolt-symbols.s",
+    "modularize/ProblemsCoverage.modularize",
+    "Driver/atomic.f90",
+    "Driver/gcc-toolchain-install-dir.f90",
+    "api_tests/test_ompd_get_icv_from_scope.c",
+    "std/time/time.syn/formatter",
+    # Those 2 might fail with "tzdb: the path '/etc/localtime' is not a symlink"
+    "std/time/time.zone/time.zone.db/time.zone.db.tzdb",
+    "std/time/time.zone/time.zone.db/time.zone.db.access",
+]
+
+moduleclass = 'compiler'
+
+# Build statistics
+buildstats = [{
+    "build_time": 9099.06,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--amdgcn-capabilities='gfx942'", "--buildpath='/tmp/ebuser/avx512'", "--bwrap-installpath='/cvmfs/soft.computecanada.ca/easybuild/bwrap'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2026/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='8.0,9.0,10.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:4.3.4],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.53.3],cURL,Doxygen,expat=:2.8.3],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.12.2[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp=:0.8.0[,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut,minizip,imlib2,libheif,libde265,x265,XSD,libnsl,xxd,elfutils,glog,CppHeaderParser,libglvnd,OpenGL'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2026/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2026/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/compiler/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'-march=x86-64-v4\\', \\'Intel\\': \\'-march=x86-64-v4\\', \\'GCC\\': \\'-march=x86-64-v4\\', \\'LLVM\\': \\'-march=x86-64-v4 -mtune=znver5\\', \\'ROCm\\': \\'-march=x86-64-v4 -mtune=znver4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2026'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2026:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2026:'", '--disable-rpath', "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--sourcepath-data='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2026'", "--subdir-software='software/2026'", "--subdir-user-modules='.local/easybuild/modules/2026'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3'", "--testoutput='/shared_tmp/logs/easybuild-build/LLVM-22.1.8-GCCcore-15.3.0'", "--tmp-logdir='/shared_tmp/logs'", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/l/LLVM/LLVM-22.1.8-GCCcore-15.3.0.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "sapphirerapids",
+    "cpu_model": "Intel Xeon Processor (SapphireRapids)",
+    "cpu_speed": 2300.0,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "5.4.0",
+    "easybuild-framework_version": "5.4.0",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/15/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; OFFLOAD_TARGET_DEFAULT=1; Target: x86_64-pc-linux-gnu; Configured with: /tmp/portage/sys-devel/gcc-15.3.0/work/gcc-15.3.0/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/15 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/15/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/15/python --enable-languages=c,c++,fortran,jit --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 15.3.0 p8' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-linker-build-id --disable-libada --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-offload-defaulted --enable-offload-targets=nvptx-none --enable-libgomp --disable-libssp --enable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --enable-host-bind-now --disable-default-ssp --disable-fixincludes --with-gxx-libcxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/include/c++/v1 --enable-host-shared --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config='bootstrap-lto bootstrap-cet'; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 15.3.0 (Gentoo 15.3.0 p8) ; ",
+    "glibc_version": "2.43",
+    "hostname": "hybridmedium2.int.archimedes.c3.ca",
+    "install_size": 4315487906,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/Lmod/libexec/lmod', '9.4'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.8 (Olive Jaguar)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.14.6 (main, Aug 13 2026, 00:27:15) [GCC 15.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/bin/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2026/x86-64-v4/Compiler/gcccore/python/3.14.7/bin/python",
+    "timestamp": 1789654776,
+    "total_memory": 29817,
+}]
