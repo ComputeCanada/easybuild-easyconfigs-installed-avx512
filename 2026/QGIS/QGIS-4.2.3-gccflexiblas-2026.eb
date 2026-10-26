@@ -1,0 +1,157 @@
+# Built with EasyBuild version 5.4.1 on 2026-10-26_21-16-28
+easyblock = 'CMakeMake'
+
+name = 'QGIS'
+version = '4.2.3'
+
+homepage = 'http://www.qgis.org/'
+description = "QGIS is a user friendly Open Source Geographic Information System (GIS)"
+
+toolchain = {'name': 'gccflexiblas', 'version': '2026'}
+toolchainopts = {'pic': True, 'cstd': 'gnu++11'}
+
+source_urls = ['http://qgis.org/downloads/']
+sources = [SOURCELOWER_TAR_BZ2]
+patches = ['QGIS-4.2.3_drop-QTEST_DISABLE_KEYPAD_NAVIGATION.patch']
+checksums = [
+    {'qgis-4.2.3.tar.bz2': 'b044889d895c07d9355512cba76973822830153f6f15feb0d5e00077d3d76e59'},
+    {'QGIS-4.2.3_drop-QTEST_DISABLE_KEYPAD_NAVIGATION.patch':
+     '39c27c2fb849e36b1a0803efb5f86463787b9e60eef2b8ab61896678572df55d'},
+]
+
+builddependencies = [
+    ('CMake', '4.4.2'),
+    ('flex', '2.6.4'),
+    ('Bison', '3.8.2'),
+    ('PostgreSQL', '18.6'),
+    ('Abseil', '20260107.1'),
+    ('HDF', '4.4.0'),
+]
+
+dependencies = [
+#    ('Qt5Webkit', '5.212.0-alpha4'), # replaced by QtWebEngine, not used
+    ('Qt6', '6.12.0'),
+    ('SQLite', '3.51.1'),
+    ('GDAL', '3.13.3'),
+#    ('libspatialindex', '2.1.0'), # using vendored one because of incompatibility
+    ('Qwt', '6.3.0'),
+#    ('QwtPolar', '1.1.1'),
+    ('expat', '2.7.3'),
+    ('QCA', '2.3.12'),
+    ('QScintilla', '2.14.1'),
+    ('GSL', '2.8'),
+#    ('QJson', '0.9.0'),
+    ('libzip', '1.11.4'),
+    ('QtKeychain', '0.17.0'),
+    ('ICU', '78.3'),
+    ('protobuf', '36.1'),
+    ('SciPy-Stack', '2026b'),
+    ('PDAL', '2.10.2'),
+    ('draco', '1.5.7'),
+]
+multi_deps = {'Python': ['3.14'] }
+separate_build_dir = True
+
+# specify locations that CMake can't figure out correctly
+_copts = [
+	"-DCMAKE_PREFIX_PATH=$EBROOTQT6",
+	"-DQSCINTILLA_LIBRARY=$EBROOTQSCINTILLA/lib/libqscintilla2_qt6.%s" % SHLIB_EXT,
+	"-DWITH_QTWEBENGINE=OFF",
+	"-DPYQT6_SIP_DIR=$EBROOTQT6/lib/python%(pyshortver)s/site-packages/PyQt6/bindings",
+	"-DQSCI_SIP_DIR=$EBROOTQSCINTILLA/share/sip/PyQt6",
+	"-DWITH_INTERNAL_SPATIALINDEX=ON",
+]
+configopts = ' '.join(_copts)
+
+prebuildopts = 'LIBRARY_PATH=$LIBRARY_PATH:$EBROOTGENTOO/lib64/pulseaudio '
+
+sanity_check_paths = {
+    'files': ['bin/qgis', 'bin/qgis_bench', 'lib/libqgis_analysis.%s' % SHLIB_EXT,
+              'lib/libqgis_app.%s' % SHLIB_EXT, 'lib/libqgis_core.%s' % SHLIB_EXT, 'lib/libqgis_gui.%s' % SHLIB_EXT,
+              'lib/libqgis_native.%s' % SHLIB_EXT, 'lib/libqgispython.%s' % SHLIB_EXT],
+    'dirs': ['include/qgis', 'man', 'share/qgis'],
+}
+
+postinstallcmds = [
+	"/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --any_interpreter --add_origin --add_path %(installdir)s/lib --path %(installdir)s/lib/qgis/plugins ",
+	"/cvmfs/soft.computecanada.ca/easybuild/bin/setrpaths.sh --any_interpreter --add_origin --add_path %(installdir)s/lib --path %(installdir)s/share/qgis/python ",
+]
+
+exts_defaultclass = 'PythonPackage'
+exts_default_options = {
+    'source_urls': [PYPI_SOURCE],
+    'sanity_pip_check': False,
+}
+exts_list = [
+    ('psycopg2', '2.9.13', {
+        'checksums': ['d36784fc2dae69523ba4b79c7d1d1b4d6e83e87836874f111262f4db940b16a6'],
+    }),
+    ('PyYAML', '6.0.3', {
+        'modulename': 'yaml',
+        'sources': ['%(namelower)s-%(version)s.tar.gz'],
+        'checksums': ['d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f'],
+    }),
+    ('requests', '2.34.2', {
+        'checksums': ['f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed'],
+    }),
+    ('urllib3', '2.7.0', {
+        'checksums': ['231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c'],
+    }),
+    ('idna', '3.19', {
+        'checksums': ['5e0811a4383b21dc5838069f801c4fb62113b7447663d2530d2bd6e77b49bf15'],
+    }),
+    ('lxml', '6.1.3', {
+        'checksums': ['45222d94ddd511536f3b2f7d9deae3b2339b4ce0f075f1ca25703b07cad9dd21'],
+    }),
+    ('OWSLib', '0.36.0', {
+        'modulename': 'owslib',
+        'sources': ['%(namelower)s-%(version)s.tar.gz'],
+        'checksums': ['b1ea352ee84f37a1a8ae44122b13cbd3b5b7bf9af0f74d84fe9ed7d9613b9543'],
+    }),
+    ('MarkupSafe', '3.0.4', {
+        'modulename': 'markupsafe',
+        'sources': ['%(namelower)s-%(version)s.tar.gz'],
+        'checksums': ['2e9ad7dd851bf45fab9f75cbff4cb493fee9979e8d8c7c9c3ee119022518edd6'],
+    }),
+    ('Jinja2', '3.1.6', {
+        'modulename': 'jinja2',
+        'sources': ['%(namelower)s-%(version)s.tar.gz'],
+        'checksums': ['0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d'],
+    }),
+]
+
+exts_filter = ("python -c 'import %(ext_name)s'", '')
+modextrapaths = {
+    'EBPYTHONPREFIXES': [''],
+    'PYTHONPATH': ['share/qgis/python', 'share/qgis/python/plugins'],
+}
+
+moduleclass = 'geo'
+
+# Build statistics
+buildstats = [{
+    "build_time": 6380.9,
+    "command_line": ['--add-system-to-minimal-toolchains', "--allow-loaded-modules='gentoo'", "--amdgcn-capabilities='gfx942'", "--buildpath='/tmp/ebuser/avx512'", "--bwrap-installpath='/cvmfs/soft.computecanada.ca/easybuild/bwrap'", "--configfiles='/cvmfs/soft.computecanada.ca/easybuild/config.cfg,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2026/config.cfg'", "--containerpath='/cvmfs/soft.computecanada.ca/easybuild/containers'", "--cuda-compute-capabilities='8.0,9.0,10.0'", '--enforce-checksums', "--env-for-shebang='/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/bin/env -S'", "--filter-deps='Bison,CMake=:4.3.4],flex,ncurses,libreadline,gzip,bzip2,zlib,binutils,M4,Autoconf,Automake,libtool,Autotools,Szip,libxml2,SQLite=:3.53.3],cURL,Doxygen,expat=:2.8.3],Mesa,libGLU,PCRE,PCRE2,libjpeg-turbo,LibTIFF,libpng,XZ,gettext,X11,pkg-config,pkgconf,libdrm,gperf,FLTK,fontconfig,freetype,GMP,GL2PS,GraphicsMagick,MPFR,libmatheval,Tcl,Tk,libX11,libXft,libXpm,libXext,libXt,make,makedepend,cairo,libiconv,FFmpeg,GLib,FLANN,hwloc=:2.12.2[,numactl,DBus,texinfo,libsndfile,Pango,Lua,FreeImage,zstd,util-linux,file,GTK+,GTK3,libunwind,LAME,NASM,x264,x265,FriBidi,ASSIMP,libarchive,ImageMagick,Ghostscript,Tkinter,libtirpc,Zip,SDL2,GST-plugins-base,libevent,tcsh,time,libedit,libpciaccess,UnZip,Check,OpenSSL,giflib,libwebp,git,libgit2,patchelf,snappy,re2c,double-conversion,HarfBuzz,graphite2,NSS,libffi,json-c,Xerces-C++,OpenEXR,OpenJPEG,Brotli,Highway,Tktable,yaml-cpp=:0.8.0[,fmt,Blosc,libgd,gawk,GLPK,makeinfo,matplotlib,glew,GLM,Z3,freeglut,minizip,imlib2,libheif,libde265,x265,XSD,libnsl,xxd,elfutils,glog,CppHeaderParser,libglvnd,OpenGL,Vulkan,Wayland'", "--filter-env-vars='LD_LIBRARY_PATH,LD_PRELOAD'", '--disable-fixed-installdir-naming-scheme', "--hide-deps='icc,ifort,GCCcore'", "--hide-toolchains='GCCcore,iompi,iomkl,gompic'", "--hooks='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/2026/cc_hooks.py'", '--ignore-osdeps', "--include-easyblocks='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyblocks/2026/easybuild/easyblocks/*/*.py'", "--include-module-naming-schemes='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/SoftCCHierarchicalMNS.py'", "--include-toolchains='/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/*.py,/cvmfs/soft.computecanada.ca/easybuild/easybuild-computecanada-config/toolchains/compiler/*.py'", "--installpath='/cvmfs/soft.computecanada.ca/easybuild'", "--job-cores='8'", "--job-eb-cmd='srun --mpi=none --ntasks=1 /cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/bin/eb'", '--disable-map-toolchains', '--minimal-toolchains', "--module-naming-scheme='SoftCCHierarchicalMNS'", "--optarch='{\\'NVHPC\\': \\'-march=x86-64-v4\\', \\'Intel\\': \\'-march=x86-64-v4\\', \\'GCC\\': \\'-march=x86-64-v4\\', \\'LLVM\\': \\'-march=x86-64-v4 -mtune=znver5\\', \\'ROCm\\': \\'-march=x86-64-v4 -mtune=znver4\\'}'", "--packagepath='/cvmfs/soft.computecanada.ca/easybuild/packages'", "--parallel='8'", "--prefix='/cvmfs/soft.computecanada.ca/easybuild'", '--recursive-module-unload', "--repository='GitRepository'", "--repositorypath='/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512.git,2026'", "--robot-paths='/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo_avx512/2026:/cvmfs/soft.computecanada.ca/easybuild/ebfiles_repo/2026:'", '--disable-rpath', "--sourcepath='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--sourcepath-data='/cvmfs/soft.computecanada.ca/easybuild/sources'", "--subdir-modules='modules/2026'", "--subdir-software='software/2026'", "--subdir-user-modules='.local/easybuild/modules/2026'", "--suffix-modules-path=''", "--sysroot='/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3'", "--testoutput='/shared_tmp/logs/easybuild-build/QGIS-4.2.3-gccflexiblas-2026'", "--tmp-logdir='/shared_tmp/logs'", '--use-existing-modules', '/cvmfs/soft.computecanada.ca/easybuild/site-packages/custom-easyconfigs/easybuild/easyconfigs/q/QGIS/QGIS-4.2.3-gccflexiblas-2026.eb'],
+    "core_count": 8,
+    "cpu_arch": "x86_64",
+    "cpu_arch_name": "sapphirerapids",
+    "cpu_model": "Intel Xeon Processor (SapphireRapids)",
+    "cpu_speed": 2300.0,
+    "cpu_vendor": "Intel",
+    "easybuild-easyblocks_version": "5.4.1",
+    "easybuild-framework_version": "5.4.1",
+    "gcc_version": "Using built-in specs.; COLLECT_GCC=gcc; COLLECT_LTO_WRAPPER=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/libexec/gcc/x86_64-pc-linux-gnu/15/lto-wrapper; OFFLOAD_TARGET_NAMES=nvptx-none; OFFLOAD_TARGET_DEFAULT=1; Target: x86_64-pc-linux-gnu; Configured with: /tmp/portage/sys-devel/gcc-15.3.0/work/gcc-15.3.0/configure --host=x86_64-pc-linux-gnu --build=x86_64-pc-linux-gnu --prefix=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr --bindir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/15 --includedir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/15/include --datadir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15 --mandir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15/man --infodir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/gcc-data/x86_64-pc-linux-gnu/15/info --with-gxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/15/include/g++-v15 --disable-silent-rules --disable-dependency-tracking --with-python-dir=/share/gcc-data/x86_64-pc-linux-gnu/15/python --enable-languages=c,c++,fortran,jit --enable-obsolete --enable-secureplt --disable-werror --with-system-zlib --enable-nls --without-included-gettext --disable-libunwind-exceptions --enable-checking=release --with-bugurl=https://bugs.gentoo.org/ --with-pkgversion='Gentoo 15.3.0 p8' --with-gcc-major-version-only --enable-libstdcxx-time --enable-lto --disable-libstdcxx-pch --enable-linker-build-id --disable-libada --enable-shared --enable-threads=posix --with-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3 --with-build-sysroot=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3 --enable-__cxa_atexit --enable-clocale=gnu --disable-multilib --with-multilib-list=m64 --disable-fixed-point --enable-targets=all --enable-offload-defaulted --enable-offload-targets=nvptx-none --enable-libgomp --disable-libssp --enable-cet --disable-systemtap --disable-valgrind-annotations --disable-vtable-verify --disable-libvtv --with-zstd --with-isl --disable-isl-version-check --enable-host-bind-now --disable-default-ssp --disable-fixincludes --with-gxx-libcxx-include-dir=/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/include/c++/v1 --enable-host-shared --without-cuda-driver --enable-offload-targets=nvptx-none --with-build-config='bootstrap-lto bootstrap-cet'; Thread model: posix; Supported LTO compression algorithms: zlib zstd; gcc version 15.3.0 (Gentoo 15.3.0 p8) ; ",
+    "glibc_version": "2.43",
+    "hostname": "hybridmedium4.int.archimedes.c3.ca",
+    "install_size": 726134208,
+    "modules_tool": ('Lmod', '/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/share/Lmod/libexec/lmod', '9.4'),
+    "os_name": "AlmaLinux",
+    "os_type": "Linux",
+    "os_version": "9.8 (Olive Jaguar)",
+    "platform_name": "x86_64-unknown-linux",
+    "python_version": "3.14.6 (main, Aug 13 2026, 00:27:15) [GCC 15.3.0]",
+    "system_gcc_path": "/cvmfs/soft.computecanada.ca/gentoo/2026/x86-64-v3/usr/x86_64-pc-linux-gnu/gcc-bin/15/gcc",
+    "system_python_path": "/cvmfs/soft.computecanada.ca/easybuild/software/2026/x86-64-v4/Compiler/gcccore/python/3.14.7/bin/python",
+    "timestamp": 1793049343,
+    "total_memory": 29817,
+}]
